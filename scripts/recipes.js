@@ -58,6 +58,7 @@
     event.stopPropagation();
     recipes[index].favori = !recipes[index].favori;
     updateRecipeList();
+    saveRecipesToLocalStorage();
   }
 
   /*///////////////TRIER EN FONCTION DU CRITERE///////////////*/
@@ -275,10 +276,11 @@
       // Modifier une recette existante
       recipes[index] = { ...recipes[index], name, ingredients, season, rating, instructions, health, difficulty};
       showRecipeDetails(index);
-      
+
     }
-  
+
     updateRecipeList();
+    saveRecipesToLocalStorage();
     
     //document.getElementById('recipe-modal').style.display = 'none';
   }
@@ -291,6 +293,7 @@
       // Mise à jour de `filteredRecipes`
       filteredRecipes = filteredRecipes.filter(i => i !== index).map(i => (i > index ? i - 1 : i));
       updateRecipeList();
+      saveRecipesToLocalStorage();
       document.getElementById('recipe-modal').style.display = 'none';
     }
   }
