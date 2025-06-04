@@ -1,9 +1,9 @@
 //import { PDFDocument } from 'pdf-lib';
 function updateShoppingList() {
  
-  const shoppingList = document.querySelector('.shopping-list');// Trouver le conteneur de la liste des recettes avec la classe 'recipe-list'  dans la section active
-   
-    shoppingList.innerHTML = listMenuList.map((menuList, index) => `
+  const shoppingListElement = document.querySelector('.shopping-list');// Trouver le conteneur de la liste des recettes avec la classe 'recipe-list'  dans la section active
+
+    shoppingListElement.innerHTML = listMenuList.map((menuList, index) => `
       <div class="recipe-card" onclick="showShoppingListDetails(${index})">
         <h3>${menuList.name}</h3>
         <p>Créé le: ${menuList.date}</p>
