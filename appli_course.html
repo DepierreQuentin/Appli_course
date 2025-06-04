@@ -1,0 +1,75 @@
+<html>
+<head>
+  <!-- <base href="https://recettes-app.com/"> -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <title>Application de Recettes</title>
+</head>
+<body>
+  <nav>
+    <ul>
+      <li><a href="#recipes" class="tab-link" data-tab="recipes">Recettes</a></li>
+      <li><a href="#menu-list" class="tab-link" data-tab="menu-list">Liste de Menus</a></li>
+      <li><a href="#shopping-list" class="tab-link" data-tab="shopping-list">Liste de Courses</a></li>
+    </ul>
+  </nav>
+
+  <div class="container">
+    <div id="recipes" class="tab-content active">
+      <h1>Recettes</h1>
+      <button onclick="editRecipe()">Ajouter une recette</button>
+      <form class="recipe-search-form">
+        <input type="text" class="recipe-name-search" placeholder="Nom de la recette">
+        <select class="recipe-season-search">
+          <option value="">Toutes les saisons</option>
+          <option value="été">Été</option>
+          <option value="hiver">Hiver</option>
+          <option value="toute l'année">Toute l'année</option>
+        </select>
+        <select class="recipe-rating-search">
+          <option value="">Toutes les notes</option>
+          <option value="5">5 étoiles</option>
+          <option value="4">4 étoiles et plus</option>
+          <option value="3">3 étoiles et plus</option>
+          <option value="2">2 étoiles et plus</option>
+          <option value="1">1 étoile et plus</option>
+        </select>
+        <button type="button" onclick="searchRecipes('recipes')">Rechercher</button>
+      </form>
+      <div class="recipe-list"></div>
+    </div>
+
+    <div id="menu-list" class="tab-content">
+      <h1>Liste de Menus</h1>
+      <button id="creerListMenu" onclick="addMenuList()">Créer une liste de menu</button>
+      <button id="add-recipe-button" type="button" class="hidden" onclick="addToMenu()">Ajouter une recette au menu</button>
+      <button id="save-menu-list-button" type="button" class="hidden" onclick="saveMenuList()">Sauvegarder la liste de menu</button>
+      <div id="menu-list-jours"></div>
+      <div id="menu-items" class="recipe-list-menu"></div>
+      <div class="list-menu-lists"></div>
+    </div>
+
+    <div id="shopping-list" class="tab-content">
+      <h1>Liste de Courses</h1>
+      <div class="shopping-list"></div>
+      <div id="shopping-items"></div>
+    </div>
+  </div>
+
+  <div id="recipe-modal" class="recipe-modal">
+    <div class="recipe-modal-content">
+      <span class="close">&times;</span>
+      <div id="recipe-modal-body"></div>
+    </div>
+  </div>
+
+  <script src="scripts/recipes.js"></script><!--initialisation en premier pour que main.js puisse appeler updateRecipeList()-->
+  <script src="scripts/main.js"></script>
+  <script src="scripts/menu.js"></script>
+  <script src="scripts/shopping.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.14/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+</body>
+</html>
