@@ -265,7 +265,8 @@
     }*/
   
     //const recipe = { name, ingredients, season, rating, instructions, creationDate: new Date().toISOString(), usageCount: 0 };
-    const recipe = { name, ingredients, season, rating, instructions, health, difficulty, creationDate: new Date().toISOString(), usageCount: 0 };
+    const ingredientNames = ingredients.map(ing => ing.name);
+    const recipe = { name, ingredients, ingredientNames, season, rating, instructions, health, difficulty, creationDate: new Date().toISOString(), usageCount: 0 };
   
     if (index === null) {
       // Ajouter une nouvelle recette
@@ -274,7 +275,7 @@
       showRecipeDetails(index);
     } else {
       // Modifier une recette existante
-      recipes[index] = { ...recipes[index], name, ingredients, season, rating, instructions, health, difficulty};
+      recipes[index] = { ...recipes[index], name, ingredients, ingredientNames, season, rating, instructions, health, difficulty};
       showRecipeDetails(index);
 
     }

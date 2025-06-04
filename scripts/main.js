@@ -10,6 +10,7 @@ let recipes = [{
       { quantity: 50, unit: "g", name: "Feta", category: "Produits Laitiers" },
       { quantity: 10, unit: "ml", name: "Huile d'olive", category: "Épicerie" }
     ],
+    ingredientNames: ["Tomates", "Concombre", "Feta", "Huile d'olive"],
     season: "été",
     rating: 4,
     instructions: "Couper les tomates et le concombre en dés, émietter la feta et mélanger le tout avec de l'huile d'olive.",
@@ -27,6 +28,7 @@ let recipes = [{
       { quantity: 1, unit: "L", name: "Bouillon de légumes", category: "Boissons" },
       { quantity: 1, unit: "pièce", name: "Oignon", category: "Fruits et Légumes" }
     ],
+    ingredientNames: ["Carottes", "Pommes de terre", "Bouillon de légumes", "Oignon"],
     season: "hiver",
     rating: 5,
     instructions: "Faire revenir l'oignon, ajouter les carottes et pommes de terre coupées en morceaux, puis le bouillon. Laisser mijoter jusqu'à cuisson des légumes.",
@@ -44,6 +46,7 @@ let recipes = [{
       { quantity: 100, unit: "g", name: "Gruyère râpé", category: "Produits Laitiers" },
       { quantity: 2, unit: "gousses", name: "Ail", category: "Épicerie" }
     ],
+    ingredientNames: ["Pommes de terre", "Crème fraîche", "Gruyère râpé", "Ail"],
     season: "toute l'année",
     rating: 4,
     instructions: "Éplucher et couper les pommes de terre en rondelles, les disposer dans un plat à gratin frotté à l'ail, verser la crème et parsemer de gruyère. Cuire au four à 180°C pendant 45 minutes.",
@@ -61,6 +64,7 @@ let recipes = [{
       { quantity: 2, unit: "gousse", name: "Ail", category: "Épicerie" },
       { quantity: 1, unit: "l", name: "Bouillon de légumes", category: "Boissons" }
     ],
+    ingredientNames: ["Citrouille", "Oignon", "Ail", "Bouillon de légumes"],
     season: "automne",
     rating: 5,
     instructions: "Faire revenir l'oignon et l'ail dans une casserole. Ajouter la citrouille coupée en morceaux et le bouillon de légumes. Cuire jusqu'à ce que la citrouille soit tendre, puis mixer jusqu'à obtenir une texture lisse.",
@@ -78,6 +82,7 @@ let recipes = [{
       { quantity: 100, unit: "g", name: "Sucre", category: "Épicerie" },
       { quantity: 50, unit: "g", name: "Beurre", category: "Produits Laitiers" }
     ],
+    ingredientNames: ["Pâte brisée", "Pommes", "Sucre", "Beurre"],
     season: "automne",
     rating: 4,
     instructions: "Étaler la pâte brisée dans un moule. Éplucher et trancher les pommes, les disposer sur la pâte. Saupoudrer de sucre et de petits morceaux de beurre. Cuire au four préchauffé à 180°C pendant environ 35 minutes.",
@@ -95,6 +100,7 @@ let recipes = [{
       { quantity: 200, unit: "ml", name: "Yaourt nature", category: "Produits Laitiers" },
       { quantity: 1, unit: "cuillère à soupe", name: "Miel", category: "Épicerie" }
     ],
+    ingredientNames: ["Fruits rouges mélangés", "Banane", "Yaourt nature", "Miel"],
     season: "été",
     rating: 5,
     instructions: "Mixer les fruits rouges, la banane, le yaourt et le miel jusqu'à obtenir une consistance lisse. Servir immédiatement.",
@@ -157,6 +163,11 @@ function loadFromLocalStorage() {
   const storedRecipes = localStorage.getItem('recipes');
   if (storedRecipes) {
     recipes = JSON.parse(storedRecipes);
+    recipes.forEach(r => {
+      if (!r.ingredientNames) {
+        r.ingredientNames = r.ingredients.map(i => i.name);
+      }
+    });
   }
   const storedMenus = localStorage.getItem('listMenuList');
   if (storedMenus) {
