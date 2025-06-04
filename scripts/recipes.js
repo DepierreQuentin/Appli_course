@@ -64,7 +64,7 @@
 
   function sortRecipes(criteria) {
     // Copier le tableau filtré avant de le trier pour ne pas affecter le tableau `recipes` d'origine
-    if(filteredRecipes==0){
+    if (filteredRecipes.length === 0) {
       filteredRecipes = recipes.map((_, index) => index);
     }
     
