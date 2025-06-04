@@ -145,6 +145,25 @@ let shoppingList = {};
 let listMenuList = [];
 let filteredRecipes = [];
 
+function saveRecipesToLocalStorage() {
+  localStorage.setItem('recipes', JSON.stringify(recipes));
+}
+
+function saveMenusToLocalStorage() {
+  localStorage.setItem('listMenuList', JSON.stringify(listMenuList));
+}
+
+function loadFromLocalStorage() {
+  const storedRecipes = localStorage.getItem('recipes');
+  if (storedRecipes) {
+    recipes = JSON.parse(storedRecipes);
+  }
+  const storedMenus = localStorage.getItem('listMenuList');
+  if (storedMenus) {
+    listMenuList = JSON.parse(storedMenus);
+  }
+}
+
 // Catégories et saisons, healthType, difficulté
 const categories = [
   'Fruits et Légumes',
@@ -170,6 +189,7 @@ let options = {
 
 // Fonction d'initialisation
 function initialize() {
+  loadFromLocalStorage();
   // Navigation
   document.querySelectorAll('.tab-link').forEach(link => {
     link.addEventListener('click', (e) => {

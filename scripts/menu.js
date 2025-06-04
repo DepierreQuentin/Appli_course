@@ -334,7 +334,9 @@ function saveMenuList (){
   
 
   updateListMenuList ();
-  updateShoppingList ();//mets à jour la liste de course 
+  updateShoppingList ();//mets à jour la liste de course
+  saveMenusToLocalStorage();
+  saveRecipesToLocalStorage();
  
   //réinitialiser l'objet globale menuList pour pouvoir recréer une liste, attention à faire en dernier pour que la liste de shopping puisse se remplir
   menuList = { name: '', date: '', recipes: [] };// Crée une nouvelle instance d'objet
@@ -416,9 +418,11 @@ function deleteMenuList (index){
   });
 
     listMenuList.splice(index, 1);
-    
+
     updateListMenuList();
     updateShoppingList();
+    saveMenusToLocalStorage();
+    saveRecipesToLocalStorage();
     document.getElementById('recipe-modal').style.display = 'none';
   }
 
@@ -465,6 +469,9 @@ function drop(event, targetDayIndex, targetSlotIndex) {
   updateMenuList();
 }
 
+
+// Affiche les listes de menus enregistrées lors du chargement
+updateListMenuList();
 
 
 
