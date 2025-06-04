@@ -1,2 +1,2 @@
 # Appli_course
-Une application qui gère ingrédient, menu, et liste de course.
+Une application qui gère ingrédients, menu, et liste de course.
