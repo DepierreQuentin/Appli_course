@@ -283,7 +283,7 @@ function updateMenuList() {
 
   // Vérifier que startDate est défini
   if (!start) {
-    console.error('La date de début n\\'est pas définie.');
+    console.error("La date de début n'est pas définie.");
     return;
   }
 
