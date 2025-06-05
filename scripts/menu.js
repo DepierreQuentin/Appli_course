@@ -1,6 +1,7 @@
 let startDateGlobal = null;// sert pour éviter de passer un paramètre à updateMenuList(), variable initialisé dans createMenuList()
 let menuListArray = [];
 let numberOfRecipes = 0;
+let editingMenuIndex = null; // index de la liste de menu en cours d'édition
 
 /*////////////////AFFICHE UNE FENETRE CONTEXTUELLE POUR CREER UN LISTE DE MENUS/////////////*/
    function addMenuList() {
@@ -324,9 +325,17 @@ function updateMenuList() {
 
 
 function saveMenuList (){
-  
- 
-/*////AJOUTER +1 A L'UTILISATION DES RECETTE CONTENU DANS MENU LIST*////
+  // Si on modifie une liste existante, annuler l'impact de l'ancienne liste
+  if (editingMenuIndex !== null) {
+    const oldIndexes = listMenuList[editingMenuIndex].recipes.map(
+      value => recipes.includes(value) ? recipes.indexOf(value) : -1
+    ).filter(index => index !== -1);
+    oldIndexes.forEach(i => {
+      recipes[i].usageCount -= 1;
+    });
+  }
+
+  /*////AJOUTER +1 A L'UTILISATION DES RECETTE CONTENU DANS MENU LIST*////
   const commonIndexes = menuList.recipes.map
   (value => recipes.includes(value) ? recipes.indexOf(value) : -1)
   .filter(index => index !== -1);
@@ -334,13 +343,17 @@ function saveMenuList (){
   commonIndexes.forEach(index => {
     recipes[index].usageCount += 1;
   });
- 
+
 
   // Sauvegarde la planification et la date de début avec la liste
   menuList.startDate = startDateGlobal ? startDateGlobal.toISOString() : null;
   menuList.menu = JSON.parse(JSON.stringify(menuListArray));
 
-  listMenuList.push(menuList);//insère un tableau la liste de menu dans listMenuList
+  if (editingMenuIndex !== null) {
+    listMenuList[editingMenuIndex] = menuList;
+  } else {
+    listMenuList.push(menuList);//insère un tableau la liste de menu dans listMenuList
+  }
   console.log('Avant réinitialisation:', (function(obj) { return JSON.parse(JSON.stringify(obj)); })(listMenuList));
 
   
@@ -352,6 +365,9 @@ function saveMenuList (){
   //réinitialiser l'objet globale menuList pour pouvoir recréer une liste, attention à faire en dernier pour que la liste de shopping puisse se remplir
   menuList = { name: '', date: '', recipes: [], startDate: null, menu: [] };// Crée une nouvelle instance d'objet
   console.log('Après réinitialisation:', (function(obj) { return JSON.parse(JSON.stringify(obj)); })(listMenuList));
+
+  // fin de l'édition
+  editingMenuIndex = null;
 
 
 }
@@ -486,7 +502,24 @@ function generatePDF(index) {
 }
 
 function editMenuList (index){
+  editingMenuIndex = index;
+  const menuToEdit = listMenuList[index];
 
+  // Copie l'objet sélectionné dans la variable globale
+  menuList = JSON.parse(JSON.stringify(menuToEdit));
+  menuListArray = JSON.parse(JSON.stringify(menuToEdit.menu));
+  startDateGlobal = menuToEdit.startDate ? new Date(menuToEdit.startDate) : null;
+
+  updateMenuList();
+
+  document.getElementById('menu-list-jours').classList.remove('hidden');
+  document.getElementById('add-recipe-button').classList.remove('hidden');
+  document.getElementById('save-menu-list-button').classList.remove('hidden');
+  if(!document.getElementById('creerListMenu').classList.contains('hidden')){
+    document.getElementById('creerListMenu').classList.add('hidden');
+  }
+
+  document.getElementById('recipe-modal').style.display = 'none';
 }
 
 function deleteMenuList (index){
