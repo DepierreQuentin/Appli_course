@@ -258,3 +258,27 @@ body {
   display: block;
   margin-bottom: 4px;
 }
+
+.category-title {
+  background-color: #4caf50;
+  color: #fff;
+  padding: 4px;
+  text-align: center;
+  border-radius: 4px;
+  margin-bottom: 6px;
+}
+
+.category-items {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.category-items td {
+  border: none;
+  padding: 2px 4px;
+}
+
+.quantity-cell {
+  width: 40%;
+  white-space: nowrap;
+}
