@@ -248,13 +248,13 @@ body {
   border-collapse: collapse;
   margin-top: 20px;
 }
-.shopping-list-table th,
 .shopping-list-table td {
   border: 1px solid #ddd;
   padding: 6px;
+  width: 33%;
+  vertical-align: top;
 }
-.shopping-list-table .category-header td {
-  background-color: #c8e6c9;
-  font-weight: bold;
-  text-align: center;
+.shopping-list-table td strong {
+  display: block;
+  margin-bottom: 4px;
 }

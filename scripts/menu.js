@@ -405,12 +405,20 @@ function showMenuListDetails(index) {
     }).join('');
   }
 
-  const shoppingRows = Object.entries(shoppingList).map(([category, items]) => {
-    const rows = Object.entries(items).map(([name, { quantity, unit }]) =>
-      `<tr><td>${quantity} ${unit}</td><td>${name}</td></tr>`
-    ).join('');
-    return `<tr class="category-header"><td colspan="2">${category}</td></tr>${rows}`;
-  }).join('');
+  const shoppingCategories = Object.entries(shoppingList);
+  let shoppingRows = '';
+  for (let i = 0; i < shoppingCategories.length; i += 3) {
+    const cells = shoppingCategories.slice(i, i + 3).map(([category, items]) => {
+      const itemsHtml = Object.entries(items).map(([name, { quantity, unit }]) =>
+        `${quantity} ${unit} ${name}`
+      ).join('<br>');
+      return `<td><strong>${category}</strong><br>${itemsHtml}</td>`;
+    });
+    while (cells.length < 3) {
+      cells.push('<td></td>');
+    }
+    shoppingRows += `<tr>${cells.join('')}</tr>`;
+  }
 
   modalBody.innerHTML = `
     <h2>${menuListLocal.name}</h2>
@@ -421,7 +429,6 @@ function showMenuListDetails(index) {
       <tbody>${tableRows}</tbody>
     </table>
     <table class="shopping-list-table">
-      <thead><tr><th>Quantité</th><th>Ingrédient</th></tr></thead>
       <tbody>${shoppingRows}</tbody>
     </table>
     <button onclick="generatePDF(${index})">Télécharger la liste de courses</button>
