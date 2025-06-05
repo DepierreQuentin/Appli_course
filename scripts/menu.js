@@ -336,7 +336,6 @@ function saveMenuList (){
   
 
   updateListMenuList ();
-  updateShoppingList ();//mets à jour la liste de course
   saveMenusToLocalStorage();
   saveRecipesToLocalStorage();
  
@@ -387,6 +386,7 @@ function showMenuListDetails(index) {
   const menuListLocal = listMenuList[index];
   const modal = document.getElementById('recipe-modal');
   const modalBody = document.getElementById('recipe-modal-body');
+  formattingShoppingList(index);
   modalBody.innerHTML = `
     <h2>${menuListLocal.name}</h2>
     <p>Date de création: ${menuListLocal.date}</p>
@@ -397,10 +397,65 @@ function showMenuListDetails(index) {
           <li>${recipe.name}</li>
         `).join('')}
       </ul>
+    <div class="shopping-list-container">
+      ${Object.entries(shoppingList).map(([category, items]) => `
+        <div class="shopping-list-category">
+          <h3>${category}</h3>
+          ${Object.entries(items).map(([name, {quantity, unit}]) => `
+            <div class="shopping-list-item">
+              <span>${name}</span>
+              <span>${quantity} ${unit}</span>
+            </div>
+          `).join('')}
+        </div>
+      `).join('')}
+    </div>
+    <button onclick="generatePDF(${index})">Télécharger la liste de courses</button>
     <button onclick="editMenuList(${index})">Modifier</button>
     <button onclick="deleteMenuList(${index})">Supprimer</button>
   `;
   modal.style.display = 'block';
+}
+
+function formattingShoppingList(index){
+  shoppingList = {};
+  listMenuList[index].recipes.forEach(recipe => {
+    recipe.ingredients.forEach(ingredient => {
+      const { quantity, unit, name, category } = ingredient;
+      if (!shoppingList[category]) {
+        shoppingList[category] = {};
+      }
+      if (shoppingList[category][name]) {
+        shoppingList[category][name].quantity += parseFloat(quantity) || 1;
+      } else {
+        shoppingList[category][name] = {
+          quantity: parseFloat(quantity) || 1,
+          unit: unit || ''
+        };
+      }
+    });
+  });
+}
+
+function generatePDF(index) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const fileName = listMenuList[index].name;
+  doc.setFontSize(18);
+  doc.text(fileName, 14, 22);
+  const tableData = [];
+  Object.entries(shoppingList).forEach(([category, items]) => {
+    tableData.push([{ content: category, colSpan: 3, styles: { halign: 'left', fontStyle: 'bold' } }]);
+    Object.entries(items).forEach(([name, {quantity, unit}]) => {
+      tableData.push([`${quantity} ${unit}`, name]);
+    });
+  });
+  doc.autoTable({
+    head: [['Quantité', 'Ingrédient']],
+    body: tableData,
+    startY: 30
+  });
+  doc.save(fileName + '.pdf');
 }
 
 function editMenuList (index){
@@ -422,7 +477,6 @@ function deleteMenuList (index){
     listMenuList.splice(index, 1);
 
     updateListMenuList();
-    updateShoppingList();
     saveMenusToLocalStorage();
     saveRecipesToLocalStorage();
     document.getElementById('recipe-modal').style.display = 'none';
