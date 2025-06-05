@@ -81,6 +81,13 @@ let editingMenuIndex = null; // index de la liste de menu en cours d'édition
    /*////////////////CREER UN LISTE DE MENU/////////////*/
 function createMenuList() {
   const name = document.getElementById('menu-list-name').value;
+
+  // Vérifie la présence d'une liste portant le même nom
+  const duplicate = listMenuList.some(list => list.name === name);
+  if (duplicate) {
+    alert('Nom déjà utilisé');
+    return;
+  }
   const startDateInput = new Date(document.getElementById('menu-start-date').value);
   const endDate = new Date(document.getElementById('menu-end-date').value);
 
@@ -136,6 +143,12 @@ function createMenuList() {
   }
 
   document.getElementById('menu-list-jours').classList.remove("hidden");//affiche la liste des menus en cours de création
+  const menuContainer = document.querySelector('.list-menu-lists');
+  if (menuContainer && !menuContainer.classList.contains('hidden')) {
+    menuContainer.classList.add('hidden');
+  }
+
+  updateCurrentShoppingList();
 
   document.getElementById('recipe-modal').style.display = 'none';
 }
@@ -274,6 +287,7 @@ function addRecipeToMenu(recipeIndex) {
   } else {
     menuList.recipes.push(actualRecipe); // Ajouter la recette à la liste de menu
     updateMenuList();  // Mettre à jour l'affichage
+    updateCurrentShoppingList();
   }
 }
 
@@ -377,7 +391,7 @@ function updateListMenuList (){
   
   //const activeSection = document.querySelector('.tab-content.active');// Trouver la section active
   const menuList = document.querySelector('.list-menu-lists');// Trouver le conteneur de la liste des recettes avec la classe 'recipe-list'  dans la section active
- 
+
   menuList.innerHTML = listMenuList.map((menuList, index) => `
     <div class="recipe-card" onclick="showMenuListDetails(${index})">
       <h3>${menuList.name}</h3>
@@ -385,6 +399,10 @@ function updateListMenuList (){
       <p>Nombre de recette: ${menuList.recipes.length}</p>
     </div>
   `).join('');
+
+  if(menuList.classList.contains('hidden')){
+    menuList.classList.remove('hidden');
+  }
 
 
   //Ajoute la classe hidden
@@ -480,6 +498,27 @@ function formattingShoppingList(index){
   });
 }
 
+// Met à jour la liste d'ingrédients pour la liste de menu en cours d'édition
+function updateCurrentShoppingList(){
+  shoppingList = {};
+  menuList.recipes.forEach(recipe => {
+    recipe.ingredients.forEach(ingredient => {
+      const { quantity, unit, name, category } = ingredient;
+      if (!shoppingList[category]) {
+        shoppingList[category] = {};
+      }
+      if (shoppingList[category][name]) {
+        shoppingList[category][name].quantity += parseFloat(quantity) || 1;
+      } else {
+        shoppingList[category][name] = {
+          quantity: parseFloat(quantity) || 1,
+          unit: unit || ''
+        };
+      }
+    });
+  });
+}
+
 function generatePDF(index) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
@@ -510,6 +549,8 @@ function editMenuList (index){
   menuListArray = JSON.parse(JSON.stringify(menuToEdit.menu));
   startDateGlobal = menuToEdit.startDate ? new Date(menuToEdit.startDate) : null;
 
+  updateCurrentShoppingList();
+
   updateMenuList();
 
   document.getElementById('menu-list-jours').classList.remove('hidden');
@@ -517,6 +558,10 @@ function editMenuList (index){
   document.getElementById('save-menu-list-button').classList.remove('hidden');
   if(!document.getElementById('creerListMenu').classList.contains('hidden')){
     document.getElementById('creerListMenu').classList.add('hidden');
+  }
+  const menuContainer = document.querySelector('.list-menu-lists');
+  if (menuContainer && !menuContainer.classList.contains('hidden')) {
+    menuContainer.classList.add('hidden');
   }
 
   document.getElementById('recipe-modal').style.display = 'none';
@@ -562,6 +607,7 @@ function removeFromMenu(dayIndex, slotIndex) {
 
   // Mettre à jour l'interface pour refléter le changement
   updateMenuList();
+  updateCurrentShoppingList();
 }
 /*////////////////DRAG AND DROP //////////////////////*/
 function drag(event, dayIndex, slotIndex) {
