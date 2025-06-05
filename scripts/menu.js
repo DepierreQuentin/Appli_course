@@ -330,6 +330,10 @@ function saveMenuList (){
   });
  
 
+  // Sauvegarde la planification et la date de début avec la liste
+  menuList.startDate = startDateGlobal ? startDateGlobal.toISOString() : null;
+  menuList.menu = JSON.parse(JSON.stringify(menuListArray));
+
   listMenuList.push(menuList);//insère un tableau la liste de menu dans listMenuList
   console.log('Avant réinitialisation:', (function(obj) { return JSON.parse(JSON.stringify(obj)); })(listMenuList));
 
@@ -340,7 +344,7 @@ function saveMenuList (){
   saveRecipesToLocalStorage();
  
   //réinitialiser l'objet globale menuList pour pouvoir recréer une liste, attention à faire en dernier pour que la liste de shopping puisse se remplir
-  menuList = { name: '', date: '', recipes: [] };// Crée une nouvelle instance d'objet
+  menuList = { name: '', date: '', recipes: [], startDate: null, menu: [] };// Crée une nouvelle instance d'objet
   console.log('Après réinitialisation:', (function(obj) { return JSON.parse(JSON.stringify(obj)); })(listMenuList));
 
 
@@ -387,16 +391,28 @@ function showMenuListDetails(index) {
   const modal = document.getElementById('recipe-modal');
   const modalBody = document.getElementById('recipe-modal-body');
   formattingShoppingList(index);
+
+  let tableRows = '';
+  if (menuListLocal.menu && menuListLocal.startDate) {
+    const start = new Date(menuListLocal.startDate);
+    tableRows = menuListLocal.menu.map((day, dayIndex) => {
+      const current = new Date(start);
+      current.setDate(start.getDate() + dayIndex);
+      const formattedDate = current.toLocaleDateString('fr-FR', options);
+      const lunch = day[0] ? day[0].name : '';
+      const dinner = day[1] ? day[1].name : '';
+      return `<tr><td>${formattedDate}</td><td>${lunch}</td><td>${dinner}</td></tr>`;
+    }).join('');
+  }
+
   modalBody.innerHTML = `
     <h2>${menuListLocal.name}</h2>
     <p>Date de création: ${menuListLocal.date}</p>
     <p>Nombre de recettes: ${menuListLocal.recipes.length}</p>
-    <h3>Recettes:</h3>
-      <ul>
-        ${menuListLocal.recipes.map(recipe => `
-          <li>${recipe.name}</li>
-        `).join('')}
-      </ul>
+    <table class="menu-plan-table">
+      <thead><tr><th>Date</th><th>Midi</th><th>Soir</th></tr></thead>
+      <tbody>${tableRows}</tbody>
+    </table>
     <div class="shopping-list-container">
       ${Object.entries(shoppingList).map(([category, items]) => `
         <div class="shopping-list-category">

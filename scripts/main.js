@@ -108,13 +108,19 @@ let recipes = [{
     usageCount: 0
   }
 ];
-let menuList = {};
-
-menuList.recipes = [];
+let menuList = {
+  name: '',
+  date: '',
+  recipes: [],
+  startDate: null,
+  menu: []
+};
 /*////////////STRUCTURE DE MENU LIST////////////////
 menuList = {
   name: "Liste d'été et d'hiver",
   date: "26/08/2024",
+  startDate: "2024-08-26T00:00:00.000Z",
+  menu: [],
   recipes: [
     {
       name: "Salade d'été",

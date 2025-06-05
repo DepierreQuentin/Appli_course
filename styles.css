@@ -224,3 +224,21 @@ body {
   #menu-list-jours.hidden {
     display: none;
   }
+
+.menu-plan-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9em;
+}
+.menu-plan-table th,
+.menu-plan-table td {
+  border: 1px solid #ddd;
+  padding: 4px;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.menu-plan-table th {
+  background-color: #f5f5f5;
+}
