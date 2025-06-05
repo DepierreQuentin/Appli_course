@@ -95,32 +95,35 @@ function createMenuList() {
   menuListArray = Array.from({ length: numberOfDays }, () => [null, null]);
 
   const menuListDaysContainer = document.getElementById('menu-list-jours');
-  
-// Générer le HTML des jours et emplacements avec les dates
-  menuListDaysContainer.innerHTML = Array.from({ length: numberOfDays }, (_, i) => {
+
+  // Générer le HTML des jours et emplacements avec les dates dans un tableau
+  const tableRows = Array.from({ length: numberOfDays }, (_, i) => {
     const currentDay = new Date(startDateInput);
     currentDay.setDate(startDateInput.getDate() + i); // Calculer la date du jour actuel
-    const formattedDate = currentDay.toLocaleDateString('fr-FR',options); // Formater la date
+    const formattedDate = currentDay.toLocaleDateString('fr-FR', options); // Formater la date
 
-    return `
-      <div class="menu-day">
-        <h3>${formattedDate}</h3>
-        <div class="menu-recipes">
-          <h4>Midi</h4>
-          ${menuListArray[i].map((recipe, slotIndex) => `
-            ${slotIndex === 1 ? `<h4>Soir</h4>` : ''} <!-- Insère "Soir" avant le deuxième emplacement -->
-            <div class="recipe-slot" data-day="${i}" data-slot="${slotIndex}">
-              ${recipe ? `<div class="recipe-card">
-                            <h5>${recipe.name}</h5>
-                            <button onclick="removeFromMenu(${i}, ${slotIndex})">Supprimer</button>
-                          </div>` 
-                        : `<div class="empty-slot">Emplacement vide</div>`}
-            </div>
-          `).join('')}
+    const slots = menuListArray[i].map((recipe, slotIndex) => `
+      <td>
+        <div class="recipe-slot" data-day="${i}" data-slot="${slotIndex}">
+          ${recipe ? `<div class="recipe-card">
+                        <h5>${recipe.name}</h5>
+                        <button onclick="removeFromMenu(${i}, ${slotIndex})">Supprimer</button>
+                      </div>`
+                    : `<div class="empty-slot">Emplacement vide</div>`}
         </div>
-      </div>
-    `;
+      </td>
+    `).join('');
+
+    return `<tr><td>${formattedDate}</td>${slots}</tr>`;
   }).join('');
+
+  menuListDaysContainer.innerHTML = `
+    <table class="menu-plan-table">
+      <thead>
+        <tr><th>Jour</th><th>Midi</th><th>Soir</th></tr>
+      </thead>
+      <tbody>${tableRows}</tbody>
+    </table>`;
 
   if (document.getElementById('add-recipe-button').classList.contains("hidden")) {
     // Afficher le bouton "Ajouter une recette au menu" si il n'est pas affiché
@@ -280,35 +283,38 @@ function updateMenuList() {
 
   // Vérifier que startDate est défini
   if (!start) {
-    console.error('La date de début n\'est pas définie.');
+    console.error('La date de début n\\'est pas définie.');
     return;
   }
 
   // Mettez à jour chaque jour et chaque emplacement en fonction de l'état actuel de menuList
-  menuListDaysContainer.innerHTML = menuListArray.map((day, dayIndex) => {
+  const tableRows = menuListArray.map((day, dayIndex) => {
     const currentDay = new Date(start);
     currentDay.setDate(start.getDate() + dayIndex); // Calculer la date du jour actuel
-    const formattedDate = currentDay.toLocaleDateString('fr-FR',options); // Formater la date
+    const formattedDate = currentDay.toLocaleDateString('fr-FR', options); // Formater la date
 
-    return `
-      <div class="menu-day">
-        <h3>${formattedDate}</h3>
-        <div class="menu-recipes">
-          <h4>Midi</h4>
-          ${day.map((recipe, slotIndex) => `
-            ${slotIndex === 1 ? `<h4>Soir</h4>` : ''} <!-- Insère "Soir" avant le deuxième emplacement -->
-            <div class="recipe-slot" data-day="${dayIndex}" data-slot="${slotIndex}" ondragover="allowDrop(event)" ondrop="drop(event, ${dayIndex}, ${slotIndex})">
-              ${recipe ? `<div class="recipe-card" draggable="true" ondragstart="drag(event, ${dayIndex}, ${slotIndex})">
-                            <h5>${recipe.name}</h5>
-                            <button onclick="removeFromMenu(${dayIndex}, ${slotIndex})">Supprimer</button>
-                          </div>` 
-                        : `<div class="empty-slot">Emplacement vide</div>`}
-            </div>
-          `).join('')}
+    const slots = day.map((recipe, slotIndex) => `
+      <td>
+        <div class="recipe-slot" data-day="${dayIndex}" data-slot="${slotIndex}" ondragover="allowDrop(event)" ondrop="drop(event, ${dayIndex}, ${slotIndex})">
+          ${recipe ? `<div class="recipe-card" draggable="true" ondragstart="drag(event, ${dayIndex}, ${slotIndex})">
+                        <h5>${recipe.name}</h5>
+                        <button onclick="removeFromMenu(${dayIndex}, ${slotIndex})">Supprimer</button>
+                      </div>`
+                    : `<div class="empty-slot">Emplacement vide</div>`}
         </div>
-      </div>
-    `;
+      </td>
+    `).join('');
+
+    return `<tr><td>${formattedDate}</td>${slots}</tr>`;
   }).join('');
+
+  menuListDaysContainer.innerHTML = `
+    <table class="menu-plan-table">
+      <thead>
+        <tr><th>Jour</th><th>Midi</th><th>Soir</th></tr>
+      </thead>
+      <tbody>${tableRows}</tbody>
+    </table>`;
 
   
   
