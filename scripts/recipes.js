@@ -172,9 +172,11 @@
 
     document.getElementById('recipe-modal-body').innerHTML = form;
     document.getElementById('recipe-modal').style.display = 'block';
+    updateDeleteButtons();
 
     if (isNewRecipe) {
       addIngredientInputToEdit();  // Initialise un premier champ d'ingrédient pour une nouvelle recette
+      updateDeleteButtons();
     }
 
     // Gestion de l'événement de soumission du formulaire
@@ -213,6 +215,16 @@
 
   /*/////////////AJOUTE UNE LIGNE INGREDIENT/////////// */
   function addIngredientInputToEdit() {
+    const container = document.getElementById('ingredients-container');
+    const inputs = container.querySelectorAll('.ingredient-input');
+    if (inputs.length > 0) {
+      const lastNameInput = inputs[inputs.length - 1].querySelector('.ingredient-name');
+      if (lastNameInput && lastNameInput.value.trim() === '') {
+        alert("Veuillez renseigner le nom de l'ingrédient précédent avant d'en ajouter un autre.");
+        return;
+      }
+    }
+
     const ingredientInput = `
       <div class="ingredient-input">
         <input type="number" placeholder="Quantité" class="ingredient-quantity" min="1" value="1">
@@ -230,7 +242,8 @@
         <button type="button" class="buttonDelete" onclick="deleteIngredientInputToEdit(this)">X</button>
       </div>
     `;
-    document.getElementById('ingredients-container').insertAdjacentHTML('beforeend', ingredientInput);
+    container.insertAdjacentHTML('beforeend', ingredientInput);
+    updateDeleteButtons();
   }
 
   /*/////////////SUPPRIME UNE LIGNE INGREDIENT/////////// */
@@ -240,6 +253,7 @@
     const ingredientInput = button.closest('.ingredient-input');
     if (ingredientInput) {
         ingredientInput.remove();
+        updateDeleteButtons();
     }
   }
 
@@ -250,16 +264,34 @@
    // Actualiser l'affichage des ingrédients après suppression
     const ingredientsHTML = showIngredientsInEditRecipe(recipeIndex);
     document.getElementById('ingredients-container').innerHTML = ingredientsHTML;
-}
-  
+    updateDeleteButtons();
+  }
+
+  function updateDeleteButtons() {
+    const inputs = document.querySelectorAll('#ingredients-container .ingredient-input');
+    inputs.forEach(input => {
+      const btn = input.querySelector('.buttonDelete');
+      if (btn) btn.style.display = '';
+    });
+    if (inputs.length === 1) {
+      const btn = inputs[0].querySelector('.buttonDelete');
+      if (btn) btn.style.display = 'none';
+    }
+  }
+
+  function formatName(str) {
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  }
+
 /*/////////////SAUVEGARDE UNE RECETTE/////////// */
   function saveRecipe(index = null) {
-    const name = document.getElementById('recipe-name').value;
+    const name = formatName(document.getElementById('recipe-name').value.trim());
     const ingredientInputs = document.querySelectorAll('.ingredient-input');
     const ingredients = Array.from(ingredientInputs).map(input => {
       const quantity = input.querySelector('.ingredient-quantity').value || '1';
       const unit = input.querySelector('.ingredient-unit').value;
-      const name = input.querySelector('.ingredient-name').value;
+      const name = formatName(input.querySelector('.ingredient-name').value.trim());
       const category = input.querySelector('.ingredient-category').value;
       return { quantity, unit, name, category };
     });
