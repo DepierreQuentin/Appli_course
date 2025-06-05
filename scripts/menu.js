@@ -410,9 +410,9 @@ function showMenuListDetails(index) {
   for (let i = 0; i < shoppingCategories.length; i += 3) {
     const cells = shoppingCategories.slice(i, i + 3).map(([category, items]) => {
       const itemsHtml = Object.entries(items).map(([name, { quantity, unit }]) =>
-        `${quantity} ${unit} ${name}`
-      ).join('<br>');
-      return `<td><strong>${category}</strong><br>${itemsHtml}</td>`;
+        `<tr><td class="quantity-cell">${quantity} ${unit}</td><td>${name}</td></tr>`
+      ).join('');
+      return `<td><div class="category-title">${category}</div><table class="category-items">${itemsHtml}</table></td>`;
     });
     while (cells.length < 3) {
       cells.push('<td></td>');
