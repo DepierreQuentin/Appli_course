@@ -192,7 +192,13 @@
         ${recipe.ingredients.map((ingredient, ingredientIndex) => `
           <div class="ingredient-input">
             <input type="number" value="${ingredient.quantity}" class="ingredient-quantity" min="1">
-            <input type="text" value="${ingredient.unit}" class="ingredient-unit">
+            <select class="ingredient-unit">
+              <option value=""></option>
+              <option value="l" ${ingredient.unit === 'l' ? 'selected' : ''}>l</option>
+              <option value="cl" ${ingredient.unit === 'cl' ? 'selected' : ''}>cl</option>
+              <option value="gr" ${ingredient.unit === 'gr' ? 'selected' : ''}>gr</option>
+              <option value="kg" ${ingredient.unit === 'kg' ? 'selected' : ''}>kg</option>
+            </select>
             <input type="text" value="${ingredient.name}" class="ingredient-name" required>
             <select class="ingredient-category" required>
               ${categories.map(category => `
@@ -210,7 +216,13 @@
     const ingredientInput = `
       <div class="ingredient-input">
         <input type="number" placeholder="Quantité" class="ingredient-quantity" min="1" value="1">
-        <input type="text" placeholder="Unité" class="ingredient-unit">
+        <select class="ingredient-unit">
+          <option value=""></option>
+          <option value="l">l</option>
+          <option value="cl">cl</option>
+          <option value="gr">gr</option>
+          <option value="kg">kg</option>
+        </select>
         <input type="text" placeholder="Nom de l'ingrédient" class="ingredient-name" required>
         <select class="ingredient-category" required>
           ${categories.map(category => `<option value="${category}">${category}</option>`).join('')}
