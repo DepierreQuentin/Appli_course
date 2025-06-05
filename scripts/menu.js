@@ -405,6 +405,13 @@ function showMenuListDetails(index) {
     }).join('');
   }
 
+  const shoppingGrid = Object.entries(shoppingList).map(([category, items]) => {
+    const itemsHtml = Object.entries(items).map(([name, { quantity, unit }]) =>
+      `<li>${name} - ${quantity} ${unit}</li>`
+    ).join("");
+    return `<div class="shopping-category"><h4>${category}</h4><ul>${itemsHtml}</ul></div>`;
+  }).join("");
+
   modalBody.innerHTML = `
     <h2>${menuListLocal.name}</h2>
     <p>Date de création: ${menuListLocal.date}</p>
@@ -413,19 +420,9 @@ function showMenuListDetails(index) {
       <thead><tr><th>Date</th><th>Midi</th><th>Soir</th></tr></thead>
       <tbody>${tableRows}</tbody>
     </table>
-    <div class="shopping-list-container">
-      ${Object.entries(shoppingList).map(([category, items]) => `
-        <div class="shopping-list-category">
-          <h3>${category}</h3>
-          ${Object.entries(items).map(([name, {quantity, unit}]) => `
-            <div class="shopping-list-item">
-              <span>${name}</span>
-              <span>${quantity} ${unit}</span>
-            </div>
-          `).join('')}
-        </div>
-      `).join('')}
-    </div>
+      <div class="shopping-list-grid">
+        ${shoppingGrid}
+      </div>
     <button onclick="generatePDF(${index})">Télécharger la liste de courses</button>
     <button onclick="editMenuList(${index})">Modifier</button>
     <button onclick="deleteMenuList(${index})">Supprimer</button>
