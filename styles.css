@@ -242,3 +242,19 @@ body {
 .menu-plan-table th {
   background-color: #f5f5f5;
 }
+
+.shopping-list-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+.shopping-list-table th,
+.shopping-list-table td {
+  border: 1px solid #ddd;
+  padding: 6px;
+}
+.shopping-list-table .category-header td {
+  background-color: #c8e6c9;
+  font-weight: bold;
+  text-align: center;
+}
