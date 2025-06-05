@@ -315,16 +315,19 @@
     if (index === null) {
       // Ajouter une nouvelle recette
       recipes.push(recipe);
-      index = recipes.length - 1;//copie l'index du dernier élément ajouté aux tableau des recettes sinon l'index = null.
+      index = recipes.length - 1;
       showRecipeDetails(index);
     } else {
+      const oldName = recipes[index].name;
       // Modifier une recette existante
       recipes[index] = { ...recipes[index], name, ingredients, ingredientNames, season, rating, instructions, health, difficulty};
+      updateMenusWithRecipe(oldName, recipes[index]);
       showRecipeDetails(index);
 
     }
 
     updateRecipeList();
+    saveMenusToLocalStorage();
     saveRecipesToLocalStorage();
     
     //document.getElementById('recipe-modal').style.display = 'none';
@@ -333,11 +336,14 @@
   /*/////////////SUPPRIME UNE RECETTE/////////// */
   function deleteRecipe(index) {
     if (confirm('Êtes-vous sûr de vouloir supprimer cette recette ?')) {
+      const oldName = recipes[index].name;
       recipes.splice(index, 1);
       filteredRecipes.splice(index, 1);
       // Mise à jour de `filteredRecipes`
       filteredRecipes = filteredRecipes.filter(i => i !== index).map(i => (i > index ? i - 1 : i));
+      updateMenusWithRecipe(oldName, null);
       updateRecipeList();
+      saveMenusToLocalStorage();
       saveRecipesToLocalStorage();
       document.getElementById('recipe-modal').style.display = 'none';
     }

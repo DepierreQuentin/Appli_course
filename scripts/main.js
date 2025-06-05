@@ -157,11 +157,23 @@ let shoppingList = {};
 let listMenuList = [];
 let filteredRecipes = [];
 
+function recomputeUsageCounts() {
+  recipes.forEach(r => r.usageCount = 0);
+  listMenuList.forEach(list => {
+    list.recipes.forEach(rcp => {
+      const found = recipes.find(r => r.name === rcp.name);
+      if (found) found.usageCount += 1;
+    });
+  });
+}
+
 function saveRecipesToLocalStorage() {
+  recomputeUsageCounts();
   localStorage.setItem('recipes', JSON.stringify(recipes));
 }
 
 function saveMenusToLocalStorage() {
+  recomputeUsageCounts();
   localStorage.setItem('listMenuList', JSON.stringify(listMenuList));
 }
 
@@ -179,6 +191,7 @@ function loadFromLocalStorage() {
   if (storedMenus) {
     listMenuList = JSON.parse(storedMenus);
   }
+  recomputeUsageCounts();
 }
 
 // Catégories et saisons, healthType, difficulté
