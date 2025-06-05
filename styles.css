@@ -258,3 +258,34 @@ body {
   font-weight: bold;
   text-align: center;
 }
+
+.shopping-list-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.shopping-category {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.shopping-category h4 {
+  background-color: #c8e6c9;
+  margin: 0;
+  padding: 4px;
+  text-align: center;
+  font-size: 1em;
+}
+
+.shopping-category ul {
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+}
+
+.shopping-category li {
+  padding: 2px 0;
+}
