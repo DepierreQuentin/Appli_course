@@ -600,7 +600,7 @@ function removeFromMenu(dayIndex, slotIndex) {
   const recipeToRemove = menuListArray[dayIndex][slotIndex];
 
     // Supprimer la recette de menuList
-    const recipeIndex = menuList.recipes.indexOf(recipeToRemove);
+    const recipeIndex = menuList.recipes.findIndex(r => r.name === recipeToRemove.name);
    
     if (recipeIndex !== -1) {
       menuList.recipes.splice(recipeIndex, 1); // Supprimer la recette du menuList
