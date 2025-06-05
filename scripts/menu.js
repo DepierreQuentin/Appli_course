@@ -481,7 +481,9 @@ function showMenuListDetails(index) {
 function formattingShoppingList(index){
   shoppingList = {};
   listMenuList[index].recipes.forEach(recipe => {
-    recipe.ingredients.forEach(ingredient => {
+    const base = recipes.find(r => r.name === recipe.name);
+    if (!base) return; // si la recette n'existe plus
+    base.ingredients.forEach(ingredient => {
       const { quantity, unit, name, category } = ingredient;
       if (!shoppingList[category]) {
         shoppingList[category] = {};
@@ -502,7 +504,9 @@ function formattingShoppingList(index){
 function updateCurrentShoppingList(){
   shoppingList = {};
   menuList.recipes.forEach(recipe => {
-    recipe.ingredients.forEach(ingredient => {
+    const base = recipes.find(r => r.name === recipe.name);
+    if (!base) return;
+    base.ingredients.forEach(ingredient => {
       const { quantity, unit, name, category } = ingredient;
       if (!shoppingList[category]) {
         shoppingList[category] = {};
@@ -580,7 +584,7 @@ function deleteMenuList (index){
   });
 
     listMenuList.splice(index, 1);
-
+    shoppingList = {};
     updateListMenuList();
     saveMenusToLocalStorage();
     saveRecipesToLocalStorage();
@@ -629,6 +633,32 @@ function drop(event, targetDayIndex, targetSlotIndex) {
   menuListArray[targetDayIndex][targetSlotIndex] = temp;
 
   updateMenuList();
+}
+
+function updateMenusWithRecipe(oldName, newRecipe) {
+  listMenuList.forEach(list => {
+    list.recipes = list.recipes.map(r =>
+      r.name === oldName ? (newRecipe ? JSON.parse(JSON.stringify(newRecipe)) : null) : r
+    ).filter(Boolean);
+    if (list.menu) {
+      list.menu = list.menu.map(day => day.map(slot => {
+        if (slot && slot.name === oldName) {
+          return newRecipe ? JSON.parse(JSON.stringify(newRecipe)) : null;
+        }
+        return slot;
+      }));
+    }
+  });
+
+  menuList.recipes = menuList.recipes.map(r =>
+    r.name === oldName ? (newRecipe ? newRecipe : null) : r
+  ).filter(Boolean);
+  menuListArray = menuListArray.map(day => day.map(slot => {
+    if (slot && slot.name === oldName) {
+      return newRecipe ? newRecipe : null;
+    }
+    return slot;
+  }));
 }
 
 
