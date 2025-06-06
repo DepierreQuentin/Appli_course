@@ -2,6 +2,7 @@ let startDateGlobal = null;// sert pour éviter de passer un paramètre à updat
 let menuListArray = [];
 let numberOfRecipes = 0;
 let editingMenuIndex = null; // index de la liste de menu en cours d'édition
+let currentMenuDetailIndex = null; // index de la liste de menu actuellement affichée dans le modal
 
 /*////////////////AFFICHE UNE FENETRE CONTEXTUELLE POUR CREER UN LISTE DE MENUS/////////////*/
    function addMenuList() {
@@ -287,6 +288,7 @@ function addRecipeToMenu(recipeIndex) {
     menuList.recipes.push(actualRecipe); // Ajouter la recette à la liste de menu
     updateMenuList();  // Mettre à jour l'affichage
     updateCurrentShoppingList();
+    refreshCurrentMenuDetails();
   }
 }
 
@@ -437,6 +439,7 @@ function updateListMenuList (){
 
 /*////////////////AFFICHE UNE FENETRE CONTEXTUELLE AVEC LE DETAIL DE LA LISTE DE RECETTE/////////////*/
 function showMenuListDetails(index) {
+  currentMenuDetailIndex = index;
   const menuListLocal = listMenuList[index];
   const modal = document.getElementById('recipe-modal');
   const modalBody = document.getElementById('recipe-modal-body');
@@ -533,6 +536,14 @@ function updateCurrentShoppingList(){
   });
 }
 
+// Met à jour le modal si une liste de menu y est actuellement affichée
+function refreshCurrentMenuDetails() {
+  const modal = document.getElementById('recipe-modal');
+  if (currentMenuDetailIndex !== null && modal.style.display === 'block') {
+    showMenuListDetails(currentMenuDetailIndex);
+  }
+}
+
 function generatePDF(index) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
@@ -622,6 +633,7 @@ function removeFromMenu(dayIndex, slotIndex) {
   // Mettre à jour l'interface pour refléter le changement
   updateMenuList();
   updateCurrentShoppingList();
+  refreshCurrentMenuDetails();
 }
 /*////////////////DRAG AND DROP //////////////////////*/
 function drag(event, dayIndex, slotIndex) {
@@ -669,6 +681,12 @@ function updateMenusWithRecipe(oldName, newRecipe) {
     }
     return slot;
   }));
+
+  // Mettre à jour l'affichage et la liste d'ingrédients si nécessaire
+  updateMenuList();
+  updateListMenuList();
+  updateCurrentShoppingList();
+  refreshCurrentMenuDetails();
 }
 
 
