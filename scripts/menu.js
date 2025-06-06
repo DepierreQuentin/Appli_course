@@ -1,4 +1,4 @@
-import { recipes, filteredRecipes } from './recipes.js';
+import { recipes, filteredRecipes, setFilteredRecipes } from './recipes.js';
 import { saveRecipesToLocalStorage, saveMenusToLocalStorage } from './storage.js';
 
 export let listMenuList = [];
@@ -175,7 +175,7 @@ function createMenuList(skipDuplicateCheck = false) {
 
   function addToMenu() {
     // Crée le formulaire de recherche
-    filteredRecipes = [];
+    setFilteredRecipes([]);
     const activeSection = document.querySelector('.tab-content.active');// Trouver la section active
     if (activeSection.querySelector('.recipe-search-form')) return;//Vérfier qu'un formulaire de recherche n'existe pas déjà si oui ressort de la fonction (évite les doublons)
     const form = `
@@ -238,7 +238,7 @@ function randomMenuList() {
     menuList.recipes.push(recipe);
   });
 
-  filteredRecipes = [];
+  setFilteredRecipes([]);
   updateMenuList();
   updateCurrentShoppingList();
   refreshCurrentMenuDetails();
