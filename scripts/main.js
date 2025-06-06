@@ -1,6 +1,6 @@
 import { loadFromLocalStorage } from './storage.js';
 import { setRecipes, updateRecipeList } from './recipes.js';
-import { setListMenuList, updateListMenuList } from './menus.js';
+import { setListMenuList, updateListMenuList } from './menu.js';
 
 function initialize() {
   const data = loadFromLocalStorage();

@@ -1,5 +1,5 @@
 import { saveRecipesToLocalStorage, saveMenusToLocalStorage } from './storage.js';
-import { listMenuList, updateMenusWithRecipe } from './menus.js';
+import { listMenuList, updateMenusWithRecipe } from './menu.js';
 
 export let recipes = [];
 export function setRecipes(data) { recipes = data; }
