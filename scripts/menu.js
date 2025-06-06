@@ -5,51 +5,33 @@ let editingMenuIndex = null; // index de la liste de menu en cours d'édition
 
 /*////////////////AFFICHE UNE FENETRE CONTEXTUELLE POUR CREER UN LISTE DE MENUS/////////////*/
    function addMenuList() {
-    
-    const todayDate = getTodayDate();// récupère la date du jour pour le selecteur de date de début
-    
+
     const form = `
       <form id="menu-list-form">
         <h2>Créer une liste de menu</h2>
         <input type="text" id="menu-list-name" placeholder="Nom de la liste" required>
         <label for="menu-start-date">Date de début :</label>
-        <input type="date" id="menu-start-date" required>
+        <input type="date" id="menu-start-date">
         <label for="menu-end-date">Date de fin :</label>
-        <input type="date" id="menu-end-date" required>
-        <button type="submit">Créer</button>
+        <input type="date" id="menu-end-date">
       </form>
     `;
-    
-    document.getElementById('recipe-modal-body').innerHTML = form;
-    document.getElementById('recipe-modal').style.display = 'block';
-    document.getElementById('menu-list-name').value =  'Liste du ' + new Date().toLocaleDateString('fr-FR');//fixe la date du jour comme la valeur par défault du titre de la liste de menu
-    document.getElementById('menu-start-date').value = todayDate;//fixe la date du jour comme valeur pour le sélecteur de date de départ
-    document.getElementById('menu-end-date').value = getTodayDate(1);///fixe la date du jour + la valeur envoyé comme valeur pour le sélecteur de date de fin
-  
-    document.getElementById('menu-list-form').addEventListener('submit', function(event) {
-      event.preventDefault(); // Empêche l'envoi du formulaire par défaut
-  
-      // Récupérer les dates d'entrée
-      const startDate = new Date(document.getElementById('menu-start-date').value);
-      const endDate = new Date(document.getElementById('menu-end-date').value);
-  
-      // Calculer le nombre de jours entre les deux dates
-      const numberOfDays = calculateNumberOfDays(startDate, endDate);
-  
-      // Vérifier si la date de fin est après la date de début
-      if (numberOfDays < 1) {
-        alert("La date de fin doit être après la date de début.");
-        return; // Ne pas soumettre le formulaire si les dates sont invalides
-      }
-  
-      // Si les dates sont valides, continuez à créer la liste de menus
-      menuList.name = document.getElementById('menu-list-name').value;//on passe le nom de la liste de menu 
-      menuList.date = new Date().toLocaleDateString('fr-FR');// on passe ça date de création
-  
-      createMenuList(); // Appelle la fonction createMenuList sans paramètre
-  
-      document.getElementById('creerListMenu').classList.add("hidden");// Masque le bouton créer Liste
-    });
+
+    const container = document.getElementById('menu-form-container');
+    container.innerHTML = form;
+    container.classList.remove('hidden');
+
+    document.getElementById('menu-list-name').value =  'Liste du ' + new Date().toLocaleDateString('fr-FR');
+
+    document.getElementById('menu-start-date').addEventListener('change', handleDateChange);
+    document.getElementById('menu-end-date').addEventListener('change', handleDateChange);
+
+    document.getElementById('creerListMenu').classList.add("hidden");
+
+    const menuContainer = document.querySelector('.list-menu-lists');
+    if (menuContainer && !menuContainer.classList.contains('hidden')) {
+      menuContainer.classList.add('hidden');
+    }
   }
   
   /*////////////////RETOURNE LA DATE DU JOUR OU SI ARGUMENT DATE DU JOUR + JOUR A AJOUTER ////////////////*/
@@ -78,15 +60,34 @@ let editingMenuIndex = null; // index de la liste de menu en cours d'édition
     return numberOfDays;
   }
 
+  function handleDateChange() {
+    const startVal = document.getElementById('menu-start-date').value;
+    const endVal = document.getElementById('menu-end-date').value;
+    if (!startVal || !endVal) return;
+
+    const startDate = new Date(startVal);
+    const endDate = new Date(endVal);
+    const numberOfDays = calculateNumberOfDays(startDate, endDate);
+    if (numberOfDays < 1) {
+      alert("La date de fin doit être après la date de début.");
+      return;
+    }
+
+    menuList.name = document.getElementById('menu-list-name').value;
+    menuList.date = new Date().toLocaleDateString('fr-FR');
+    createMenuList(true);
+  }
+
    /*////////////////CREER UN LISTE DE MENU/////////////*/
-function createMenuList() {
+function createMenuList(skipDuplicateCheck = false) {
   const name = document.getElementById('menu-list-name').value;
 
-  // Vérifie la présence d'une liste portant le même nom
-  const duplicate = listMenuList.some(list => list.name === name);
-  if (duplicate) {
-    alert('Nom déjà utilisé');
-    return;
+  if (!skipDuplicateCheck) {
+    const duplicate = listMenuList.some(list => list.name === name);
+    if (duplicate) {
+      alert('Nom déjà utilisé');
+      return;
+    }
   }
   const startDateInput = new Date(document.getElementById('menu-start-date').value);
   const endDate = new Date(document.getElementById('menu-end-date').value);
@@ -149,8 +150,6 @@ function createMenuList() {
   }
 
   updateCurrentShoppingList();
-
-  document.getElementById('recipe-modal').style.display = 'none';
 }
 
 
@@ -339,6 +338,12 @@ function updateMenuList() {
 
 
 function saveMenuList (){
+  menuList.name = document.getElementById('menu-list-name').value;
+  const duplicate = listMenuList.some((list, idx) => list.name === menuList.name && idx !== editingMenuIndex);
+  if (duplicate) {
+    alert('Nom déjà utilisé');
+    return;
+  }
   // Si on modifie une liste existante, annuler l'impact de l'ancienne liste
   if (editingMenuIndex !== null) {
     const oldIndexes = listMenuList[editingMenuIndex].recipes.map(
@@ -415,6 +420,11 @@ function updateListMenuList (){
   }
   if(!document.getElementById('save-menu-list-button').classList.contains("hidden")){
     document.getElementById('save-menu-list-button').classList.add("hidden");
+  }
+  const formContainer = document.getElementById('menu-form-container');
+  if(formContainer && !formContainer.classList.contains('hidden')){
+    formContainer.classList.add('hidden');
+    formContainer.innerHTML = '';
   }
   if(document.getElementById('creerListMenu').classList.contains("hidden")){
     document.getElementById('creerListMenu').classList.remove("hidden");
