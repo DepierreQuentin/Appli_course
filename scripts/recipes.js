@@ -351,8 +351,6 @@
 
   /*/////////////RECHERCHER UNE RECETTE/////////// */
   function searchRecipes(sectionId) {
-    console.log('searchRecipes called'); // Debugging line
-    console.log(`#${sectionId} .recipe-name-search`);
     //copie la valeur du nom/saison/note dans la recette recherché dans la var nameSearch,seasonSearch,ratingSearch
     const nameSearch = document.querySelector(`#${sectionId} .recipe-name-search`).value.toLowerCase();
     const seasonSearch = document.querySelector(`#${sectionId} .recipe-season-search`).value;
@@ -369,13 +367,11 @@
    )
    .filter(index => index !== -1); // Filtrer les indices valides (exclure -1)
 
-    console.log('Filtered Recipes:', filteredRecipes); // Debugging line
     /**********copie la localisation de 'recipe-list' dans la var recipeList, puis insert à la suite de cette div le tableau filteredRecipes 
     dans des cartes avec le nom, la saison, la note, le nb d'utilisation, quand la carte est cliqué cela appelle la 
     fonction showRecipeDetaisl*************/
     //const recipeList = document.getElementById('recipe-list');
     const recipeList = document.querySelector(`#${sectionId} .recipe-list`);
-    console.log('Recipe List Element:', recipeList); // Debugging line
     
     recipeList.innerHTML = filteredRecipes.map((recipeIndex) => {
       const recipe = recipes[recipeIndex]; // Récupérer la recette en utilisant l'indice
