@@ -236,11 +236,8 @@ function randomMenuList() {
 function addRecipeToMenu(recipeIndex) {
   // Si filteredRecipes est null, utiliser le tableau complet des recettes
   
-  console.log("filteredRecipes[recipeindex] :"+filteredRecipes[recipeIndex]);
-  console.log("filteredRecipes[recipeindex] :"+JSON.parse(JSON.stringify(filteredRecipes)));
   // Récupérer la recette à partir de son index dans le tableau `recipes`
   const actualRecipe = recipes[recipeIndex];
-  console.log("actualRecipe :"+recipes[filteredRecipes[recipeIndex]]);
  
 
   if (!actualRecipe) {
@@ -359,7 +356,6 @@ function saveMenuList (){
   } else {
     listMenuList.push(menuList);//insère un tableau la liste de menu dans listMenuList
   }
-  console.log('Avant réinitialisation:', (function(obj) { return JSON.parse(JSON.stringify(obj)); })(listMenuList));
 
   
 
@@ -369,7 +365,6 @@ function saveMenuList (){
  
   //réinitialiser l'objet globale menuList pour pouvoir recréer une liste, attention à faire en dernier pour que la liste de shopping puisse se remplir
   menuList = { name: '', date: '', recipes: [], startDate: null, menu: [] };// Crée une nouvelle instance d'objet
-  console.log('Après réinitialisation:', (function(obj) { return JSON.parse(JSON.stringify(obj)); })(listMenuList));
 
   // fin de l'édition
   editingMenuIndex = null;
