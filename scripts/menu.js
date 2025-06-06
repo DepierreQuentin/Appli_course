@@ -1,6 +1,5 @@
 let startDateGlobal = null;// sert pour éviter de passer un paramètre à updateMenuList(), variable initialisé dans createMenuList()
 let menuListArray = [];
-let numberOfRecipes = 0;
 let editingMenuIndex = null; // index de la liste de menu en cours d'édition
 let currentMenuDetailIndex = null; // index de la liste de menu actuellement affichée dans le modal
 
@@ -193,64 +192,38 @@ function createMenuList(skipDuplicateCheck = false) {
 
 /*/////////////////CREER UN LISTE DE RECETTE RANDOM ET L'AJOUTE A LA LISTE DE MENU/////////// */
 function randomMenuList() {
-  
-  let addedRecipes = 0;  // Compteur pour le nombre de recettes ajoutées
-  numberOfRecipes = countEmptySlots(menuListArray); // Nombre de recettes à ajouter en fonction des emplacements vides
-  
-  let recipesList = [];
-  
-  if (filteredRecipes.length == 0) {
-    // Si aucune recette n'a été filtrée, utiliser tous les indices des recettes
-    recipesList = recipes.map((_, index) => index); // Liste d'indices pour toutes les recettes
-    console.log("non_filtré");
-  } else {
-    // Si des recettes ont été filtrées, utiliser les indices déjà dans filteredRecipes
-    recipesList = filteredRecipes; // Contient déjà les indices
-
-    console.log("filtré");
-    console.log("filteredRecipes[recipeindex] dans le if :"+JSON.parse(JSON.stringify(filteredRecipes)));
-  }
-  
-  const tempIndexTable = []; // Pour stocker les indices déjà utilisés
-
-  while (addedRecipes < numberOfRecipes) {
-    const randomIndex = Math.floor(Math.random() * recipesList.length); // Obtenir un index de recette aléatoire dans recipesList
-    console.log(randomIndex);
-    // Si l'indice n'a pas été utilisé et qu'il reste des emplacements vides
-    if (!tempIndexTable.includes(randomIndex)) {
-      tempIndexTable.push(randomIndex);  // Marquer cet indice comme utilisé
-      
-      const recipeIndex = recipesList[randomIndex];  // Obtenir l'indice réel de la recette
-      console.log("recipeIndex :"+recipeIndex);
-      addRecipeToMenu(recipeIndex);  // Ajouter la recette au menu
-      
-      addedRecipes++;  // Incrémenter le compteur
-    } else if (recipesList.length < numberOfRecipes) {
-      // Si le nombre de recettes disponibles est inférieur au nombre d'emplacements à remplir,
-      // autoriser les doublons pour combler le manque
-      const recipeIndex = recipesList[randomIndex];
-      addRecipeToMenu(recipeIndex);  // Ajouter la recette au menu même si elle est déjà utilisée
-      
-      addedRecipes++;
-    }
-  }
-  
-  filteredRecipes = []; // Réinitialiser la variable globale après utilisation
-}
-
-/*//////////////RETOURNE LES EMPLACEMENTS VIDES DE MENU LIST////////////////*/
-function countEmptySlots(array) {
-  let emptyCount = 0;
-
-  for (let i = 0; i < array.length; i++) {
-      for (let j = 0; j < array[i].length; j++) {
-          if (array[i][j] === null || array[i][j] === undefined) {
-              emptyCount++;
-          }
+  const emptySlots = [];
+  menuListArray.forEach((day, dayIndex) => {
+    day.forEach((slot, slotIndex) => {
+      if (slot === null) {
+        emptySlots.push({ dayIndex, slotIndex });
       }
+    });
+  });
+
+  let recipeIndices = [];
+  if (filteredRecipes.length > 0) {
+    recipeIndices = [...filteredRecipes];
+  } else {
+    recipeIndices = recipes.map((_, index) => index);
   }
 
-  return emptyCount;
+  for (let i = recipeIndices.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [recipeIndices[i], recipeIndices[j]] = [recipeIndices[j], recipeIndices[i]];
+  }
+
+  emptySlots.forEach((pos, idx) => {
+    const recipeIndex = recipeIndices[idx % recipeIndices.length];
+    const recipe = recipes[recipeIndex];
+    menuListArray[pos.dayIndex][pos.slotIndex] = recipe;
+    menuList.recipes.push(recipe);
+  });
+
+  filteredRecipes = [];
+  updateMenuList();
+  updateCurrentShoppingList();
+  refreshCurrentMenuDetails();
 }
 
 /*////////////////////AJOUTER UNE RECETTE AU MENU/////////////////////*/
