@@ -701,12 +701,7 @@ export {
   drag,
   allowDrop,
   drop,
-  updateMenusWithRecipe,
-  setListMenuList,
-  menuList,
-  listMenuList,
-  shoppingList,
-  options
+  updateMenusWithRecipe
 };
 
 window.addMenuList = addMenuList;
