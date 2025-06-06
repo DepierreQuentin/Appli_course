@@ -1,4 +1,25 @@
-   /*//////////METS A JOUR LA LISTE DES RECETTES A AFFICHER/////////*/ 
+import { saveRecipesToLocalStorage, saveMenusToLocalStorage } from './storage.js';
+import { listMenuList, updateMenusWithRecipe } from './menus.js';
+
+export let recipes = [];
+export function setRecipes(data) { recipes = data; }
+export let filteredRecipes = [];
+export function setFilteredRecipes(data) { filteredRecipes = data; }
+
+export const categories = [
+  'Fruits et Légumes',
+  'Viandes et Poissons',
+  'Produits Laitiers',
+  'Épicerie',
+  'Boissons',
+  'Autres'
+];
+
+export const seasons = ['été', 'hiver', "toute l'année"];
+export const healthTypes = ['healthy', 'normal', 'gras'];
+export const difficulties = [1, 2, 3];
+
+/*//////////METS A JOUR LA LISTE DES RECETTES A AFFICHER/////////*/
   function updateRecipeList(recipeArray) {
     
     const activeSection = document.querySelector('.tab-content.active');// Trouver la section active
@@ -58,7 +79,7 @@
     event.stopPropagation();
     recipes[index].favori = !recipes[index].favori;
     updateRecipeList();
-    saveRecipesToLocalStorage();
+    saveRecipesToLocalStorage(recipes, listMenuList);
   }
 
   /*///////////////TRIER EN FONCTION DU CRITERE///////////////*/
@@ -326,9 +347,9 @@
 
     }
 
-    updateRecipeList();
-    saveMenusToLocalStorage();
-    saveRecipesToLocalStorage();
+  updateRecipeList();
+  saveMenusToLocalStorage(listMenuList, recipes);
+  saveRecipesToLocalStorage(recipes, listMenuList);
     
     //document.getElementById('recipe-modal').style.display = 'none';
   }
@@ -343,8 +364,8 @@
       filteredRecipes = filteredRecipes.filter(i => i !== index).map(i => (i > index ? i - 1 : i));
       updateMenusWithRecipe(oldName, null);
       updateRecipeList();
-      saveMenusToLocalStorage();
-      saveRecipesToLocalStorage();
+      saveMenusToLocalStorage(listMenuList, recipes);
+      saveRecipesToLocalStorage(recipes, listMenuList);
       document.getElementById('recipe-modal').style.display = 'none';
     }
   }
@@ -410,4 +431,34 @@
       }
   }).join('');
   }
+
+export {
+  updateRecipeList,
+  toggleFavorite,
+  sortRecipes,
+  showRecipeDetails,
+  editRecipe,
+  addIngredientInputToEdit,
+  deleteIngredientInputToEdit,
+  deleteIngredient,
+  saveRecipe,
+  deleteRecipe,
+  searchRecipes,
+  showIngredientsInEditRecipe,
+  updateDeleteButtons,
+  formatName,
+  setRecipes,
+  setFilteredRecipes
+};
+
+window.updateRecipeList = updateRecipeList;
+window.toggleFavorite = toggleFavorite;
+window.sortRecipes = sortRecipes;
+window.showRecipeDetails = showRecipeDetails;
+window.editRecipe = editRecipe;
+window.deleteRecipe = deleteRecipe;
+window.searchRecipes = searchRecipes;
+window.addIngredientInputToEdit = addIngredientInputToEdit;
+window.deleteIngredientInputToEdit = deleteIngredientInputToEdit;
+window.deleteIngredient = deleteIngredient;
   

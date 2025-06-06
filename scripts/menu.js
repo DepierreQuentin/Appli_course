@@ -1,7 +1,22 @@
+import { recipes, filteredRecipes } from './recipes.js';
+import { saveRecipesToLocalStorage, saveMenusToLocalStorage } from './storage.js';
+
+export let listMenuList = [];
+export function setListMenuList(data) { listMenuList = data; }
+export let menuList = { name: '', date: '', recipes: [], startDate: null, menu: [] };
+export let shoppingList = {};
+
 let startDateGlobal = null;// sert pour éviter de passer un paramètre à updateMenuList(), variable initialisé dans createMenuList()
 let menuListArray = [];
 let editingMenuIndex = null; // index de la liste de menu en cours d'édition
 let currentMenuDetailIndex = null; // index de la liste de menu actuellement affichée dans le modal
+
+export const options = {
+  weekday: 'long',
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric'
+};
 
 /*////////////////AFFICHE UNE FENETRE CONTEXTUELLE POUR CREER UN LISTE DE MENUS/////////////*/
    function addMenuList() {
@@ -360,8 +375,8 @@ function saveMenuList (){
   
 
   updateListMenuList ();
-  saveMenusToLocalStorage();
-  saveRecipesToLocalStorage();
+  saveMenusToLocalStorage(listMenuList, recipes);
+  saveRecipesToLocalStorage(recipes, listMenuList);
  
   //réinitialiser l'objet globale menuList pour pouvoir recréer une liste, attention à faire en dernier pour que la liste de shopping puisse se remplir
   menuList = { name: '', date: '', recipes: [], startDate: null, menu: [] };// Crée une nouvelle instance d'objet
@@ -586,8 +601,8 @@ function deleteMenuList (index){
     listMenuList.splice(index, 1);
     shoppingList = {};
     updateListMenuList();
-    saveMenusToLocalStorage();
-    saveRecipesToLocalStorage();
+    saveMenusToLocalStorage(listMenuList, recipes);
+    saveRecipesToLocalStorage(recipes, listMenuList);
     document.getElementById('recipe-modal').style.display = 'none';
   }
 
@@ -668,6 +683,45 @@ function updateMenusWithRecipe(oldName, newRecipe) {
   refreshCurrentMenuDetails();
 }
 
+export {
+  addMenuList,
+  getTodayDate,
+  calculateNumberOfDays,
+  createMenuList,
+  addToMenu,
+  randomMenuList,
+  addRecipeToMenu,
+  updateMenuList,
+  saveMenuList,
+  updateListMenuList,
+  showMenuListDetails,
+  editMenuList,
+  deleteMenuList,
+  removeFromMenu,
+  drag,
+  allowDrop,
+  drop,
+  updateMenusWithRecipe,
+  setListMenuList,
+  menuList,
+  listMenuList,
+  shoppingList,
+  options
+};
+
+window.addMenuList = addMenuList;
+window.addToMenu = addToMenu;
+window.saveMenuList = saveMenuList;
+window.showMenuListDetails = showMenuListDetails;
+window.editMenuList = editMenuList;
+window.deleteMenuList = deleteMenuList;
+window.addRecipeToMenu = addRecipeToMenu;
+window.removeFromMenu = removeFromMenu;
+window.drag = drag;
+window.allowDrop = allowDrop;
+window.drop = drop;
+window.generatePDF = generatePDF;
+window.randomMenuList = randomMenuList;
 
 // Affiche les listes de menus enregistrées lors du chargement
 updateListMenuList();
