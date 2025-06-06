@@ -446,9 +446,7 @@ export {
   searchRecipes,
   showIngredientsInEditRecipe,
   updateDeleteButtons,
-  formatName,
-  setRecipes,
-  setFilteredRecipes
+  formatName
 };
 
 window.updateRecipeList = updateRecipeList;
