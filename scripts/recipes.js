@@ -1,10 +1,10 @@
 import { saveRecipesToLocalStorage, saveMenusToLocalStorage } from './storage.js';
 import { listMenuList, updateMenusWithRecipe } from './menu.js';
 
-let recipes = [];
-function setRecipes(data) { recipes = data; }
-let filteredRecipes = [];
-function setFilteredRecipes(data) { filteredRecipes = data; }
+export let recipes = [];
+export function setRecipes(data) { recipes = data; }
+export let filteredRecipes = [];
+export function setFilteredRecipes(data) { filteredRecipes = data; }
 
 export const categories = [
   'Fruits et Légumes',
@@ -433,10 +433,6 @@ export const difficulties = [1, 2, 3];
   }
 
 export {
-  recipes,
-  setRecipes,
-  filteredRecipes,
-  setFilteredRecipes,
   updateRecipeList,
   toggleFavorite,
   sortRecipes,
