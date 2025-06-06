@@ -23,6 +23,9 @@ let currentMenuDetailIndex = null; // index de la liste de menu actuellement aff
 
     document.getElementById('menu-list-name').value =  'Liste du ' + new Date().toLocaleDateString('fr-FR');
 
+    // Pré-remplir la date de début avec la date du jour
+    document.getElementById('menu-start-date').value = getTodayDate();
+
     document.getElementById('menu-start-date').addEventListener('change', handleDateChange);
     document.getElementById('menu-end-date').addEventListener('change', handleDateChange);
 
@@ -224,6 +227,9 @@ function randomMenuList() {
   updateMenuList();
   updateCurrentShoppingList();
   refreshCurrentMenuDetails();
+
+  // Fermer le modal de recherche après le remplissage aléatoire
+  document.getElementById('recipe-modal').style.display = 'none';
 }
 
 /*////////////////////AJOUTER UNE RECETTE AU MENU/////////////////////*/
