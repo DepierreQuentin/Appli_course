@@ -27,3 +27,21 @@ test('calculateNumberOfDays computes inclusive difference', () => {
   const end = new Date('2023-01-10');
   assert.equal(calculateNumberOfDays(start, end), 10);
 });
+
+test('getTodayDate handles negative offsets', () => {
+  const expectedDate = new Date();
+  expectedDate.setDate(expectedDate.getDate() - 1);
+  const expected = format(expectedDate);
+  assert.equal(getTodayDate(-1), expected);
+});
+
+test('calculateNumberOfDays returns 1 when dates are equal', () => {
+  const date = new Date('2023-05-01');
+  assert.equal(calculateNumberOfDays(date, date), 1);
+});
+
+test('calculateNumberOfDays handles end before start', () => {
+  const start = new Date('2023-05-10');
+  const end = new Date('2023-05-05');
+  assert.equal(calculateNumberOfDays(start, end), -4);
+});
