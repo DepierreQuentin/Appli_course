@@ -449,14 +449,16 @@ export {
   formatName
 };
 
-window.updateRecipeList = updateRecipeList;
-window.toggleFavorite = toggleFavorite;
-window.sortRecipes = sortRecipes;
-window.showRecipeDetails = showRecipeDetails;
-window.editRecipe = editRecipe;
-window.deleteRecipe = deleteRecipe;
-window.searchRecipes = searchRecipes;
-window.addIngredientInputToEdit = addIngredientInputToEdit;
-window.deleteIngredientInputToEdit = deleteIngredientInputToEdit;
-window.deleteIngredient = deleteIngredient;
-  
+
+if (typeof window !== 'undefined') {
+  window.updateRecipeList = updateRecipeList;
+  window.toggleFavorite = toggleFavorite;
+  window.sortRecipes = sortRecipes;
+  window.showRecipeDetails = showRecipeDetails;
+  window.editRecipe = editRecipe;
+  window.deleteRecipe = deleteRecipe;
+  window.searchRecipes = searchRecipes;
+  window.addIngredientInputToEdit = addIngredientInputToEdit;
+  window.deleteIngredientInputToEdit = deleteIngredientInputToEdit;
+  window.deleteIngredient = deleteIngredient;
+}
