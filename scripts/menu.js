@@ -340,7 +340,10 @@ function updateMenuList() {
 
 
 function saveMenuList (){
-  menuList.name = document.getElementById('menu-list-name').value;
+  const nameInput = document.getElementById('menu-list-name');
+  if (nameInput) {
+    menuList.name = nameInput.value;
+  }
   const duplicate = listMenuList.some((list, idx) => list.name === menuList.name && idx !== editingMenuIndex);
   if (duplicate) {
     alert('Nom déjà utilisé');
