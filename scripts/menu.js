@@ -269,6 +269,8 @@ function addRecipeToMenu(recipeIndex) {
     updateCurrentShoppingList();
     refreshCurrentMenuDetails();
   }
+  // Fermer la fenêtre une fois la recette ajoutée
+  document.getElementById('recipe-modal').style.display = 'none';
 }
 
 /*////////////////METS A JOUR LA LISTE DE MENU EN COURS DE CREATION//////////////*/
