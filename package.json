@@ -1,0 +1,7 @@
+{
+  "name": "appli_course",
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  }
+}

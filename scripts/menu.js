@@ -704,22 +704,27 @@ export {
   updateMenusWithRecipe
 };
 
-window.addMenuList = addMenuList;
-window.addToMenu = addToMenu;
-window.saveMenuList = saveMenuList;
-window.showMenuListDetails = showMenuListDetails;
-window.editMenuList = editMenuList;
-window.deleteMenuList = deleteMenuList;
-window.addRecipeToMenu = addRecipeToMenu;
-window.removeFromMenu = removeFromMenu;
-window.drag = drag;
-window.allowDrop = allowDrop;
-window.drop = drop;
-window.generatePDF = generatePDF;
-window.randomMenuList = randomMenuList;
+if (typeof window !== 'undefined') {
+  window.addMenuList = addMenuList;
+  window.addToMenu = addToMenu;
+  window.saveMenuList = saveMenuList;
+  window.showMenuListDetails = showMenuListDetails;
+  window.editMenuList = editMenuList;
+  window.deleteMenuList = deleteMenuList;
+  window.addRecipeToMenu = addRecipeToMenu;
+  window.removeFromMenu = removeFromMenu;
+  window.drag = drag;
+  window.allowDrop = allowDrop;
+  window.drop = drop;
+  window.generatePDF = generatePDF;
+  window.randomMenuList = randomMenuList;
+}
 
 // Affiche les listes de menus enregistrées lors du chargement
-updateListMenuList();
+// N'exécute la mise à jour que si un environnement DOM est présent
+if (typeof document !== 'undefined') {
+  updateListMenuList();
+}
 
 
 
