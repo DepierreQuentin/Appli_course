@@ -209,14 +209,15 @@ function getChefMenuPrefs() {
   const box = document.getElementById('chef-random-checkbox');
   if (!box) return { random: true };
   const val = id => document.getElementById(id)?.value || 50;
+  const enabled = id => document.getElementById(id)?.checked ?? true;
   return {
     random: box.checked,
-    difficulty: parseInt(val('chef-difficulty-slider'), 10) / 100,
-    rating: parseInt(val('chef-rating-slider'), 10) / 100,
-    usage: parseInt(val('chef-usage-slider'), 10) / 100,
-    type: parseInt(val('chef-type-slider'), 10) / 100,
-    favorite: parseInt(val('chef-favorite-slider'), 10) / 100,
-    season: parseInt(val('chef-season-slider'), 10) / 100,
+    difficulty: parseInt(enabled('chef-difficulty-enabled') ? val('chef-difficulty-slider') : 50, 10) / 100,
+    rating: parseInt(enabled('chef-rating-enabled') ? val('chef-rating-slider') : 50, 10) / 100,
+    usage: parseInt(enabled('chef-usage-enabled') ? val('chef-usage-slider') : 50, 10) / 100,
+    type: parseInt(enabled('chef-type-enabled') ? val('chef-type-slider') : 50, 10) / 100,
+    favorite: parseInt(enabled('chef-favorite-enabled') ? val('chef-favorite-slider') : 50, 10) / 100,
+    season: parseInt(enabled('chef-season-enabled') ? val('chef-season-slider') : 50, 10) / 100,
     allYear: document.getElementById('chef-season-all-year')?.checked ?? true
   };
 }
