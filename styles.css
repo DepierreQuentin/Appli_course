@@ -180,6 +180,18 @@ body {
     overflow: hidden;
     height: 200px;
   }
+  .delete-cross {
+    position: absolute;
+    top: 4px;
+    right: 6px;
+    color: red;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 2;
+  }
+  .delete-cross:hover {
+    color: darkred;
+  }
   .recipe-card:hover {
     transform: translateY(-5px);
   }
