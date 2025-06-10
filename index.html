@@ -56,11 +56,11 @@
       <h1>Paramètres</h1>
       <section id="chef-settings-section">
         <h2>Paramètres Menu du Chef</h2>
-        <label><input type="checkbox" id="chef-random-checkbox" checked> Aléatoire</label>
+        <label class="toggle"><input type="checkbox" id="chef-random-checkbox" checked><span class="slider"></span> Aléatoire</label>
         <div id="chef-settings-sliders">
           <div class="slider-group">
             <label for="chef-difficulty-slider">Difficulté</label>
-            <label class="inline"><input type="checkbox" id="chef-difficulty-enabled" checked> ON</label>
+            <label class="inline toggle"><input type="checkbox" id="chef-difficulty-enabled" checked><span class="slider"></span></label>
             <div class="slider-wrapper">
               <span class="slider-label-left">Facile</span>
               <input type="range" id="chef-difficulty-slider" min="0" max="100" step="10" value="50">
@@ -70,7 +70,7 @@
           </div>
           <div class="slider-group">
             <label for="chef-rating-slider">Note</label>
-            <label class="inline"><input type="checkbox" id="chef-rating-enabled" checked> ON</label>
+            <label class="inline toggle"><input type="checkbox" id="chef-rating-enabled" checked><span class="slider"></span></label>
             <div class="slider-wrapper">
               <span class="slider-label-left">Basse</span>
               <input type="range" id="chef-rating-slider" min="0" max="100" step="10" value="50">
@@ -80,7 +80,7 @@
           </div>
           <div class="slider-group">
             <label for="chef-usage-slider">Utilisations</label>
-            <label class="inline"><input type="checkbox" id="chef-usage-enabled" checked> ON</label>
+            <label class="inline toggle"><input type="checkbox" id="chef-usage-enabled" checked><span class="slider"></span></label>
             <div class="slider-wrapper">
               <span class="slider-label-left">Rare</span>
               <input type="range" id="chef-usage-slider" min="0" max="100" step="10" value="50">
@@ -90,7 +90,7 @@
           </div>
           <div class="slider-group">
             <label for="chef-type-slider">Type</label>
-            <label class="inline"><input type="checkbox" id="chef-type-enabled" checked> ON</label>
+            <label class="inline toggle"><input type="checkbox" id="chef-type-enabled" checked><span class="slider"></span></label>
             <div class="slider-wrapper">
               <span class="slider-label-left">Healthy</span>
               <input type="range" id="chef-type-slider" min="0" max="100" step="10" value="50">
@@ -100,7 +100,7 @@
           </div>
           <div class="slider-group">
             <label for="chef-favorite-slider">Favoris</label>
-            <label class="inline"><input type="checkbox" id="chef-favorite-enabled" checked> ON</label>
+            <label class="inline toggle"><input type="checkbox" id="chef-favorite-enabled" checked><span class="slider"></span></label>
             <div class="slider-wrapper">
               <span class="slider-label-left">Indifférent</span>
               <input type="range" id="chef-favorite-slider" min="0" max="100" step="10" value="50">
@@ -110,14 +110,14 @@
           </div>
           <div class="slider-group">
             <label for="chef-season-slider">Saison</label>
-            <label class="inline"><input type="checkbox" id="chef-season-enabled" checked> ON</label>
+            <label class="inline toggle"><input type="checkbox" id="chef-season-enabled" checked><span class="slider"></span></label>
             <div class="slider-wrapper">
               <span class="slider-label-left">Hiver</span>
               <input type="range" id="chef-season-slider" min="0" max="100" step="10" value="50">
               <span class="slider-label-right">Été</span>
             </div>
             <div class="slider-value" id="chef-season-value">50/50</div>
-            <label class="inline"><input type="checkbox" id="chef-season-all-year" checked> Inclure les recettes toute l'année</label>
+            <label class="inline toggle"><input type="checkbox" id="chef-season-all-year" checked><span class="slider"></span> Inclure les recettes toute l'année</label>
           </div>
         </div>
       </section>

@@ -166,6 +166,7 @@ body {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     padding: 10px;
     height: 60px;
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -182,6 +183,7 @@ body {
     transition: transform 0.3s;
     overflow: hidden;
     height: 200px;
+    width: 100%;
   }
 
   .recipe-slot .recipe-card {
@@ -190,6 +192,7 @@ body {
     align-items: center;
     justify-content: center;
     cursor: grab;
+    width: 100%;
   }
 
   .recipe-slot h5 {
@@ -347,12 +350,12 @@ body {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.9em;
+  table-layout: fixed;
 }
 .menu-plan-table th,
 .menu-plan-table td {
   border: 1px solid #ddd;
   padding: 4px;
-  max-width: 180px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -461,6 +464,54 @@ body {
 
 .slider-group label.inline {
   margin-left: 10px;
+}
+
+/* Toggle switch style */
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.toggle input {
+  display: none;
+}
+.toggle .slider {
+  position: relative;
+  width: 40px;
+  height: 20px;
+  background-color: #ccc;
+  border-radius: 20px;
+  transition: background-color 0.3s;
+}
+.toggle .slider::before {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  left: 2px;
+  top: 2px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.3s;
+}
+.toggle input:checked + .slider {
+  background-color: #4CAF50;
+}
+.toggle input:checked + .slider::before {
+  transform: translateX(20px);
+}
+
+#chef-settings-section {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+#chef-settings-section h2 {
+  margin-top: 0;
 }
 
 .quantity-cell {
