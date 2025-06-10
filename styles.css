@@ -402,6 +402,22 @@ body {
   padding: 2px 4px;
 }
 
+#chef-settings-sliders.disabled {
+  opacity: 0.5;
+}
+
+#chef-settings-sliders.disabled input {
+  pointer-events: none;
+}
+
+.slider-group {
+  margin: 10px 0;
+}
+
+.slider-group label.inline {
+  margin-left: 10px;
+}
+
 .quantity-cell {
   width: 40%;
   white-space: nowrap;

@@ -204,7 +204,60 @@ function openSlotModal(dayIndex, slotIndex) {
 }
 
 /*/////////////////CREER UN LISTE DE RECETTE RANDOM ET L'AJOUTE A LA LISTE DE MENU/////////// */
+function getChefMenuPrefs() {
+  if (typeof document === 'undefined') return { random: true };
+  const box = document.getElementById('chef-random-checkbox');
+  if (!box) return { random: true };
+  const val = id => document.getElementById(id)?.value || 50;
+  return {
+    random: box.checked,
+    difficulty: parseInt(val('chef-difficulty-slider'), 10) / 100,
+    rating: parseInt(val('chef-rating-slider'), 10) / 100,
+    usage: parseInt(val('chef-usage-slider'), 10) / 100,
+    type: parseInt(val('chef-type-slider'), 10) / 100,
+    favorite: parseInt(val('chef-favorite-slider'), 10) / 100,
+    season: parseInt(val('chef-season-slider'), 10) / 100,
+    allYear: document.getElementById('chef-season-all-year')?.checked ?? true
+  };
+}
+
+function bias(value, pref) {
+  if (pref === 0.5) return 1;
+  const diff = Math.abs(value - pref);
+  return Math.max(0, 1 - diff * 2);
+}
+
+function computeWeight(recipe, prefs, maxUsage) {
+  let w = 1;
+  w *= bias((recipe.difficulty - 1) / 2, prefs.difficulty);
+  w *= bias((recipe.rating - 1) / 4, prefs.rating);
+  w *= bias(maxUsage ? recipe.usageCount / maxUsage : 0, prefs.usage);
+  const typeMap = { healthy: 0, normal: 0.5, gras: 1 };
+  w *= bias(typeMap[recipe.health] ?? 0.5, prefs.type);
+  w *= bias(recipe.favori ? 1 : 0, prefs.favorite);
+  let seasonVal = 0.5;
+  if (recipe.season === 'été') seasonVal = 1;
+  else if (recipe.season === 'hiver') seasonVal = 0;
+  w *= bias(seasonVal, prefs.season);
+  return w;
+}
+
+function weightedPick(indices, prefs) {
+  const maxUsage = Math.max(1, ...indices.map(i => recipes[i].usageCount));
+  const weights = indices.map(i => computeWeight(recipes[i], prefs, maxUsage));
+  const total = weights.reduce((a, b) => a + b, 0);
+  if (total === 0) return indices[Math.floor(Math.random() * indices.length)];
+  let r = Math.random() * total;
+  for (let i = 0; i < indices.length; i++) {
+    r -= weights[i];
+    if (r <= 0) return indices[i];
+  }
+  return indices[indices.length - 1];
+}
+
 function randomMenuList() {
+  const prefs = getChefMenuPrefs();
+
   const emptySlots = [];
   menuListArray.forEach((day, dayIndex) => {
     day.forEach((slot, slotIndex) => {
@@ -221,17 +274,30 @@ function randomMenuList() {
     recipeIndices = recipes.map((_, index) => index);
   }
 
-  for (let i = recipeIndices.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [recipeIndices[i], recipeIndices[j]] = [recipeIndices[j], recipeIndices[i]];
+  if (!prefs.allYear) {
+    recipeIndices = recipeIndices.filter(i => recipes[i].season !== "toute l'ann\u00e9e");
   }
 
-  emptySlots.forEach((pos, idx) => {
-    const recipeIndex = recipeIndices[idx % recipeIndices.length];
-    const recipe = recipes[recipeIndex];
-    menuListArray[pos.dayIndex][pos.slotIndex] = recipe;
-    menuList.recipes.push(recipe);
-  });
+  if (prefs.random) {
+    for (let i = recipeIndices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [recipeIndices[i], recipeIndices[j]] = [recipeIndices[j], recipeIndices[i]];
+    }
+
+    emptySlots.forEach((pos, idx) => {
+      const recipeIndex = recipeIndices[idx % recipeIndices.length];
+      const recipe = recipes[recipeIndex];
+      menuListArray[pos.dayIndex][pos.slotIndex] = recipe;
+      menuList.recipes.push(recipe);
+    });
+  } else {
+    emptySlots.forEach(pos => {
+      const recipeIndex = weightedPick(recipeIndices, prefs);
+      const recipe = recipes[recipeIndex];
+      menuListArray[pos.dayIndex][pos.slotIndex] = recipe;
+      menuList.recipes.push(recipe);
+    });
+  }
 
   setFilteredRecipes([]);
   updateMenuList();

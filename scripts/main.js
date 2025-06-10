@@ -29,6 +29,17 @@ function initialize() {
 
   updateRecipeList();
   updateListMenuList();
+
+  const randomBox = document.getElementById('chef-random-checkbox');
+  const sliders = document.getElementById('chef-settings-sliders');
+  if (randomBox && sliders) {
+    function toggle() {
+      if (randomBox.checked) sliders.classList.add('disabled');
+      else sliders.classList.remove('disabled');
+    }
+    randomBox.addEventListener('change', toggle);
+    toggle();
+  }
 }
 
 initialize();
