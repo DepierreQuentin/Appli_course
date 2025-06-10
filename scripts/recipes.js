@@ -57,20 +57,24 @@ export const difficulties = [1, 2, 3];
     
 
     recipeList.innerHTML = recipesToDisplay.map((recipe) => {
-      // Trouver l'index réel de la recette dans `recipes`
       const realIndex = recipes.indexOf(recipe);
+      const imageSrc = recipe.image || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
       return `
       <div class="recipe-card" onclick="showRecipeDetails(${realIndex})">
-        ${recipe.image ? `<img src="${recipe.image}" class="recipe-image" alt="${recipe.name}">` : ''}
-        <h3>${recipe.name}</h3>
-        <div class="recipe-header">
-          <span class="recipe-difficulty">${'🍴'.repeat(recipe.difficulty)}</span>
-          <span class="recipe-health">${recipe.health}</span>
+        <div class="recipe-image-wrapper">
+          <img src="${imageSrc}" class="recipe-image" alt="${recipe.name}">
+          <div class="recipe-overlay">
+            <span class="recipe-difficulty">${'🍴'.repeat(recipe.difficulty)}</span>
+            <span class="recipe-rating">${'★'.repeat(recipe.rating)}</span>
+          </div>
           <span class="recipe-favori" onclick="toggleFavorite(${realIndex}, event)">${recipe.favori ? '★' : '☆'}</span>
         </div>
-        <p>Saison: ${recipe.season}</p>
-        <p>Note: ${'★'.repeat(recipe.rating)}${'☆'.repeat(5 - recipe.rating)}</p>
-        <p>Utilisations: ${recipe.usageCount}</p>
+        <h3 class="recipe-name">${recipe.name}</h3>
+        <div class="recipe-tags">
+          <span class="tag">${recipe.season}</span>
+          <span class="tag">${recipe.health}</span>
+          <span class="tag">${recipe.usageCount}</span>
+        </div>
       </div>
     `;
     }).join('');
@@ -399,39 +403,46 @@ export const difficulties = [1, 2, 3];
     const recipeList = document.querySelector(`#${sectionId} .recipe-list`);
     
     recipeList.innerHTML = filteredRecipes.map((recipeIndex) => {
-      const recipe = recipes[recipeIndex]; // Récupérer la recette en utilisant l'indice
-      
-      // Si on est sur la page du menu, désactiver le clic et ajouter un bouton "Ajouter"
+      const recipe = recipes[recipeIndex];
+      const imageSrc = recipe.image || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+
       if (sectionId === 'recipe-modal') {
           return `
               <div class="recipe-card">
-                  ${recipe.image ? `<img src="${recipe.image}" class="recipe-image" alt="${recipe.name}">` : ''}
-                  <h3>${recipe.name}</h3>
-                  <div class="recipe-header">
-                    <span class="recipe-difficulty">${'🍴'.repeat(recipe.difficulty)}</span>
-                    <span class="recipe-health">${recipe.health}</span>
+                  <div class="recipe-image-wrapper">
+                    <img src="${imageSrc}" class="recipe-image" alt="${recipe.name}">
+                    <div class="recipe-overlay">
+                      <span class="recipe-difficulty">${'🍴'.repeat(recipe.difficulty)}</span>
+                      <span class="recipe-rating">${'★'.repeat(recipe.rating)}</span>
+                    </div>
                     <span class="recipe-favori" onclick="toggleFavorite(${recipeIndex}, event)">${recipe.favori ? '★' : '☆'}</span>
                   </div>
-                  <p>Saison: ${recipe.season}</p>
-                  <p>Note: ${'★'.repeat(recipe.rating)}${'☆'.repeat(5 - recipe.rating)}</p>
-                  <p>Utilisations: ${recipe.usageCount}</p>
+                  <h3 class="recipe-name">${recipe.name}</h3>
+                  <div class="recipe-tags">
+                    <span class="tag">${recipe.season}</span>
+                    <span class="tag">${recipe.health}</span>
+                    <span class="tag">${recipe.usageCount}</span>
+                  </div>
                   <button onclick="addRecipeToMenu(${recipeIndex})">Ajouter au Menu</button>
               </div>
           `;
       } else {
-          // Sinon, rendre la carte cliquable pour afficher les détails de la recette
           return `
               <div class="recipe-card" onclick="showRecipeDetails(${recipeIndex})">
-                  ${recipe.image ? `<img src="${recipe.image}" class="recipe-image" alt="${recipe.name}">` : ''}
-                  <h3>${recipe.name}</h3>
-                  <div class="recipe-header">
-                    <span class="recipe-difficulty">${'🍴'.repeat(recipe.difficulty)}</span>
-                    <span class="recipe-health">${recipe.health}</span>
+                  <div class="recipe-image-wrapper">
+                    <img src="${imageSrc}" class="recipe-image" alt="${recipe.name}">
+                    <div class="recipe-overlay">
+                      <span class="recipe-difficulty">${'🍴'.repeat(recipe.difficulty)}</span>
+                      <span class="recipe-rating">${'★'.repeat(recipe.rating)}</span>
+                    </div>
                     <span class="recipe-favori" onclick="toggleFavorite(${recipeIndex}, event)">${recipe.favori ? '★' : '☆'}</span>
                   </div>
-                  <p>Saison: ${recipe.season}</p>
-                  <p>Note: ${'★'.repeat(recipe.rating)}${'☆'.repeat(5 - recipe.rating)}</p>
-                  <p>Utilisations: ${recipe.usageCount}</p>
+                  <h3 class="recipe-name">${recipe.name}</h3>
+                  <div class="recipe-tags">
+                    <span class="tag">${recipe.season}</span>
+                    <span class="tag">${recipe.health}</span>
+                    <span class="tag">${recipe.usageCount}</span>
+                  </div>
               </div>
           `;
       }
