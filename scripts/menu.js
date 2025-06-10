@@ -312,7 +312,7 @@ function renderChefCarousel() {
     const img = r.image || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
     const diffIcons = Array.from({ length: r.difficulty }).map(() => '<i class="fa-solid fa-utensils"></i>').join('');
     return `
-      <div class="recipe-card carousel-card" draggable="true" ondragstart="dragFromCarousel(event, ${i})">
+      <div class="recipe-card carousel-card" draggable="true" ondragstart="dragFromCarousel(event, ${i})" onclick="clickCarouselRecipe(${i})">
         <img src="${img}" class="recipe-image" alt="${r.name}">
         <div class="recipe-info">
           <div class="recipe-details">
@@ -328,6 +328,7 @@ function renderChefCarousel() {
       </div>`;
   }).join('');
   startCarouselScroll();
+  setupCarouselHover();
 }
 
 let carouselInterval = null;
@@ -340,6 +341,19 @@ function startCarouselScroll() {
     inner.scrollLeft += 1;
     if (inner.scrollLeft >= inner.scrollWidth - inner.clientWidth) inner.scrollLeft = 0;
   }, 50);
+}
+
+function stopCarouselScroll() {
+  clearInterval(carouselInterval);
+}
+
+function setupCarouselHover() {
+  const inner = document.getElementById('carousel-inner');
+  if (!inner) return;
+  inner.removeEventListener('mouseenter', stopCarouselScroll);
+  inner.removeEventListener('mouseleave', startCarouselScroll);
+  inner.addEventListener('mouseenter', stopCarouselScroll);
+  inner.addEventListener('mouseleave', startCarouselScroll);
 }
 
 function updateChefCarousel() {
@@ -368,6 +382,12 @@ function updateChefCarousel() {
 
 function dragFromCarousel(event, recipeIndex) {
   event.dataTransfer.setData('text', JSON.stringify({ recipe: recipeIndex }));
+}
+
+function clickCarouselRecipe(recipeIndex) {
+  const container = document.getElementById('menu-list-jours');
+  if (!container || container.classList.contains('hidden')) return;
+  addRecipeToMenu(recipeIndex);
 }
 
 /*////////////////////AJOUTER UNE RECETTE AU MENU/////////////////////*/
@@ -401,8 +421,6 @@ function addRecipeToMenu(recipeIndex) {
     }
 
     if (!added) {
-      alert('Tous les emplacements de menu sont occupés.');
-      document.getElementById('recipe-modal').style.display = 'none';
       return;
     }
     menuList.recipes.push(actualRecipe);
@@ -411,7 +429,10 @@ function addRecipeToMenu(recipeIndex) {
   updateMenuList();
   updateCurrentShoppingList();
   refreshCurrentMenuDetails();
-  document.getElementById('recipe-modal').style.display = 'none';
+  const modal = document.getElementById('recipe-modal');
+  if (modal && modal.style.display === 'block') {
+    modal.style.display = 'none';
+  }
   selectedDayIndex = null;
   selectedSlotIndex = null;
 }
@@ -852,7 +873,8 @@ export {
   drop,
   updateMenusWithRecipe,
   updateChefCarousel,
-  dragFromCarousel
+  dragFromCarousel,
+  clickCarouselRecipe
 };
 
 if (typeof window !== 'undefined') {
@@ -871,6 +893,7 @@ if (typeof window !== 'undefined') {
   window.randomMenuList = randomMenuList;
   window.updateChefCarousel = updateChefCarousel;
   window.dragFromCarousel = dragFromCarousel;
+  window.clickCarouselRecipe = clickCarouselRecipe;
 }
 
 // Affiche les listes de menus enregistrées lors du chargement

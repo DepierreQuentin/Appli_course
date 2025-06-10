@@ -526,7 +526,8 @@ body {
 
 .carousel-inner {
   display: flex;
-  overflow-x: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
   scroll-behavior: smooth;
   gap: 10px;
   padding: 10px 40px;
@@ -561,7 +562,7 @@ body {
 }
 
 .carousel-card {
-  flex: 0 0 150px;
-  height: 180px;
+  flex: 0 0 250px;
+  height: 200px;
 }
 
