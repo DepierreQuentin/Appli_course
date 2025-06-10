@@ -63,16 +63,18 @@ export const difficulties = [1, 2, 3];
       return `
       <div class="recipe-card ${recipe.favori ? 'favori' : ''}" onclick="showRecipeDetails(${realIndex})">
         <img src="${imageSrc}" class="recipe-image" alt="${recipe.name}">
-        <div class="recipe-overlay recipe-tags">
-          <span class="tag">${recipe.season}</span>
-          <span class="tag">${recipe.health}</span>
-          <span class="tag">${recipe.usageCount}</span>
-          <span class="tag recipe-difficulty">${difficultyIcons}</span>
-        </div>
         <span class="recipe-favori" onclick="toggleFavorite(${realIndex}, event)"><i class="fa-solid fa-heart"></i></span>
         <div class="recipe-info">
-          <h3 class="recipe-name">${recipe.name}</h3>
-          <div class="recipe-rating">${'★'.repeat(recipe.rating)}</div>
+          <div class="recipe-details">
+            <h3 class="recipe-name">${recipe.name}</h3>
+            <div class="recipe-rating">${'★'.repeat(recipe.rating)}</div>
+          </div>
+          <div class="recipe-tags">
+            <span class="tag">${recipe.season}</span>
+            <span class="tag">${recipe.health}</span>
+            <span class="tag">${recipe.usageCount}</span>
+            <span class="tag recipe-difficulty">${difficultyIcons}</span>
+          </div>
         </div>
       </div>
     `;
@@ -410,16 +412,18 @@ export const difficulties = [1, 2, 3];
           return `
               <div class="recipe-card ${recipe.favori ? 'favori' : ''}">
                   <img src="${imageSrc}" class="recipe-image" alt="${recipe.name}">
-                  <div class="recipe-overlay recipe-tags">
-                      <span class="tag">${recipe.season}</span>
-                      <span class="tag">${recipe.health}</span>
-                      <span class="tag">${recipe.usageCount}</span>
-                      <span class="tag recipe-difficulty">${difficultyIcons}</span>
-                  </div>
                   <span class="recipe-favori" onclick="toggleFavorite(${recipeIndex}, event)"><i class="fa-solid fa-heart"></i></span>
                   <div class="recipe-info">
-                      <h3 class="recipe-name">${recipe.name}</h3>
-                      <div class="recipe-rating">${'★'.repeat(recipe.rating)}</div>
+                      <div class="recipe-details">
+                          <h3 class="recipe-name">${recipe.name}</h3>
+                          <div class="recipe-rating">${'★'.repeat(recipe.rating)}</div>
+                      </div>
+                      <div class="recipe-tags">
+                          <span class="tag">${recipe.season}</span>
+                          <span class="tag">${recipe.health}</span>
+                          <span class="tag">${recipe.usageCount}</span>
+                          <span class="tag recipe-difficulty">${difficultyIcons}</span>
+                      </div>
                   </div>
                   <button onclick="addRecipeToMenu(${recipeIndex})">Ajouter au Menu</button>
               </div>
@@ -428,16 +432,18 @@ export const difficulties = [1, 2, 3];
           return `
               <div class="recipe-card ${recipe.favori ? 'favori' : ''}" onclick="showRecipeDetails(${recipeIndex})">
                   <img src="${imageSrc}" class="recipe-image" alt="${recipe.name}">
-                  <div class="recipe-overlay recipe-tags">
-                      <span class="tag">${recipe.season}</span>
-                      <span class="tag">${recipe.health}</span>
-                      <span class="tag">${recipe.usageCount}</span>
-                      <span class="tag recipe-difficulty">${difficultyIcons}</span>
-                  </div>
                   <span class="recipe-favori" onclick="toggleFavorite(${recipeIndex}, event)"><i class="fa-solid fa-heart"></i></span>
                   <div class="recipe-info">
-                      <h3 class="recipe-name">${recipe.name}</h3>
-                      <div class="recipe-rating">${'★'.repeat(recipe.rating)}</div>
+                      <div class="recipe-details">
+                          <h3 class="recipe-name">${recipe.name}</h3>
+                          <div class="recipe-rating">${'★'.repeat(recipe.rating)}</div>
+                      </div>
+                      <div class="recipe-tags">
+                          <span class="tag">${recipe.season}</span>
+                          <span class="tag">${recipe.health}</span>
+                          <span class="tag">${recipe.usageCount}</span>
+                          <span class="tag recipe-difficulty">${difficultyIcons}</span>
+                      </div>
                   </div>
               </div>
           `;
