@@ -195,15 +195,6 @@ body {
     display: block;
   }
 
-  .recipe-overlay {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    display: grid;
-    grid-template-columns: repeat(2, auto);
-    gap: 4px;
-    justify-items: end;
-  }
 
   .recipe-favori {
     position: absolute;
@@ -232,6 +223,14 @@ body {
     color: #8CD1E8;
     padding: 5px;
     box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .recipe-details {
+    display: flex;
+    flex-direction: column;
   }
 
   .recipe-name {
@@ -255,7 +254,7 @@ body {
     grid-template-columns: repeat(2, auto);
     gap: 4px;
     justify-items: end;
-    margin-top: 4px;
+    margin-top: 0;
   }
 
   .recipe-difficulty {
