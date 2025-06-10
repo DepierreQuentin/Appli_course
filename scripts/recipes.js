@@ -168,14 +168,16 @@ export const difficulties = [1, 2, 3];
     const form = `
       <form id="recipe-form">
         <h2>${isNewRecipe ? 'Ajouter une recette' : 'Modifier la recette'}</h2>
-        <input type="text" id="recipe-name" placeholder="Nom de la recette" value="${recipe.name}" required>
-        <input id="recipe-image" type="text" placeholder="URL de l'image" value="${recipe.image || ''}">
+        <div class="extra-fields">
+          <input type="text" id="recipe-name" placeholder="Nom de la recette" value="${recipe.name}" required>
+          <input id="recipe-image" type="text" placeholder="URL de l'image" value="${recipe.image || ''}">
+        </div>
         <div class="extra-fields">
           <label>Type de recette :</label>
           <select id="recipe-health" required>
             ${healthTypes.map(type => `<option value="${type}" ${recipe.health === type ? 'selected' : ''}>${type}</option>`).join('')}
           </select>
-          <label>Difficulté / Temps :</label>
+          <label>Difficulté :</label>
           <select id="recipe-difficulty" required>
             ${difficulties.map(level => `<option value="${level}" ${level == recipe.difficulty ? 'selected' : ''}>${level} fourchette${level > 1 ? 's' : ''}</option>`).join('')}
           </select>
@@ -196,7 +198,7 @@ export const difficulties = [1, 2, 3];
             `).join('')}
           </select>
         </div>
-        <textarea id="recipe-instructions">${recipe.instructions || ''}</textarea>
+        <textarea id="recipe-instructions" placeholder="Description">${recipe.instructions || ''}</textarea>
         <button type="submit">Sauvegarder</button>
       </form>
     `;
