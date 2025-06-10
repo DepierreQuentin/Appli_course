@@ -139,7 +139,7 @@ body {
   }
 
 #menu-list-jours {
-  display: grid;
+  display: flex;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 10px;
 }
@@ -359,7 +359,6 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  vertical-align: top;
 }
 
 .recipe-slot {
