@@ -12,6 +12,7 @@
     <ul>
       <li><a href="#recipes" class="tab-link" data-tab="recipes">Recettes</a></li>
       <li><a href="#menu-list" class="tab-link" data-tab="menu-list">Liste de Menus</a></li>
+      <li><a href="#settings" class="tab-link" data-tab="settings">Paramètres</a></li>
     </ul>
   </nav>
 
@@ -49,6 +50,41 @@
       <div id="menu-list-jours"></div>
       <div id="menu-items" class="recipe-list-menu"></div>
       <div class="list-menu-lists"></div>
+    </div>
+
+    <div id="settings" class="tab-content">
+      <h1>Paramètres</h1>
+      <section id="chef-settings-section">
+        <h2>Paramètres Menu du Chef</h2>
+        <label><input type="checkbox" id="chef-random-checkbox" checked> Aléatoire</label>
+        <div id="chef-settings-sliders">
+          <div class="slider-group">
+            <label for="chef-difficulty-slider">Difficulté</label>
+            <input type="range" id="chef-difficulty-slider" min="0" max="100" step="10" value="50">
+          </div>
+          <div class="slider-group">
+            <label for="chef-rating-slider">Note</label>
+            <input type="range" id="chef-rating-slider" min="0" max="100" step="10" value="50">
+          </div>
+          <div class="slider-group">
+            <label for="chef-usage-slider">Utilisations</label>
+            <input type="range" id="chef-usage-slider" min="0" max="100" step="10" value="50">
+          </div>
+          <div class="slider-group">
+            <label for="chef-type-slider">Type</label>
+            <input type="range" id="chef-type-slider" min="0" max="100" step="10" value="50">
+          </div>
+          <div class="slider-group">
+            <label for="chef-favorite-slider">Favoris</label>
+            <input type="range" id="chef-favorite-slider" min="0" max="100" step="10" value="50">
+          </div>
+          <div class="slider-group">
+            <label for="chef-season-slider">Saison</label>
+            <input type="range" id="chef-season-slider" min="0" max="100" step="10" value="50">
+            <label class="inline"><input type="checkbox" id="chef-season-all-year" checked> Inclure les recettes toute l'année</label>
+          </div>
+        </div>
+      </section>
     </div>
 
   </div>
