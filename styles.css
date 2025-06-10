@@ -518,3 +518,50 @@ body {
   white-space: nowrap;
 }
 
+/* Carousel for chef suggestions */
+.carousel {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.carousel-inner {
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  gap: 10px;
+  padding: 10px 40px;
+}
+
+.carousel-inner::-webkit-scrollbar {
+  display: none;
+}
+
+.carousel button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(76, 175, 80, 0.8);
+  border: none;
+  color: #fff;
+  padding: 5px 10px;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.carousel button:hover {
+  background: #4CAF50;
+}
+
+#carousel-prev {
+  left: 0;
+}
+
+#carousel-next {
+  right: 0;
+}
+
+.carousel-card {
+  flex: 0 0 150px;
+  height: 180px;
+}
+

@@ -1,6 +1,6 @@
 import { loadFromLocalStorage } from './storage.js';
 import { setRecipes, updateRecipeList } from './recipes.js';
-import { setListMenuList, updateListMenuList } from './menu.js';
+import { setListMenuList, updateListMenuList, updateChefCarousel } from './menu.js';
 
 function initialize() {
   const data = loadFromLocalStorage();
@@ -29,6 +29,7 @@ function initialize() {
 
   updateRecipeList();
   updateListMenuList();
+  updateChefCarousel();
 
   const randomBox = document.getElementById('chef-random-checkbox');
   const sliders = document.getElementById('chef-settings-sliders');
@@ -36,6 +37,7 @@ function initialize() {
     function toggle() {
       if (randomBox.checked) sliders.classList.add('disabled');
       else sliders.classList.remove('disabled');
+      updateChefCarousel();
     }
     randomBox.addEventListener('change', toggle);
     toggle();
@@ -46,6 +48,7 @@ function initialize() {
       if (!slider) return;
       function toggleSlider() {
         slider.disabled = !cb.checked;
+        updateChefCarousel();
       }
       cb.addEventListener('change', toggleSlider);
       toggleSlider();
@@ -72,8 +75,20 @@ function initialize() {
           }
         }
       }
-      slider.addEventListener('input', update);
+      slider.addEventListener('input', () => { update(); updateChefCarousel(); });
       update();
+    });
+  }
+
+  const prev = document.getElementById('carousel-prev');
+  const next = document.getElementById('carousel-next');
+  const inner = document.getElementById('carousel-inner');
+  if (prev && next && inner) {
+    prev.addEventListener('click', () => {
+      inner.scrollLeft -= 160;
+    });
+    next.addEventListener('click', () => {
+      inner.scrollLeft += 160;
     });
   }
 }

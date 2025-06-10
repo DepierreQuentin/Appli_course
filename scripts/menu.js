@@ -302,6 +302,74 @@ function randomMenuList() {
   document.getElementById('recipe-modal').style.display = 'none';
 }
 
+let chefCarouselIndices = [];
+
+function renderChefCarousel() {
+  const container = document.getElementById('carousel-inner');
+  if (!container) return;
+  container.innerHTML = chefCarouselIndices.map(i => {
+    const r = recipes[i];
+    const img = r.image || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+    const diffIcons = Array.from({ length: r.difficulty }).map(() => '<i class="fa-solid fa-utensils"></i>').join('');
+    return `
+      <div class="recipe-card carousel-card" draggable="true" ondragstart="dragFromCarousel(event, ${i})">
+        <img src="${img}" class="recipe-image" alt="${r.name}">
+        <div class="recipe-info">
+          <div class="recipe-details">
+            <h3 class="recipe-name">${r.name}</h3>
+            <div class="recipe-rating">${'★'.repeat(r.rating)}</div>
+          </div>
+          <div class="recipe-tags">
+            <span class="tag">${r.season}</span>
+            <span class="tag">${r.health}</span>
+            <span class="tag recipe-difficulty">${diffIcons}</span>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+  startCarouselScroll();
+}
+
+let carouselInterval = null;
+function startCarouselScroll() {
+  const inner = document.getElementById('carousel-inner');
+  if (!inner) return;
+  clearInterval(carouselInterval);
+  carouselInterval = setInterval(() => {
+    if (inner.scrollWidth <= inner.clientWidth) return;
+    inner.scrollLeft += 1;
+    if (inner.scrollLeft >= inner.scrollWidth - inner.clientWidth) inner.scrollLeft = 0;
+  }, 50);
+}
+
+function updateChefCarousel() {
+  if (typeof document === 'undefined') return;
+  const prefs = getChefMenuPrefs();
+  let indices = recipes.map((_, idx) => idx);
+  if (!prefs.allYear) {
+    indices = indices.filter(i => recipes[i].season !== "toute l'année");
+  }
+  chefCarouselIndices = [];
+  if (prefs.random) {
+    for (let i = indices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+    chefCarouselIndices = indices.slice(0, 8);
+  } else {
+    for (let k = 0; k < 8 && indices.length > 0; k++) {
+      const pick = weightedPick(indices, prefs);
+      chefCarouselIndices.push(pick);
+      indices = indices.filter(i => i !== pick);
+    }
+  }
+  renderChefCarousel();
+}
+
+function dragFromCarousel(event, recipeIndex) {
+  event.dataTransfer.setData('text', JSON.stringify({ recipe: recipeIndex }));
+}
+
 /*////////////////////AJOUTER UNE RECETTE AU MENU/////////////////////*/
 function addRecipeToMenu(recipeIndex) {
   const actualRecipe = recipes[recipeIndex];
@@ -440,6 +508,8 @@ function saveMenuList (){
   updateListMenuList ();
   saveMenusToLocalStorage(listMenuList, recipes);
   saveRecipesToLocalStorage(recipes, listMenuList);
+
+  updateChefCarousel();
  
   //réinitialiser l'objet globale menuList pour pouvoir recréer une liste, attention à faire en dernier pour que la liste de shopping puisse se remplir
   menuList = { name: '', date: '', recipes: [], startDate: null, menu: [] };// Crée une nouvelle instance d'objet
@@ -707,14 +777,25 @@ function allowDrop(event) {
 function drop(event, targetDayIndex, targetSlotIndex) {
   event.preventDefault();
   const data = JSON.parse(event.dataTransfer.getData('text'));
-  const { dayIndex, slotIndex } = data;
-
-  // Swap les recettes entre les deux emplacements
-  const temp = menuListArray[dayIndex][slotIndex];
-  menuListArray[dayIndex][slotIndex] = menuListArray[targetDayIndex][targetSlotIndex];
-  menuListArray[targetDayIndex][targetSlotIndex] = temp;
+  if (data.recipe !== undefined) {
+    const recipe = recipes[data.recipe];
+    const previous = menuListArray[targetDayIndex][targetSlotIndex];
+    if (previous) {
+      const idx = menuList.recipes.findIndex(r => r.name === previous.name);
+      if (idx !== -1) menuList.recipes.splice(idx, 1);
+    }
+    menuListArray[targetDayIndex][targetSlotIndex] = recipe;
+    menuList.recipes.push(recipe);
+  } else {
+    const { dayIndex, slotIndex } = data;
+    const temp = menuListArray[dayIndex][slotIndex];
+    menuListArray[dayIndex][slotIndex] = menuListArray[targetDayIndex][targetSlotIndex];
+    menuListArray[targetDayIndex][targetSlotIndex] = temp;
+  }
 
   updateMenuList();
+  updateCurrentShoppingList();
+  refreshCurrentMenuDetails();
 }
 
 function updateMenusWithRecipe(oldName, newRecipe) {
@@ -769,7 +850,9 @@ export {
   drag,
   allowDrop,
   drop,
-  updateMenusWithRecipe
+  updateMenusWithRecipe,
+  updateChefCarousel,
+  dragFromCarousel
 };
 
 if (typeof window !== 'undefined') {
@@ -786,6 +869,8 @@ if (typeof window !== 'undefined') {
   window.drop = drop;
   window.generatePDF = generatePDF;
   window.randomMenuList = randomMenuList;
+  window.updateChefCarousel = updateChefCarousel;
+  window.dragFromCarousel = dragFromCarousel;
 }
 
 // Affiche les listes de menus enregistrées lors du chargement
