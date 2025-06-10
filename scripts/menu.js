@@ -8,6 +8,8 @@ export let shoppingList = {};
 
 let startDateGlobal = null;// sert pour éviter de passer un paramètre à updateMenuList(), variable initialisé dans createMenuList()
 let menuListArray = [];
+let selectedDayIndex = null;
+let selectedSlotIndex = null;
 let editingMenuIndex = null; // index de la liste de menu en cours d'édition
 let currentMenuDetailIndex = null; // index de la liste de menu actuellement affichée dans le modal
 
@@ -131,10 +133,10 @@ function createMenuList(skipDuplicateCheck = false) {
 
     const slots = menuListArray[i].map((recipe, slotIndex) => `
       <td>
-        <div class="recipe-slot" data-day="${i}" data-slot="${slotIndex}">
-          ${recipe ? `<div class="recipe-card">
+        <div class="recipe-slot" data-day="${i}" data-slot="${slotIndex}" onclick="openSlotModal(${i}, ${slotIndex})">
+          ${recipe ? `<div class="recipe-card" draggable="true" ondragstart="drag(event, ${i}, ${slotIndex})">
+                        <span class="delete-cross" onclick="removeFromMenu(${i}, ${slotIndex}, event)">&times;</span>
                         <h5>${recipe.name}</h5>
-                        <button onclick="removeFromMenu(${i}, ${slotIndex})">Supprimer</button>
                       </div>`
                     : `<div class="empty-slot">Emplacement vide</div>`}
         </div>
@@ -152,13 +154,11 @@ function createMenuList(skipDuplicateCheck = false) {
       <tbody>${tableRows}</tbody>
     </table>`;
 
-  if (document.getElementById('add-recipe-button').classList.contains("hidden")) {
-    // Afficher le bouton "Ajouter une recette au menu" si il n'est pas affiché
-    document.getElementById('add-recipe-button').classList.remove("hidden");
-  }
   if (document.getElementById('save-menu-list-button').classList.contains("hidden")) {
-    // Afficher le bouton "Sauvegarder la liste de menu" si il n'est pas affiché
     document.getElementById('save-menu-list-button').classList.remove("hidden");
+  }
+  if (document.getElementById('chef-menu-button').classList.contains("hidden")) {
+    document.getElementById('chef-menu-button').classList.remove("hidden");
   }
 
   document.getElementById('menu-list-jours').classList.remove("hidden");//affiche la liste des menus en cours de création
@@ -173,12 +173,11 @@ function createMenuList(skipDuplicateCheck = false) {
 
 
 
-  function addToMenu() {
-    // Crée le formulaire de recherche
-    setFilteredRecipes([]);
-    const activeSection = document.querySelector('.tab-content.active');// Trouver la section active
-    if (activeSection.querySelector('.recipe-search-form')) return;//Vérfier qu'un formulaire de recherche n'existe pas déjà si oui ressort de la fonction (évite les doublons)
-    const form = `
+function openSlotModal(dayIndex, slotIndex) {
+  selectedDayIndex = dayIndex;
+  selectedSlotIndex = slotIndex;
+  setFilteredRecipes([]);
+  const form = `
       <form class="recipe-search-form">
         <input type="text" class="recipe-name-search" placeholder="Nom de la recette">
         <select class="recipe-season-search">
@@ -196,16 +195,12 @@ function createMenuList(skipDuplicateCheck = false) {
           <option value="1">1 étoile et plus</option>
         </select>
         <button type="button" onclick="searchRecipes('recipe-modal')">Rechercher</button>
-        <button type="button" onclick="randomMenuList()">Remplir aléatoirement</button>
       </form>
       <div class="recipe-list"></div>
     `;
 
-    document.getElementById('recipe-modal-body').innerHTML = form;
-    document.getElementById('recipe-modal').style.display = 'block';
-
-    // Insère le formulaire dans le DOM avant l'élément ayant l'ID 'menu-items'
-    //document.getElementById('menu-items').insertAdjacentHTML('beforebegin', form);
+  document.getElementById('recipe-modal-body').innerHTML = form;
+  document.getElementById('recipe-modal').style.display = 'block';
 }
 
 /*/////////////////CREER UN LISTE DE RECETTE RANDOM ET L'AJOUTE A LA LISTE DE MENU/////////// */
@@ -249,40 +244,48 @@ function randomMenuList() {
 
 /*////////////////////AJOUTER UNE RECETTE AU MENU/////////////////////*/
 function addRecipeToMenu(recipeIndex) {
-  // Si filteredRecipes est null, utiliser le tableau complet des recettes
-  
-  // Récupérer la recette à partir de son index dans le tableau `recipes`
   const actualRecipe = recipes[recipeIndex];
- 
 
   if (!actualRecipe) {
     alert('Indice de recette invalide.');
     return;
   }
 
-  let added = false;
-  // Parcourir le menu pour trouver un emplacement vide
-  for (let dayIndex = 0; dayIndex < menuListArray.length; dayIndex++) {
-    for (let slotIndex = 0; slotIndex < menuListArray[dayIndex].length; slotIndex++) {
-      if (menuListArray[dayIndex][slotIndex] === null) {  // Trouver un emplacement vide
-        menuListArray[dayIndex][slotIndex] = actualRecipe;  // Ajouter la recette
-        added = true;
-        break;
-      }
+  if (selectedDayIndex !== null && selectedSlotIndex !== null) {
+    const previous = menuListArray[selectedDayIndex][selectedSlotIndex];
+    if (previous) {
+      const idx = menuList.recipes.findIndex(r => r.name === previous.name);
+      if (idx !== -1) menuList.recipes.splice(idx, 1);
     }
-    if (added) break;
+    menuListArray[selectedDayIndex][selectedSlotIndex] = actualRecipe;
+    menuList.recipes.push(actualRecipe);
+  } else {
+    let added = false;
+    for (let dayIndex = 0; dayIndex < menuListArray.length; dayIndex++) {
+      for (let slotIndex = 0; slotIndex < menuListArray[dayIndex].length; slotIndex++) {
+        if (menuListArray[dayIndex][slotIndex] === null) {
+          menuListArray[dayIndex][slotIndex] = actualRecipe;
+          added = true;
+          break;
+        }
+      }
+      if (added) break;
+    }
+
+    if (!added) {
+      alert('Tous les emplacements de menu sont occupés.');
+      document.getElementById('recipe-modal').style.display = 'none';
+      return;
+    }
+    menuList.recipes.push(actualRecipe);
   }
 
-  if (!added) {
-    alert('Tous les emplacements de menu sont occupés.');
-  } else {
-    menuList.recipes.push(actualRecipe); // Ajouter la recette à la liste de menu
-    updateMenuList();  // Mettre à jour l'affichage
-    updateCurrentShoppingList();
-    refreshCurrentMenuDetails();
-  }
-  // Fermer la fenêtre une fois la recette ajoutée
+  updateMenuList();
+  updateCurrentShoppingList();
+  refreshCurrentMenuDetails();
   document.getElementById('recipe-modal').style.display = 'none';
+  selectedDayIndex = null;
+  selectedSlotIndex = null;
 }
 
 /*////////////////METS A JOUR LA LISTE DE MENU EN COURS DE CREATION//////////////*/
@@ -304,10 +307,10 @@ function updateMenuList() {
 
     const slots = day.map((recipe, slotIndex) => `
       <td>
-        <div class="recipe-slot" data-day="${dayIndex}" data-slot="${slotIndex}" ondragover="allowDrop(event)" ondrop="drop(event, ${dayIndex}, ${slotIndex})">
+        <div class="recipe-slot" data-day="${dayIndex}" data-slot="${slotIndex}" ondragover="allowDrop(event)" ondrop="drop(event, ${dayIndex}, ${slotIndex})" onclick="openSlotModal(${dayIndex}, ${slotIndex})">
           ${recipe ? `<div class="recipe-card" draggable="true" ondragstart="drag(event, ${dayIndex}, ${slotIndex})">
+                        <span class="delete-cross" onclick="removeFromMenu(${dayIndex}, ${slotIndex}, event)">&times;</span>
                         <h5>${recipe.name}</h5>
-                        <button onclick="removeFromMenu(${dayIndex}, ${slotIndex})">Supprimer</button>
                       </div>`
                     : `<div class="empty-slot">Emplacement vide</div>`}
         </div>
@@ -410,12 +413,11 @@ function updateListMenuList (){
   if(!document.getElementById('menu-list-jours').classList.contains("hidden")){
     document.getElementById('menu-list-jours').classList.add("hidden");
   }
-  //toggle retire ou ajoute la classe en fonction de si elle est présente ou non
-  if(!document.getElementById('add-recipe-button').classList.contains("hidden")){
-    document.getElementById('add-recipe-button').classList.add("hidden");
-  }
   if(!document.getElementById('save-menu-list-button').classList.contains("hidden")){
     document.getElementById('save-menu-list-button').classList.add("hidden");
+  }
+  if(!document.getElementById('chef-menu-button').classList.contains("hidden")){
+    document.getElementById('chef-menu-button').classList.add("hidden");
   }
   const formContainer = document.getElementById('menu-form-container');
   if(formContainer && !formContainer.classList.contains('hidden')){
@@ -573,8 +575,8 @@ function editMenuList (index){
   updateMenuList();
 
   document.getElementById('menu-list-jours').classList.remove('hidden');
-  document.getElementById('add-recipe-button').classList.remove('hidden');
   document.getElementById('save-menu-list-button').classList.remove('hidden');
+  document.getElementById('chef-menu-button').classList.remove('hidden');
   if(!document.getElementById('creerListMenu').classList.contains('hidden')){
     document.getElementById('creerListMenu').classList.add('hidden');
   }
@@ -609,7 +611,11 @@ function deleteMenuList (index){
 }
 
 
-function removeFromMenu(dayIndex, slotIndex) {
+function removeFromMenu(dayIndex, slotIndex, event) {
+
+  if (event) {
+    event.stopPropagation();
+  }
 
 // Trouver la recette à supprimer dans menuList
   const recipeToRemove = menuListArray[dayIndex][slotIndex];
@@ -688,7 +694,7 @@ export {
   getTodayDate,
   calculateNumberOfDays,
   createMenuList,
-  addToMenu,
+  openSlotModal,
   randomMenuList,
   addRecipeToMenu,
   updateMenuList,
@@ -706,7 +712,7 @@ export {
 
 if (typeof window !== 'undefined') {
   window.addMenuList = addMenuList;
-  window.addToMenu = addToMenu;
+  window.openSlotModal = openSlotModal;
   window.saveMenuList = saveMenuList;
   window.showMenuListDetails = showMenuListDetails;
   window.editMenuList = editMenuList;
