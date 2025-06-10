@@ -172,15 +172,13 @@ body {
   }
   
   .recipe-card {
-    background-color: white;
+    position: relative;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     cursor: pointer;
     transition: transform 0.3s;
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    padding: 0;
+    height: 200px;
   }
   .recipe-card:hover {
     transform: translateY(-5px);
@@ -192,7 +190,7 @@ body {
 
   .recipe-image {
     width: 100%;
-    height: 200px;
+    height: 100%;
     object-fit: cover;
     display: block;
   }
@@ -212,7 +210,7 @@ body {
     position: absolute;
     top: 8px;
     right: 8px;
-    color: #FFD700;
+    color: #fff;
     display: none;
     font-size: 1.2em;
   }
@@ -221,14 +219,36 @@ body {
     display: block;
   }
 
+  .recipe-card.favori .recipe-favori {
+    display: block;
+    color: red;
+  }
+
+  .recipe-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    padding: 5px;
+    box-sizing: border-box;
+  }
+
   .recipe-name {
-    margin: 10px;
+    margin: 0;
+    display: flex;
+    align-items: center;
   }
 
   .recipe-tags {
     display: flex;
     gap: 5px;
-    margin: 0 10px 10px;
+    margin-top: 4px;
+  }
+
+  .recipe-difficulty {
+    margin-left: 6px;
   }
 
   .tag {

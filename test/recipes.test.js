@@ -44,7 +44,6 @@ test('sortRecipes sorts alphabetically', () => {
   };
   sortRecipes('alphabetical');
   delete globalThis.document;
-  const indexA = recipeList.innerHTML.indexOf('>A<');
-  const indexB = recipeList.innerHTML.indexOf('>B<');
-  assert.ok(indexA !== -1 && indexB !== -1 && indexA < indexB);
+  const names = [...recipeList.innerHTML.matchAll(/class=\"recipe-name\">([^<]+)/g)].map(m => m[1].trim());
+  assert.deepEqual(names.slice(0,2), ['A', 'B']);
 });
