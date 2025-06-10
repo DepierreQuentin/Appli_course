@@ -153,6 +153,9 @@ function createMenuList(skipDuplicateCheck = false) {
   if (document.getElementById('chef-menu-button').classList.contains("hidden")) {
     document.getElementById('chef-menu-button').classList.remove("hidden");
   }
+  if (document.getElementById('clear-menu-recipes-button').classList.contains("hidden")) {
+    document.getElementById('clear-menu-recipes-button').classList.remove("hidden");
+  }
 
   document.getElementById('menu-list-jours').classList.remove("hidden");//affiche la liste des menus en cours de création
   const menuContainer = document.querySelector('.list-menu-lists');
@@ -548,10 +551,12 @@ function updateListMenuList (){
   const menuList = document.querySelector('.list-menu-lists');// Trouver le conteneur de la liste des recettes avec la classe 'recipe-list'  dans la section active
 
   menuList.innerHTML = listMenuList.map((menuList, index) => `
-    <div class="recipe-card" onclick="showMenuListDetails(${index})">
-      <h3>${menuList.name}</h3>
-      <p>Créé le: ${menuList.date}</p>
-      <p>Nombre de recette: ${menuList.recipes.length}</p>
+    <div class="menu-list-card" onclick="showMenuListDetails(${index})">
+      <div class="menu-list-header">
+        <h3>${menuList.name}</h3>
+        <span class="menu-list-date">${menuList.date}</span>
+      </div>
+      <div class="menu-list-recipes">${menuList.recipes.length} recettes</div>
     </div>
   `).join('');
 
@@ -569,6 +574,9 @@ function updateListMenuList (){
   }
   if(!document.getElementById('chef-menu-button').classList.contains("hidden")){
     document.getElementById('chef-menu-button').classList.add("hidden");
+  }
+  if(!document.getElementById('clear-menu-recipes-button').classList.contains("hidden")){
+    document.getElementById('clear-menu-recipes-button').classList.add("hidden");
   }
   const formContainer = document.getElementById('menu-form-container');
   if(formContainer && !formContainer.classList.contains('hidden')){
@@ -728,6 +736,7 @@ function editMenuList (index){
   document.getElementById('menu-list-jours').classList.remove('hidden');
   document.getElementById('save-menu-list-button').classList.remove('hidden');
   document.getElementById('chef-menu-button').classList.remove('hidden');
+  document.getElementById('clear-menu-recipes-button').classList.remove('hidden');
   if(!document.getElementById('creerListMenu').classList.contains('hidden')){
     document.getElementById('creerListMenu').classList.add('hidden');
   }
@@ -782,6 +791,14 @@ function removeFromMenu(dayIndex, slotIndex, event) {
   menuListArray[dayIndex][slotIndex] = null;
 
   // Mettre à jour l'interface pour refléter le changement
+  updateMenuList();
+  updateCurrentShoppingList();
+  refreshCurrentMenuDetails();
+}
+
+function clearMenuRecipes() {
+  menuList.recipes = [];
+  menuListArray = menuListArray.map(day => day.map(() => null));
   updateMenuList();
   updateCurrentShoppingList();
   refreshCurrentMenuDetails();
@@ -868,6 +885,7 @@ export {
   editMenuList,
   deleteMenuList,
   removeFromMenu,
+  clearMenuRecipes,
   drag,
   allowDrop,
   drop,
@@ -886,6 +904,7 @@ if (typeof window !== 'undefined') {
   window.deleteMenuList = deleteMenuList;
   window.addRecipeToMenu = addRecipeToMenu;
   window.removeFromMenu = removeFromMenu;
+  window.clearMenuRecipes = clearMenuRecipes;
   window.drag = drag;
   window.allowDrop = allowDrop;
   window.drop = drop;

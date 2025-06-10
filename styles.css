@@ -566,3 +566,44 @@ body {
   height: 200px;
 }
 
+/* Compact card style for saved menu lists */
+.menu-list-card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 10px;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+.menu-list-card:hover {
+  transform: translateY(-5px);
+}
+
+.menu-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.menu-list-date {
+  font-size: 0.8em;
+  color: #666;
+}
+
+.menu-list-recipes {
+  margin-top: 8px;
+  font-weight: bold;
+}
+
+/* Align fields side by side in recipe form */
+.extra-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.extra-fields > * {
+  flex: 1;
+}
+
