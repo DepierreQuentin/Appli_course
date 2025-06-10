@@ -410,7 +410,7 @@ export const difficulties = [1, 2, 3];
 
       if (sectionId === 'recipe-modal') {
           return `
-              <div class="recipe-card ${recipe.favori ? 'favori' : ''}">
+              <div class="recipe-card ${recipe.favori ? 'favori' : ''}" onclick="addRecipeToMenu(${recipeIndex})">
                   <img src="${imageSrc}" class="recipe-image" alt="${recipe.name}">
                   <span class="recipe-favori" onclick="toggleFavorite(${recipeIndex}, event)"><i class="fa-solid fa-heart"></i></span>
                   <div class="recipe-info">
@@ -425,7 +425,6 @@ export const difficulties = [1, 2, 3];
                           <span class="tag recipe-difficulty">${difficultyIcons}</span>
                       </div>
                   </div>
-                  <button onclick="addRecipeToMenu(${recipeIndex})">Ajouter au Menu</button>
               </div>
           `;
       } else {
