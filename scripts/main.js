@@ -39,6 +39,17 @@ function initialize() {
     }
     randomBox.addEventListener('change', toggle);
     toggle();
+
+    sliders.querySelectorAll('input[type="range"]').forEach(slider => {
+      const output = document.getElementById(slider.id.replace('-slider', '-value'));
+      function update() {
+        if (!output) return;
+        const val = parseInt(slider.value, 10);
+        output.textContent = val === 50 ? 'Aléatoire' : val;
+      }
+      slider.addEventListener('input', update);
+      update();
+    });
   }
 }
 
