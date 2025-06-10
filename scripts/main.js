@@ -40,12 +40,37 @@ function initialize() {
     randomBox.addEventListener('change', toggle);
     toggle();
 
+    // enable/disable sliders based on per-slider switches
+    sliders.querySelectorAll('input[type="checkbox"][id$="-enabled"]').forEach(cb => {
+      const slider = document.getElementById(cb.id.replace('-enabled', '-slider'));
+      if (!slider) return;
+      function toggleSlider() {
+        slider.disabled = !cb.checked;
+      }
+      cb.addEventListener('change', toggleSlider);
+      toggleSlider();
+    });
+
+    const phrases = ['l\xE9g\xE8rement plus', 'un peu plus', 'plus', 'beaucoup plus'];
+
     sliders.querySelectorAll('input[type="range"]').forEach(slider => {
       const output = document.getElementById(slider.id.replace('-slider', '-value'));
+      const left = slider.parentElement.querySelector('.slider-label-left')?.textContent.trim() || '';
+      const right = slider.parentElement.querySelector('.slider-label-right')?.textContent.trim() || '';
       function update() {
         if (!output) return;
         const val = parseInt(slider.value, 10);
-        output.textContent = val === 50 ? 'Aléatoire' : val;
+        const diff = Math.abs(val - 50) / 10;
+        if (diff === 0) {
+          output.textContent = '50/50';
+        } else {
+          const label = val < 50 ? left : right;
+          if (diff >= 5) {
+            output.textContent = label;
+          } else {
+            output.textContent = `${phrases[diff - 1]} ${label}`;
+          }
+        }
       }
       slider.addEventListener('input', update);
       update();
