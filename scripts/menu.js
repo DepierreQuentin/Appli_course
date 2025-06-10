@@ -1,5 +1,6 @@
 import { recipes, filteredRecipes, setFilteredRecipes } from './recipes.js';
 import { saveRecipesToLocalStorage, saveMenusToLocalStorage } from './storage.js';
+import { formatDate } from './utils.js';
 
 export let listMenuList = [];
 export function setListMenuList(data) { listMenuList = data; }
@@ -56,19 +57,11 @@ export const options = {
   
   /*////////////////RETOURNE LA DATE DU JOUR OU SI ARGUMENT DATE DU JOUR + JOUR A AJOUTER ////////////////*/
   function getTodayDate(daysToAdd) {
-    const today = new Date(); // Date du jour
-    const newDate = new Date(today); // Créer une copie de la date du jour
-
-    // Ajouter des jours si daysToAdd est défini, sinon ne rien ajouter
+    const date = new Date();
     if (daysToAdd !== undefined && daysToAdd !== null) {
-        newDate.setDate(today.getDate() + daysToAdd);
+      date.setDate(date.getDate() + daysToAdd);
     }
-    // Formater la date au format YYYY-MM-DD
-    const year = newDate.getFullYear();
-    const month = String(newDate.getMonth() + 1).padStart(2, '0'); // Mois entre 01 et 12
-    const day = String(newDate.getDate()).padStart(2, '0'); // Jour entre 01 et 31
-    
-    return `${year}-${month}-${day}`;
+    return formatDate(date);
   }
   
   /*////////////////CALCULE LE NB DE JOUR POUR LA LISTE DE MENU////////////////*/
@@ -750,10 +743,12 @@ function updateMenusWithRecipe(oldName, newRecipe) {
   }));
 
   // Mettre à jour l'affichage et la liste d'ingrédients si nécessaire
-  updateMenuList();
-  updateListMenuList();
-  updateCurrentShoppingList();
-  refreshCurrentMenuDetails();
+  if (typeof document !== 'undefined') {
+    updateMenuList();
+    updateListMenuList();
+    updateCurrentShoppingList();
+    refreshCurrentMenuDetails();
+  }
 }
 
 export {
