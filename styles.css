@@ -198,12 +198,11 @@ body {
   .recipe-overlay {
     position: absolute;
     top: 8px;
-    left: 8px;
-    display: flex;
+    right: 8px;
+    display: grid;
+    grid-template-columns: repeat(2, auto);
     gap: 4px;
-    font-size: 1.3em;
-    color: #FFD700;
-    text-shadow: 0 0 2px #000;
+    justify-items: end;
   }
 
   .recipe-favori {
@@ -239,16 +238,32 @@ body {
     margin: 0;
     display: flex;
     align-items: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .recipe-rating {
+    color: #FFD700;
+    text-shadow: 0 0 2px #000;
+    font-size: 1.1em;
+    margin-top: 4px;
   }
 
   .recipe-tags {
-    display: flex;
-    gap: 5px;
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    gap: 4px;
+    justify-items: end;
     margin-top: 4px;
   }
 
   .recipe-difficulty {
-    margin-left: 6px;
+    margin-left: 0;
+  }
+
+  .recipe-difficulty i {
+    color: #fff;
   }
 
   .tag {
