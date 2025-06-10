@@ -168,7 +168,7 @@ export const difficulties = [1, 2, 3];
     const form = `
       <form id="recipe-form">
         <h2>${isNewRecipe ? 'Ajouter une recette' : 'Modifier la recette'}</h2>
-        <input type="text" id="recipe-name" value="${recipe.name}" required>
+        <input type="text" id="recipe-name" placeholder="Nom de la recette" value="${recipe.name}" required>
         <input id="recipe-image" type="text" placeholder="URL de l'image" value="${recipe.image || ''}">
         <div class="extra-fields">
           <label>Type de recette :</label>
@@ -184,16 +184,18 @@ export const difficulties = [1, 2, 3];
           ${isNewRecipe ? '' : showIngredientsInEditRecipe(index)}
         </div>
         <button type="button" onclick="addIngredientInputToEdit()">Ajouter un ingrédient</button>
-        <select id="recipe-season" required>
-          ${seasons.map(season => `
-            <option value="${season}" ${season === recipe.season ? 'selected' : ''}>${season}</option>
-          `).join('')}
-        </select>
-        <select id="recipe-rating" required>
-          ${[1, 2, 3, 4, 5].map(rating => `
-            <option value="${rating}" ${rating == recipe.rating ? 'selected' : ''}>${rating} étoile${rating > 1 ? 's' : ''}</option>
-          `).join('')}
-        </select>
+        <div class="extra-fields">
+          <select id="recipe-season" required>
+            ${seasons.map(season => `
+              <option value="${season}" ${season === recipe.season ? 'selected' : ''}>${season}</option>
+            `).join('')}
+          </select>
+          <select id="recipe-rating" required>
+            ${[1, 2, 3, 4, 5].map(rating => `
+              <option value="${rating}" ${rating == recipe.rating ? 'selected' : ''}>${rating} étoile${rating > 1 ? 's' : ''}</option>
+            `).join('')}
+          </select>
+        </div>
         <textarea id="recipe-instructions">${recipe.instructions || ''}</textarea>
         <button type="submit">Sauvegarder</button>
       </form>
