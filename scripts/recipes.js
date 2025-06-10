@@ -61,6 +61,7 @@ export const difficulties = [1, 2, 3];
       const realIndex = recipes.indexOf(recipe);
       return `
       <div class="recipe-card" onclick="showRecipeDetails(${realIndex})">
+        ${recipe.image ? `<img src="${recipe.image}" class="recipe-image" alt="${recipe.name}">` : ''}
         <h3>${recipe.name}</h3>
         <div class="recipe-header">
           <span class="recipe-difficulty">${'🍴'.repeat(recipe.difficulty)}</span>
@@ -131,6 +132,7 @@ export const difficulties = [1, 2, 3];
     const modalBody = document.getElementById('recipe-modal-body');
     modalBody.innerHTML = `
       <h2>${recipe.name}</h2>
+      ${recipe.image ? `<img src="${recipe.image}" class="recipe-image" alt="${recipe.name}">` : ''}
       <p>Type: ${recipe.health}</p>
       <p>Difficulté: ${'🍴'.repeat(recipe.difficulty)}</p>
       <p>Saison: ${recipe.season}</p>
@@ -154,14 +156,15 @@ export const difficulties = [1, 2, 3];
  /*/////////////CREE OU MODIFIE UNE RECETTE/////////// */
   function editRecipe(index = null) {
     const isNewRecipe = index === null;
-    const recipe = isNewRecipe 
-      ? { name: '', ingredients: [], season: seasons[0], rating: 1, instructions: '', health: healthTypes[1], difficulty: difficulties[0], favori: false }
+    const recipe = isNewRecipe
+      ? { name: '', ingredients: [], season: seasons[0], rating: 1, instructions: '', health: healthTypes[1], difficulty: difficulties[0], favori: false, image: '' }
       : recipes[index];
 
     const form = `
       <form id="recipe-form">
         <h2>${isNewRecipe ? 'Ajouter une recette' : 'Modifier la recette'}</h2>
         <input type="text" id="recipe-name" value="${recipe.name}" required>
+        <input id="recipe-image" type="text" placeholder="URL de l'image" value="${recipe.image || ''}">
         <div class="extra-fields">
           <label>Type de recette :</label>
           <select id="recipe-health" required>
@@ -321,6 +324,7 @@ export const difficulties = [1, 2, 3];
     const instructions = document.getElementById('recipe-instructions').value;
     const health = document.getElementById('recipe-health').value;
     const difficulty = parseInt(document.getElementById('recipe-difficulty').value, 10);
+    const image = document.getElementById('recipe-image').value;
     // Validation pour s'assurer que chaque ingrédient a un nom
     /*const hasEmptyIngredient = ingredients.some(ingredient => !ingredient.name);
 
@@ -331,7 +335,7 @@ export const difficulties = [1, 2, 3];
   
     //const recipe = { name, ingredients, season, rating, instructions, creationDate: new Date().toISOString(), usageCount: 0 };
     const ingredientNames = ingredients.map(ing => ing.name);
-    const recipe = { name, ingredients, ingredientNames, season, rating, instructions, health, difficulty, creationDate: new Date().toISOString(), usageCount: 0 };
+    const recipe = { name, ingredients, ingredientNames, season, rating, instructions, health, difficulty, image, creationDate: new Date().toISOString(), usageCount: 0 };
   
     if (index === null) {
       // Ajouter une nouvelle recette
@@ -341,7 +345,7 @@ export const difficulties = [1, 2, 3];
     } else {
       const oldName = recipes[index].name;
       // Modifier une recette existante
-      recipes[index] = { ...recipes[index], name, ingredients, ingredientNames, season, rating, instructions, health, difficulty};
+      recipes[index] = { ...recipes[index], name, ingredients, ingredientNames, season, rating, instructions, health, difficulty, image };
       updateMenusWithRecipe(oldName, recipes[index]);
       showRecipeDetails(index);
 
@@ -401,6 +405,7 @@ export const difficulties = [1, 2, 3];
       if (sectionId === 'recipe-modal') {
           return `
               <div class="recipe-card">
+                  ${recipe.image ? `<img src="${recipe.image}" class="recipe-image" alt="${recipe.name}">` : ''}
                   <h3>${recipe.name}</h3>
                   <div class="recipe-header">
                     <span class="recipe-difficulty">${'🍴'.repeat(recipe.difficulty)}</span>
@@ -417,6 +422,7 @@ export const difficulties = [1, 2, 3];
           // Sinon, rendre la carte cliquable pour afficher les détails de la recette
           return `
               <div class="recipe-card" onclick="showRecipeDetails(${recipeIndex})">
+                  ${recipe.image ? `<img src="${recipe.image}" class="recipe-image" alt="${recipe.name}">` : ''}
                   <h3>${recipe.name}</h3>
                   <div class="recipe-header">
                     <span class="recipe-difficulty">${'🍴'.repeat(recipe.difficulty)}</span>

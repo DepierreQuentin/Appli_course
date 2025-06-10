@@ -283,3 +283,10 @@ body {
   width: 40%;
   white-space: nowrap;
 }
+
+.recipe-image {
+  width: 100%;
+  height: auto;
+  border-radius: 8px 8px 0 0;
+  margin-bottom: 10px;
+}

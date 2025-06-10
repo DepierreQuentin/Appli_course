@@ -25,6 +25,9 @@ export function loadFromLocalStorage() {
     if (!r.ingredientNames) {
       r.ingredientNames = r.ingredients.map(i => i.name);
     }
+    if (!('image' in r)) {
+      r.image = '';
+    }
   });
   const storedMenus = localStorage.getItem('listMenuList');
   const listMenuList = storedMenus ? JSON.parse(storedMenus) : [];
