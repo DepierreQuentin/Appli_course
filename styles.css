@@ -201,7 +201,7 @@ body {
     left: 8px;
     display: flex;
     gap: 4px;
-    font-size: 0.9em;
+    font-size: 1.3em;
     color: #FFD700;
     text-shadow: 0 0 2px #000;
   }
@@ -230,7 +230,7 @@ body {
     left: 0;
     width: 100%;
     background: rgba(0,0,0,0.6);
-    color: #fff;
+    color: #8CD1E8;
     padding: 5px;
     box-sizing: border-box;
   }
@@ -252,8 +252,8 @@ body {
   }
 
   .tag {
-    background-color: #eee;
     border-radius: 12px;
+    border: solid 1px;
     padding: 2px 8px;
     font-size: 0.8em;
   }
