@@ -1,4 +1,4 @@
-import { saveRecipesToLocalStorage, saveMenusToLocalStorage } from './storage.js';
+import { saveRecipesToLocalStorage, saveMenusToLocalStorage, createRecipeId } from './storage.js';
 import { listMenuList, updateMenusWithRecipe } from './menu.js';
 
 export let recipes = [];
@@ -342,9 +342,24 @@ export const difficulties = [1, 2, 3];
         return; // Arrêter l'exécution si un ingrédient est invalide
     }*/
   
-    //const recipe = { name, ingredients, season, rating, instructions, creationDate: new Date().toISOString(), usageCount: 0 };
-    const ingredientNames = ingredients.map(ing => ing.name);
-    const recipe = { name, ingredients, ingredientNames, season, rating, instructions, health, difficulty, image, creationDate: new Date().toISOString(), usageCount: 0 };
+    const creationDate = index === null ? new Date().toISOString() : recipes[index].creationDate;
+    const recipeId = index === null
+      ? createRecipeId({ name, creationDate })
+      : (recipes[index].recipeId || createRecipeId({ name, creationDate }));
+    const recipe = {
+      recipeId,
+      name,
+      ingredients,
+      season,
+      rating,
+      instructions,
+      health,
+      difficulty,
+      image,
+      creationDate,
+      usageCount: 0,
+      favori: index === null ? false : recipes[index].favori
+    };
   
     if (index === null) {
       // Ajouter une nouvelle recette
@@ -352,10 +367,25 @@ export const difficulties = [1, 2, 3];
       index = recipes.length - 1;
       showRecipeDetails(index);
     } else {
-      const oldName = recipes[index].name;
+      const currentUsage = recipes[index].usageCount;
+      const currentFavorite = recipes[index].favori;
       // Modifier une recette existante
-      recipes[index] = { ...recipes[index], name, ingredients, ingredientNames, season, rating, instructions, health, difficulty, image };
-      updateMenusWithRecipe(oldName, recipes[index]);
+      recipes[index] = {
+        ...recipes[index],
+        recipeId,
+        name,
+        ingredients,
+        season,
+        rating,
+        instructions,
+        health,
+        difficulty,
+        image,
+        creationDate,
+        usageCount: currentUsage,
+        favori: currentFavorite
+      };
+      updateMenusWithRecipe(recipeId, true);
       showRecipeDetails(index);
 
     }
@@ -370,12 +400,12 @@ export const difficulties = [1, 2, 3];
   /*/////////////SUPPRIME UNE RECETTE/////////// */
   function deleteRecipe(index) {
     if (confirm('Êtes-vous sûr de vouloir supprimer cette recette ?')) {
-      const oldName = recipes[index].name;
+      const recipeId = recipes[index].recipeId;
       recipes.splice(index, 1);
       filteredRecipes.splice(index, 1);
       // Mise à jour de `filteredRecipes`
       filteredRecipes = filteredRecipes.filter(i => i !== index).map(i => (i > index ? i - 1 : i));
-      updateMenusWithRecipe(oldName, null);
+      updateMenusWithRecipe(recipeId, false);
       updateRecipeList();
       saveMenusToLocalStorage(listMenuList, recipes);
       saveRecipesToLocalStorage(recipes, listMenuList);
