@@ -1,4 +1,4 @@
-import { collection, doc, getDocs, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { collection, deleteDoc, doc, getDocs, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import { db } from './firebase.js';
 
 const SLOT_KEYS = ['midi', 'soir'];
@@ -51,15 +51,26 @@ export function recomputeUsageCounts(recipes, menus) {
 
 export async function saveRecipesToLocalStorage(recipes, menus) {
   recomputeUsageCounts(recipes, menus);
+  const recipeIds = new Set(recipes.map(recipe => recipe.recipeId));
+  const existingRecipesSnapshot = await getDocs(collection(db, 'recipes'));
+  await Promise.all(existingRecipesSnapshot.docs
+    .filter(docSnap => !recipeIds.has(docSnap.id))
+    .map(docSnap => deleteDoc(docSnap.ref)));
   await Promise.all(recipes.map(recipe => setDoc(doc(db, 'recipes', recipe.recipeId), recipe)));
 }
 
 export async function saveMenusToLocalStorage(menus, recipes) {
   recomputeUsageCounts(recipes, menus);
-  await Promise.all(menus.map(menu => {
+  const menusWithIds = menus.map(menu => {
     const menuId = menu.menuId || createMenuId(menu);
-    return setDoc(doc(db, 'menus', menuId), { ...menu, menuId });
-  }));
+    return { ...menu, menuId };
+  });
+  const menuIds = new Set(menusWithIds.map(menu => menu.menuId));
+  const existingMenusSnapshot = await getDocs(collection(db, 'menus'));
+  await Promise.all(existingMenusSnapshot.docs
+    .filter(docSnap => !menuIds.has(docSnap.id))
+    .map(docSnap => deleteDoc(docSnap.ref)));
+  await Promise.all(menusWithIds.map(menu => setDoc(doc(db, 'menus', menu.menuId), menu)));
 }
 
 export async function loadFromLocalStorage() {
