@@ -35,8 +35,8 @@ export const difficulties = [1, 2, 3];
     <option value="">Trier par</option>
     <option value="alphabetical">Ordre alphabétique</option>
     <option value="reverseAlphabetical">Ordre alphabétique inverse</option>
-    <option value="ascendingUsage">Les plus utilisées</option>
-    <option value="descendingUsage">Les moins utilisées</option>
+    <option value="descendingUsage">Les plus utilisées</option>
+    <option value="ascendingUsage">Les moins utilisées</option>
     <option value="bestRated">Les mieux notées</option>
     <option value="favorites">Favoris</option>
     </select>`;
