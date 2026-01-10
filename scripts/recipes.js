@@ -22,8 +22,11 @@ export const difficulties = [1, 2, 3];
 /*//////////METS A JOUR LA LISTE DES RECETTES A AFFICHER/////////*/
   function updateRecipeList(recipeArray) {
     
-    const activeSection = document.querySelector('.tab-content.active');// Trouver la section active
-    const recipeList = activeSection.querySelector('.recipe-list');// Trouver le conteneur de la liste des recettes avec la classe 'recipe-list'  dans la section active
+    const recipesSection = document.getElementById('recipes') || document.querySelector('.tab-content.active');// Trouver la section active
+    const recipeList = recipesSection ? recipesSection.querySelector('.recipe-list') : null;// Trouver le conteneur de la liste des recettes avec la classe 'recipe-list'  dans la section active
+    if (!recipeList) {
+      return;
+    }
   
 
     if(!document.getElementById('sort-select')){
@@ -81,10 +84,20 @@ export const difficulties = [1, 2, 3];
     }).join('');
   }
 
+  function refreshRecipeDisplay() {
+    const sortSelect = document.getElementById('sort-select');
+    const criteria = sortSelect ? sortSelect.value : '';
+    if (criteria) {
+      sortRecipes(criteria);
+      return;
+    }
+    updateRecipeList();
+  }
+
   function toggleFavorite(index, event) {
     event.stopPropagation();
     recipes[index].favori = !recipes[index].favori;
-    updateRecipeList();
+    refreshRecipeDisplay();
     saveRecipesToLocalStorage(recipes, listMenuList);
   }
 
@@ -390,7 +403,7 @@ export const difficulties = [1, 2, 3];
 
     }
 
-  updateRecipeList();
+  refreshRecipeDisplay();
   saveMenusToLocalStorage(listMenuList, recipes);
   saveRecipesToLocalStorage(recipes, listMenuList);
     
@@ -406,9 +419,9 @@ export const difficulties = [1, 2, 3];
       // Mise à jour de `filteredRecipes`
       filteredRecipes = filteredRecipes.filter(i => i !== index).map(i => (i > index ? i - 1 : i));
       updateMenusWithRecipe(recipeId, false);
-      updateRecipeList();
-      saveMenusToLocalStorage(listMenuList, recipes);
-      saveRecipesToLocalStorage(recipes, listMenuList);
+  refreshRecipeDisplay();
+  saveMenusToLocalStorage(listMenuList, recipes);
+  saveRecipesToLocalStorage(recipes, listMenuList);
       document.getElementById('recipe-modal').style.display = 'none';
     }
   }
@@ -498,7 +511,8 @@ export {
   searchRecipes,
   showIngredientsInEditRecipe,
   updateDeleteButtons,
-  formatName
+  formatName,
+  refreshRecipeDisplay
 };
 
 

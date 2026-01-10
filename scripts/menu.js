@@ -1,4 +1,4 @@
-import { recipes, filteredRecipes, setFilteredRecipes } from './recipes.js';
+import { recipes, filteredRecipes, setFilteredRecipes, refreshRecipeDisplay } from './recipes.js';
 import { saveRecipesToLocalStorage, saveMenusToLocalStorage } from './storage.js';
 import { formatDate } from './utils.js';
 
@@ -541,6 +541,7 @@ function saveMenuList (){
   updateListMenuList ();
   saveMenusToLocalStorage(listMenuList, recipes);
   saveRecipesToLocalStorage(recipes, listMenuList);
+  refreshRecipeDisplay();
 
   updateChefCarousel();
  
@@ -776,6 +777,7 @@ function deleteMenuList (index){
     updateListMenuList();
     saveMenusToLocalStorage(listMenuList, recipes);
     saveRecipesToLocalStorage(recipes, listMenuList);
+    refreshRecipeDisplay();
     document.getElementById('recipe-modal').style.display = 'none';
   }
 
