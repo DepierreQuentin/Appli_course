@@ -1,3 +1,6 @@
+import { collection, doc, getDocs, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { db } from './firebase.js';
+
 const SLOT_KEYS = ['midi', 'soir'];
 
 export function createRecipeId(recipe) {
@@ -46,23 +49,26 @@ export function recomputeUsageCounts(recipes, menus) {
   });
 }
 
-export function saveRecipesToLocalStorage(recipes, menus) {
+export async function saveRecipesToLocalStorage(recipes, menus) {
   recomputeUsageCounts(recipes, menus);
-  localStorage.setItem('recipes', JSON.stringify(recipes));
+  await Promise.all(recipes.map(recipe => setDoc(doc(db, 'recipes', recipe.recipeId), recipe)));
 }
 
-export function saveMenusToLocalStorage(menus, recipes) {
+export async function saveMenusToLocalStorage(menus, recipes) {
   recomputeUsageCounts(recipes, menus);
-  localStorage.setItem('listMenuList', JSON.stringify(menus));
+  await Promise.all(menus.map(menu => {
+    const menuId = menu.menuId || createMenuId(menu);
+    return setDoc(doc(db, 'menus', menuId), { ...menu, menuId });
+  }));
 }
 
-export function loadFromLocalStorage() {
-  const storedRecipes = localStorage.getItem('recipes');
-  const recipes = storedRecipes ? JSON.parse(storedRecipes) : [];
+export async function loadFromLocalStorage() {
+  const recipesSnapshot = await getDocs(collection(db, 'recipes'));
+  const recipes = recipesSnapshot.docs.map(docSnap => ensureRecipeDefaults({ ...docSnap.data() }));
   recipes.forEach(ensureRecipeDefaults);
   const signatureToId = new Map(recipes.map(r => [recipeSignature(r), r.recipeId]));
-  const storedMenus = localStorage.getItem('listMenuList');
-  const listMenuList = storedMenus ? JSON.parse(storedMenus) : [];
+  const menusSnapshot = await getDocs(collection(db, 'menus'));
+  const listMenuList = menusSnapshot.docs.map(docSnap => ({ ...docSnap.data() }));
   listMenuList.forEach(list => {
     if (!Array.isArray(list.menu)) {
       list.menu = [];
@@ -98,4 +104,13 @@ export function loadFromLocalStorage() {
   });
   recomputeUsageCounts(recipes, listMenuList);
   return { recipes, listMenuList };
+}
+
+function createMenuId(menu) {
+  const base = `${menu.name || ''}|${menu.startDate || ''}`;
+  let hash = 5381;
+  for (let i = 0; i < base.length; i += 1) {
+    hash = ((hash << 5) + hash) + base.charCodeAt(i);
+  }
+  return `menu_${(hash >>> 0).toString(36)}`;
 }

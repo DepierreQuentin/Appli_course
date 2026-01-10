@@ -2,8 +2,8 @@ import { loadFromLocalStorage } from './storage.js';
 import { setRecipes, updateRecipeList } from './recipes.js';
 import { setListMenuList, updateListMenuList, updateChefCarousel } from './menu.js';
 
-function initialize() {
-  const data = loadFromLocalStorage();
+async function initialize() {
+  const data = await loadFromLocalStorage();
   setRecipes(data.recipes);
   setListMenuList(data.listMenuList);
 
