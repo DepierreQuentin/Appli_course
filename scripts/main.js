@@ -1,5 +1,5 @@
 import { loadFromLocalStorage } from './storage.js';
-import { setRecipes, updateRecipeList } from './recipes.js';
+import { setRecipes, refreshRecipeDisplay } from './recipes.js';
 import { setListMenuList, updateListMenuList, updateChefCarousel } from './menu.js';
 
 async function initialize() {
@@ -15,6 +15,9 @@ async function initialize() {
         tab.classList.remove('active');
       });
       document.getElementById(tabId).classList.add('active');
+      if (tabId === 'recipes') {
+        refreshRecipeDisplay();
+      }
     });
   });
 
@@ -27,7 +30,7 @@ async function initialize() {
     }
   };
 
-  updateRecipeList();
+  refreshRecipeDisplay();
   updateListMenuList();
   updateChefCarousel();
 
