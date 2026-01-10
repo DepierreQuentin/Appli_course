@@ -4,7 +4,7 @@ import { formatDate } from './utils.js';
 
 export let listMenuList = [];
 export function setListMenuList(data) { listMenuList = data; }
-export let menuList = { name: '', date: '', recipes: [], startDate: null, menu: [] };
+export let menuList = { name: '', date: '', startDate: null, menu: [] };
 export let shoppingList = {};
 
 let startDateGlobal = null;// sert pour éviter de passer un paramètre à updateMenuList(), variable initialisé dans createMenuList()
@@ -17,6 +17,29 @@ const SLOT_KEYS = ['midi', 'soir'];
 
 function getSlotKey(slotIndex) {
   return SLOT_KEYS[slotIndex];
+}
+
+function getRecipeById(recipeId) {
+  return recipes.find(recipe => recipe.recipeId === recipeId);
+}
+
+function countMenuRecipes(menuArray) {
+  return menuArray.reduce((count, day) => {
+    return count + SLOT_KEYS.reduce((slotCount, slotKey) => {
+      return slotCount + (day?.[slotKey] ? 1 : 0);
+    }, 0);
+  }, 0);
+}
+
+function getRecipeIdsFromMenu(menuArray) {
+  const ids = [];
+  menuArray.forEach(day => {
+    SLOT_KEYS.forEach(slotKey => {
+      const recipeId = day?.[slotKey];
+      if (recipeId) ids.push(recipeId);
+    });
+  });
+  return ids;
 }
 
 export const options = {
@@ -130,7 +153,8 @@ function createMenuList(skipDuplicateCheck = false) {
     const formattedDate = currentDay.toLocaleDateString('fr-FR', options); // Formater la date
 
     const slots = SLOT_KEYS.map((slotKey, slotIndex) => {
-      const recipe = menuListArray[i][slotKey];
+      const recipeId = menuListArray[i][slotKey];
+      const recipe = recipeId ? getRecipeById(recipeId) : null;
       return `
       <td>
         <div class="recipe-slot" data-day="${i}" data-slot="${slotIndex}" onclick="openSlotModal(${i}, ${slotIndex})">
@@ -292,15 +316,13 @@ function randomMenuList() {
     emptySlots.forEach((pos, idx) => {
       const recipeIndex = recipeIndices[idx % recipeIndices.length];
       const recipe = recipes[recipeIndex];
-      menuListArray[pos.dayIndex][pos.slotKey] = recipe;
-      menuList.recipes.push(recipe);
+      menuListArray[pos.dayIndex][pos.slotKey] = recipe.recipeId;
     });
   } else {
     emptySlots.forEach(pos => {
       const recipeIndex = weightedPick(recipeIndices, prefs);
       const recipe = recipes[recipeIndex];
-      menuListArray[pos.dayIndex][pos.slotKey] = recipe;
-      menuList.recipes.push(recipe);
+      menuListArray[pos.dayIndex][pos.slotKey] = recipe.recipeId;
     });
   }
 
@@ -412,20 +434,14 @@ function addRecipeToMenu(recipeIndex) {
 
   if (selectedDayIndex !== null && selectedSlotIndex !== null) {
     const slotKey = getSlotKey(selectedSlotIndex);
-    const previous = menuListArray[selectedDayIndex][slotKey];
-    if (previous) {
-      const idx = menuList.recipes.findIndex(r => r.name === previous.name);
-      if (idx !== -1) menuList.recipes.splice(idx, 1);
-    }
-    menuListArray[selectedDayIndex][slotKey] = actualRecipe;
-    menuList.recipes.push(actualRecipe);
+    menuListArray[selectedDayIndex][slotKey] = actualRecipe.recipeId;
   } else {
     let added = false;
     for (let dayIndex = 0; dayIndex < menuListArray.length; dayIndex++) {
       for (let slotIndex = 0; slotIndex < SLOT_KEYS.length; slotIndex++) {
         const slotKey = getSlotKey(slotIndex);
         if (menuListArray[dayIndex][slotKey] === null) {
-          menuListArray[dayIndex][slotKey] = actualRecipe;
+          menuListArray[dayIndex][slotKey] = actualRecipe.recipeId;
           added = true;
           break;
         }
@@ -436,7 +452,6 @@ function addRecipeToMenu(recipeIndex) {
     if (!added) {
       return;
     }
-    menuList.recipes.push(actualRecipe);
   }
 
   updateMenuList();
@@ -468,7 +483,8 @@ function updateMenuList() {
     const formattedDate = currentDay.toLocaleDateString('fr-FR', options); // Formater la date
 
     const slots = SLOT_KEYS.map((slotKey, slotIndex) => {
-      const recipe = day[slotKey];
+      const recipeId = day[slotKey];
+      const recipe = recipeId ? getRecipeById(recipeId) : null;
       return `
       <td>
         <div class="recipe-slot" data-day="${dayIndex}" data-slot="${slotIndex}" ondragover="allowDrop(event)" ondrop="drop(event, ${dayIndex}, ${slotIndex})" onclick="openSlotModal(${dayIndex}, ${slotIndex})">
@@ -510,26 +526,6 @@ function saveMenuList (){
     alert('Nom déjà utilisé');
     return;
   }
-  // Si on modifie une liste existante, annuler l'impact de l'ancienne liste
-  if (editingMenuIndex !== null) {
-    const oldIndexes = listMenuList[editingMenuIndex].recipes.map(
-      value => recipes.includes(value) ? recipes.indexOf(value) : -1
-    ).filter(index => index !== -1);
-    oldIndexes.forEach(i => {
-      recipes[i].usageCount -= 1;
-    });
-  }
-
-  /*////AJOUTER +1 A L'UTILISATION DES RECETTE CONTENU DANS MENU LIST*////
-  const commonIndexes = menuList.recipes.map
-  (value => recipes.includes(value) ? recipes.indexOf(value) : -1)
-  .filter(index => index !== -1);
-
-  commonIndexes.forEach(index => {
-    recipes[index].usageCount += 1;
-  });
-
-
   // Sauvegarde la planification et la date de début avec la liste
   menuList.startDate = startDateGlobal ? startDateGlobal.toISOString() : null;
   menuList.menu = JSON.parse(JSON.stringify(menuListArray));
@@ -549,7 +545,7 @@ function saveMenuList (){
   updateChefCarousel();
  
   //réinitialiser l'objet globale menuList pour pouvoir recréer une liste, attention à faire en dernier pour que la liste de shopping puisse se remplir
-  menuList = { name: '', date: '', recipes: [], startDate: null, menu: [] };// Crée une nouvelle instance d'objet
+  menuList = { name: '', date: '', startDate: null, menu: [] };// Crée une nouvelle instance d'objet
 
   // fin de l'édition
   editingMenuIndex = null;
@@ -569,7 +565,7 @@ function updateListMenuList (){
         <h3>${menuList.name}</h3>
         <span class="menu-list-date">${menuList.date}</span>
       </div>
-      <div class="menu-list-recipes">${menuList.recipes.length} recettes</div>
+      <div class="menu-list-recipes">${countMenuRecipes(menuList.menu || [])} recettes</div>
     </div>
   `).join('');
 
@@ -620,8 +616,8 @@ function showMenuListDetails(index) {
       const current = new Date(start);
       current.setDate(start.getDate() + dayIndex);
       const formattedDate = current.toLocaleDateString('fr-FR', options);
-      const lunch = day.midi ? day.midi.name : '';
-      const dinner = day.soir ? day.soir.name : '';
+      const lunch = day.midi ? (getRecipeById(day.midi)?.name || '') : '';
+      const dinner = day.soir ? (getRecipeById(day.soir)?.name || '') : '';
       return `<tr><td>${formattedDate}</td><td>${lunch}</td><td>${dinner}</td></tr>`;
     }).join('');
   }
@@ -644,7 +640,7 @@ function showMenuListDetails(index) {
   modalBody.innerHTML = `
     <h2>${menuListLocal.name}</h2>
     <p>Date de création: ${menuListLocal.date}</p>
-    <p>Nombre de recettes: ${menuListLocal.recipes.length}</p>
+    <p>Nombre de recettes: ${countMenuRecipes(menuListLocal.menu || [])}</p>
     <table class="menu-plan-table">
       <thead><tr><th>Date</th><th>Midi</th><th>Soir</th></tr></thead>
       <tbody>${tableRows}</tbody>
@@ -661,10 +657,11 @@ function showMenuListDetails(index) {
 
 function formattingShoppingList(index){
   shoppingList = {};
-  listMenuList[index].recipes.forEach(recipe => {
-    const base = recipes.find(r => r.name === recipe.name);
-    if (!base) return; // si la recette n'existe plus
-    base.ingredients.forEach(ingredient => {
+  const recipeIds = getRecipeIdsFromMenu(listMenuList[index].menu || []);
+  recipeIds.forEach(recipeId => {
+    const recipe = getRecipeById(recipeId);
+    if (!recipe) return;
+    recipe.ingredients.forEach(ingredient => {
       const { quantity, unit, name, category } = ingredient;
       if (!shoppingList[category]) {
         shoppingList[category] = {};
@@ -684,10 +681,11 @@ function formattingShoppingList(index){
 // Met à jour la liste d'ingrédients pour la liste de menu en cours d'édition
 function updateCurrentShoppingList(){
   shoppingList = {};
-  menuList.recipes.forEach(recipe => {
-    const base = recipes.find(r => r.name === recipe.name);
-    if (!base) return;
-    base.ingredients.forEach(ingredient => {
+  const recipeIds = getRecipeIdsFromMenu(menuListArray);
+  recipeIds.forEach(recipeId => {
+    const recipe = getRecipeById(recipeId);
+    if (!recipe) return;
+    recipe.ingredients.forEach(ingredient => {
       const { quantity, unit, name, category } = ingredient;
       if (!shoppingList[category]) {
         shoppingList[category] = {};
@@ -792,16 +790,6 @@ function removeFromMenu(dayIndex, slotIndex, event) {
 
 // Trouver la recette à supprimer dans menuList
   const slotKey = getSlotKey(slotIndex);
-  const recipeToRemove = menuListArray[dayIndex][slotKey];
-
-    // Supprimer la recette de menuList
-    const recipeIndex = menuList.recipes.findIndex(r => r.name === recipeToRemove.name);
-   
-    if (recipeIndex !== -1) {
-      menuList.recipes.splice(recipeIndex, 1); // Supprimer la recette du menuList
-    }
-
-  // Mettre l'emplacement à null pour indiquer qu'il est vide
   menuListArray[dayIndex][slotKey] = null;
 
   // Mettre à jour l'interface pour refléter le changement
@@ -811,7 +799,6 @@ function removeFromMenu(dayIndex, slotIndex, event) {
 }
 
 function clearMenuRecipes() {
-  menuList.recipes = [];
   menuListArray = menuListArray.map(() => ({ midi: null, soir: null }));
   updateMenuList();
   updateCurrentShoppingList();
@@ -832,13 +819,7 @@ function drop(event, targetDayIndex, targetSlotIndex) {
   const targetSlotKey = getSlotKey(targetSlotIndex);
   if (data.recipe !== undefined) {
     const recipe = recipes[data.recipe];
-    const previous = menuListArray[targetDayIndex][targetSlotKey];
-    if (previous) {
-      const idx = menuList.recipes.findIndex(r => r.name === previous.name);
-      if (idx !== -1) menuList.recipes.splice(idx, 1);
-    }
-    menuListArray[targetDayIndex][targetSlotKey] = recipe;
-    menuList.recipes.push(recipe);
+    menuListArray[targetDayIndex][targetSlotKey] = recipe.recipeId;
   } else {
     const { dayIndex, slotIndex } = data;
     const sourceSlotKey = getSlotKey(slotIndex);
@@ -852,38 +833,32 @@ function drop(event, targetDayIndex, targetSlotIndex) {
   refreshCurrentMenuDetails();
 }
 
-function updateMenusWithRecipe(oldName, newRecipe) {
-  listMenuList.forEach(list => {
-    list.recipes = list.recipes.map(r =>
-      r.name === oldName ? (newRecipe ? JSON.parse(JSON.stringify(newRecipe)) : null) : r
-    ).filter(Boolean);
-    if (list.menu) {
+function updateMenusWithRecipe(recipeId, exists) {
+  if (!recipeId) return;
+  if (!exists) {
+    listMenuList.forEach(list => {
+      if (!list.menu) return;
       list.menu = list.menu.map(day => {
         const updatedDay = { ...day };
         SLOT_KEYS.forEach(slotKey => {
-          const slot = updatedDay[slotKey];
-          if (slot && slot.name === oldName) {
-            updatedDay[slotKey] = newRecipe ? JSON.parse(JSON.stringify(newRecipe)) : null;
+          if (updatedDay[slotKey] === recipeId) {
+            updatedDay[slotKey] = null;
           }
         });
         return updatedDay;
       });
-    }
-  });
-
-  menuList.recipes = menuList.recipes.map(r =>
-    r.name === oldName ? (newRecipe ? newRecipe : null) : r
-  ).filter(Boolean);
-  menuListArray = menuListArray.map(day => {
-    const updatedDay = { ...day };
-    SLOT_KEYS.forEach(slotKey => {
-      const slot = updatedDay[slotKey];
-      if (slot && slot.name === oldName) {
-        updatedDay[slotKey] = newRecipe ? newRecipe : null;
-      }
     });
-    return updatedDay;
-  });
+
+    menuListArray = menuListArray.map(day => {
+      const updatedDay = { ...day };
+      SLOT_KEYS.forEach(slotKey => {
+        if (updatedDay[slotKey] === recipeId) {
+          updatedDay[slotKey] = null;
+        }
+      });
+      return updatedDay;
+    });
+  }
 
   // Mettre à jour l'affichage et la liste d'ingrédients si nécessaire
   if (typeof document !== 'undefined') {

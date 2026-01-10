@@ -1,33 +1,24 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { updateMenusWithRecipe, setListMenuList, listMenuList, menuList } from '../scripts/menu.js';
+import { updateMenusWithRecipe, setListMenuList, listMenuList } from '../scripts/menu.js';
 
 // Utility to deep clone objects
 function clone(obj) { return JSON.parse(JSON.stringify(obj)); }
 
-test('updateMenusWithRecipe replaces recipe across menus', () => {
-  const initial = [{ recipes: [{ name: 'Old' }], menu: [[{ name: 'Old' }]] }];
+test('updateMenusWithRecipe leaves menus intact when recipe still exists', () => {
+  const initial = [{ menu: [{ midi: 'r1', soir: null }] }];
   setListMenuList(clone(initial));
-  menuList.recipes = [{ name: 'Old' }];
-  menuList.menu = [[{ name: 'Old' }]];
 
-  const newRecipe = { name: 'New' };
-  updateMenusWithRecipe('Old', newRecipe);
+  updateMenusWithRecipe('r1', true);
 
-  assert.equal(listMenuList[0].recipes[0].name, 'New');
-  assert.equal(listMenuList[0].menu[0][0].name, 'New');
-  assert.equal(menuList.recipes[0].name, 'New');
+  assert.equal(listMenuList[0].menu[0].midi, 'r1');
 });
 
 test('updateMenusWithRecipe removes recipe when null', () => {
-  const initial = [{ recipes: [{ name: 'Old' }], menu: [[{ name: 'Old' }, null]] }];
+  const initial = [{ menu: [{ midi: 'r1', soir: null }] }];
   setListMenuList(clone(initial));
-  menuList.recipes = [{ name: 'Old' }];
-  menuList.menu = [[{ name: 'Old' }]];
 
-  updateMenusWithRecipe('Old', null);
+  updateMenusWithRecipe('r1', false);
 
-  assert.equal(listMenuList[0].recipes.length, 0);
-  assert.equal(listMenuList[0].menu[0][0], null);
-  assert.equal(menuList.recipes.length, 0);
+  assert.equal(listMenuList[0].menu[0].midi, null);
 });
