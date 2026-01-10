@@ -51,23 +51,38 @@ export function recomputeUsageCounts(recipes, menus) {
 
 export async function saveRecipesToLocalStorage(recipes, menus) {
   recomputeUsageCounts(recipes, menus);
-  await Promise.all(recipes.map(recipe => setDoc(doc(db, 'recipes', recipe.recipeId), recipe)));
+  try {
+    await Promise.all(recipes.map(recipe => setDoc(doc(db, 'recipes', recipe.recipeId), recipe)));
+  } catch (error) {
+    console.warn('Impossible de sauvegarder les recettes sur Firestore.', error);
+  }
 }
 
 export async function saveMenusToLocalStorage(menus, recipes) {
   recomputeUsageCounts(recipes, menus);
-  await Promise.all(menus.map(menu => {
-    const menuId = menu.menuId || createMenuId(menu);
-    return setDoc(doc(db, 'menus', menuId), { ...menu, menuId });
-  }));
+  try {
+    await Promise.all(menus.map(menu => {
+      const menuId = menu.menuId || createMenuId(menu);
+      return setDoc(doc(db, 'menus', menuId), { ...menu, menuId });
+    }));
+  } catch (error) {
+    console.warn('Impossible de sauvegarder les menus sur Firestore.', error);
+  }
 }
 
 export async function loadFromLocalStorage() {
-  const recipesSnapshot = await getDocs(collection(db, 'recipes'));
+  let recipesSnapshot;
+  let menusSnapshot;
+  try {
+    recipesSnapshot = await getDocs(collection(db, 'recipes'));
+    menusSnapshot = await getDocs(collection(db, 'menus'));
+  } catch (error) {
+    console.warn('Impossible de charger les données depuis Firestore.', error);
+    return { recipes: [], listMenuList: [] };
+  }
   const recipes = recipesSnapshot.docs.map(docSnap => ensureRecipeDefaults({ ...docSnap.data() }));
   recipes.forEach(ensureRecipeDefaults);
   const signatureToId = new Map(recipes.map(r => [recipeSignature(r), r.recipeId]));
-  const menusSnapshot = await getDocs(collection(db, 'menus'));
   const listMenuList = menusSnapshot.docs.map(docSnap => ({ ...docSnap.data() }));
   listMenuList.forEach(list => {
     if (!Array.isArray(list.menu)) {

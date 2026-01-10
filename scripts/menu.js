@@ -468,11 +468,15 @@ function addRecipeToMenu(recipeIndex) {
 /*////////////////METS A JOUR LA LISTE DE MENU EN COURS DE CREATION//////////////*/
 function updateMenuList() {
   const menuListDaysContainer = document.getElementById('menu-list-jours');
-  const start = startDateGlobal;  // Utiliser la variable globale startDate
+  if (!menuListDaysContainer) {
+    return;
+  }
+
+  const start = startDateGlobal || (menuList.startDate ? new Date(menuList.startDate) : null);  // Utiliser la variable globale startDate
 
   // Vérifier que startDate est défini
   if (!start) {
-    console.error("La date de début n'est pas définie.");
+    menuListDaysContainer.innerHTML = '';
     return;
   }
 
