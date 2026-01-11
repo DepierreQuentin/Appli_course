@@ -19,6 +19,100 @@ export const seasons = ['été', 'hiver', "toute l'année"];
 export const healthTypes = ['healthy', 'normal', 'gras'];
 export const difficulties = [1, 2, 3];
 
+function normalizeIngredientFilter(value) {
+  return value.trim().toLowerCase();
+}
+
+function addIngredientTag(container, label) {
+  if (!container) return;
+  const normalized = normalizeIngredientFilter(label);
+  if (!normalized) return;
+  const existing = Array.from(container.querySelectorAll('.ingredient-tag')).some(
+    tag => tag.dataset.value === normalized
+  );
+  if (existing) return;
+  const tag = document.createElement('button');
+  tag.type = 'button';
+  tag.className = 'ingredient-tag';
+  tag.dataset.value = normalized;
+  tag.innerHTML = `${label.trim()}<span aria-hidden="true">&times;</span>`;
+  container.appendChild(tag);
+}
+
+function addIngredientTagsFromValue(container, value) {
+  if (!value) return;
+  value
+    .split(',')
+    .map(chunk => chunk.trim())
+    .filter(Boolean)
+    .forEach(chunk => addIngredientTag(container, chunk));
+}
+
+function syncIngredientInputToTags(sectionId) {
+  const input = document.querySelector(`#${sectionId} .ingredient-filter-input`);
+  const tagsContainer = document.querySelector(`#${sectionId} .ingredient-tags`);
+  if (!input || !tagsContainer) return;
+  addIngredientTagsFromValue(tagsContainer, input.value);
+  input.value = '';
+}
+
+function getIngredientFilters(sectionId) {
+  return Array.from(
+    document.querySelectorAll(`#${sectionId} .ingredient-tags .ingredient-tag`)
+  ).map(tag => tag.dataset.value);
+}
+
+function recipeMatchesIngredients(recipe, ingredientFilters) {
+  if (!ingredientFilters.length) return true;
+  const recipeIngredients = recipe.ingredients.map(ingredient =>
+    ingredient.name.toLowerCase()
+  );
+  return ingredientFilters.every(filter =>
+    recipeIngredients.some(name => name.includes(filter))
+  );
+}
+
+function setupIngredientFilter(container) {
+  if (!container || container.dataset.ready) return;
+  const tagsContainer = container.querySelector('.ingredient-tags');
+  const input = container.querySelector('.ingredient-filter-input');
+  if (!tagsContainer || !input) return;
+
+  container.dataset.ready = 'true';
+
+  container.addEventListener('click', event => {
+    const tag = event.target.closest('.ingredient-tag');
+    if (tag) {
+      tag.remove();
+      return;
+    }
+    if (event.target === container) {
+      input.focus();
+    }
+  });
+
+  input.addEventListener('keydown', event => {
+    if (event.key === 'Enter' || event.key === ',') {
+      event.preventDefault();
+      addIngredientTagsFromValue(tagsContainer, input.value);
+      input.value = '';
+      return;
+    }
+    if (event.key === 'Backspace' && input.value === '') {
+      const tags = tagsContainer.querySelectorAll('.ingredient-tag');
+      if (tags.length > 0) {
+        tags[tags.length - 1].remove();
+      }
+    }
+  });
+
+  input.addEventListener('blur', () => {
+    if (!input.value) return;
+    addIngredientTagsFromValue(tagsContainer, input.value);
+    input.value = '';
+  });
+}
+
 /*//////////METS A JOUR LA LISTE DES RECETTES A AFFICHER/////////*/
   function updateRecipeList(recipeArray) {
     
@@ -428,17 +522,20 @@ export const difficulties = [1, 2, 3];
 
   /*/////////////RECHERCHER UNE RECETTE/////////// */
   function searchRecipes(sectionId) {
+    syncIngredientInputToTags(sectionId);
     //copie la valeur du nom/saison/note dans la recette recherché dans la var nameSearch,seasonSearch,ratingSearch
     const nameSearch = document.querySelector(`#${sectionId} .recipe-name-search`).value.toLowerCase();
     const seasonSearch = document.querySelector(`#${sectionId} .recipe-season-search`).value;
     const ratingSearch = document.querySelector(`#${sectionId} .recipe-rating-search`).value;
+    const ingredientFilters = getIngredientFilters(sectionId);
     
     /***************copie les indices des valeur contenu dans le tableau recipe qui correspondent au noms et à la saison, 
     et soit >= à la note dans un nouveau tableau filteredRecipes**************/
     filteredRecipes = recipes.map((recipe, index) => 
     recipe.name.toLowerCase().includes(nameSearch) &&
     (seasonSearch === '' || recipe.season === seasonSearch) &&
-    (ratingSearch === '' || recipe.rating >= parseInt(ratingSearch))
+    (ratingSearch === '' || recipe.rating >= parseInt(ratingSearch)) &&
+    recipeMatchesIngredients(recipe, ingredientFilters)
       ? index // Si la recette correspond aux critères, renvoyer son index
       : -1   // Sinon, renvoyer -1
    )
@@ -512,7 +609,8 @@ export {
   showIngredientsInEditRecipe,
   updateDeleteButtons,
   formatName,
-  refreshRecipeDisplay
+  refreshRecipeDisplay,
+  setupIngredientFilter
 };
 
 
@@ -527,4 +625,5 @@ if (typeof window !== 'undefined') {
   window.addIngredientInputToEdit = addIngredientInputToEdit;
   window.deleteIngredientInputToEdit = deleteIngredientInputToEdit;
   window.deleteIngredient = deleteIngredient;
+  window.setupIngredientFilter = setupIngredientFilter;
 }

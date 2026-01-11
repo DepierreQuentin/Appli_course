@@ -1,5 +1,5 @@
 import { loadFromLocalStorage } from './storage.js';
-import { setRecipes, refreshRecipeDisplay } from './recipes.js';
+import { setRecipes, refreshRecipeDisplay, setupIngredientFilter } from './recipes.js';
 import { setListMenuList, updateListMenuList, updateChefCarousel } from './menu.js';
 
 async function initialize() {
@@ -31,6 +31,7 @@ async function initialize() {
   };
 
   refreshRecipeDisplay();
+  setupIngredientFilter(document.querySelector('#recipes .ingredient-filter'));
   updateListMenuList();
   updateChefCarousel();
 
