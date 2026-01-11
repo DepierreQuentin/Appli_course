@@ -764,12 +764,11 @@ function deleteMenuList (index){
   if (confirm('Êtes-vous sûr de vouloir supprimer cette liste de menus ?')) {
 
     /*////ENLEVER 1 A L'UTILISATION DES RECETTE CONTENU DANS LIST MENU LIST*////
-  const commonIndexes = listMenuList[index].recipes.map
-  (value => recipes.includes(value) ? recipes.indexOf(value) : -1)
-  .filter(index => index !== -1);
-
-  commonIndexes.forEach(index => {
-    recipes[index].usageCount -= 1;
+  const recipeIds = getRecipeIdsFromMenu(listMenuList[index].menu || []);
+  recipeIds.forEach(recipeId => {
+    const recipe = getRecipeById(recipeId);
+    if (!recipe) return;
+    recipe.usageCount = Math.max(0, recipe.usageCount - 1);
   });
 
     listMenuList.splice(index, 1);
