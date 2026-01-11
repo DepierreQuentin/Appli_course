@@ -1,4 +1,4 @@
-import { recipes, filteredRecipes, setFilteredRecipes, refreshRecipeDisplay } from './recipes.js';
+import { recipes, filteredRecipes, setFilteredRecipes, refreshRecipeDisplay, setupIngredientFilter } from './recipes.js';
 import { saveRecipesToLocalStorage, saveMenusToLocalStorage } from './storage.js';
 import { formatDate } from './utils.js';
 
@@ -208,6 +208,10 @@ function openSlotModal(dayIndex, slotIndex) {
   const form = `
       <form class="recipe-search-form">
         <input type="text" class="recipe-name-search" placeholder="Nom de la recette">
+        <div class="ingredient-filter">
+          <div class="ingredient-tags" aria-live="polite"></div>
+          <input type="text" class="ingredient-filter-input" placeholder="Ingrédients (ex: tomate, patate)">
+        </div>
         <select class="recipe-season-search">
           <option value="">Toutes les saisons</option>
           <option value="été">Été</option>
@@ -229,6 +233,7 @@ function openSlotModal(dayIndex, slotIndex) {
 
   document.getElementById('recipe-modal-body').innerHTML = form;
   document.getElementById('recipe-modal').style.display = 'block';
+  setupIngredientFilter(document.querySelector('#recipe-modal .ingredient-filter'));
 }
 
 /*/////////////////CREER UN LISTE DE RECETTE RANDOM ET L'AJOUTE A LA LISTE DE MENU/////////// */

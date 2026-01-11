@@ -22,6 +22,10 @@
       <button onclick="editRecipe()">Ajouter une recette</button>
       <form class="recipe-search-form">
         <input type="text" class="recipe-name-search" placeholder="Nom de la recette">
+        <div class="ingredient-filter">
+          <div class="ingredient-tags" aria-live="polite"></div>
+          <input type="text" class="ingredient-filter-input" placeholder="Ingrédients (ex: tomate, patate)">
+        </div>
         <select class="recipe-season-search">
           <option value="">Toutes les saisons</option>
           <option value="été">Été</option>

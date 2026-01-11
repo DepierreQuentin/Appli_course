@@ -129,6 +129,46 @@ body {
   .recipe-search-form select {
     flex: 1;
   }
+  .ingredient-filter {
+    display: flex;
+    flex: 2;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: #fff;
+  }
+  .ingredient-filter-input {
+    border: none;
+    flex: 1;
+    min-width: 160px;
+  }
+  .ingredient-filter-input:focus {
+    outline: none;
+  }
+  .ingredient-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .ingredient-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: none;
+    border-radius: 999px;
+    background: #f1f1f1;
+    color: #333;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  .ingredient-tag span {
+    font-size: 1rem;
+    line-height: 1;
+  }
   .recipe-list, .recipe-list-menu , .list-menu-lists, .shopping-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
