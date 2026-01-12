@@ -615,13 +615,18 @@ function showMenuListDetails(index) {
   const modalBody = document.getElementById('recipe-modal-body');
   formattingShoppingList(index);
 
+  const formatModalDate = (date) =>
+    date
+      .toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'long' })
+      .replace(/\./g, '');
+
   let tableRows = '';
   if (menuListLocal.menu && menuListLocal.startDate) {
     const start = new Date(menuListLocal.startDate);
     tableRows = menuListLocal.menu.map((day, dayIndex) => {
       const current = new Date(start);
       current.setDate(start.getDate() + dayIndex);
-      const formattedDate = current.toLocaleDateString('fr-FR', options);
+      const formattedDate = formatModalDate(current);
       const lunch = day.midi ? (getRecipeById(day.midi)?.name || '') : '';
       const dinner = day.soir ? (getRecipeById(day.soir)?.name || '') : '';
       return `<tr><td>${formattedDate}</td><td>${lunch}</td><td>${dinner}</td></tr>`;
