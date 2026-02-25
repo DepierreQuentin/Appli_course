@@ -237,12 +237,14 @@ function setupIngredientFilter(container) {
     updateRecipeList(sortedRecipes);
   }
   
-  /*////////////////AFFICHE UNE FENETRE CONTEXTUELLE AVEC LE DETAIL DE LA RECETTE/////////////*/
+  /*////////////////AFFICHE LA PAGE DETAIL D'UNE RECETTE/////////////*/
   function showRecipeDetails(index) {
     const recipe = recipes[index];
-    const modal = document.getElementById('recipe-modal');
-    const modalBody = document.getElementById('recipe-modal-body');
-    modalBody.innerHTML = `
+    const detailsPage = document.getElementById('recipe-details-page');
+    const detailsBody = document.getElementById('recipe-details-body');
+    if (!recipe || !detailsPage || !detailsBody) return;
+
+    detailsBody.innerHTML = `
       <h2>${recipe.name}</h2>
       ${recipe.image ? `<img src="${recipe.image}" class="recipe-image" alt="${recipe.name}">` : ''}
       <p>Type: ${recipe.health}</p>
@@ -262,7 +264,8 @@ function setupIngredientFilter(container) {
       <button onclick="editRecipe(${index})">Modifier</button>
       <button onclick="deleteRecipe(${index})">Supprimer</button>
     `;
-    modal.style.display = 'block';
+
+    detailsPage.classList.remove('hidden');
   }
   
  /*/////////////CREE OU MODIFIE UNE RECETTE/////////// */
@@ -310,8 +313,9 @@ function setupIngredientFilter(container) {
       </form>
     `;
 
-    document.getElementById('recipe-modal-body').innerHTML = form;
-    document.getElementById('recipe-modal').style.display = 'block';
+    const detailsPage = document.getElementById('recipe-details-page');
+    document.getElementById('recipe-details-body').innerHTML = form;
+    if (detailsPage) detailsPage.classList.remove('hidden');
     updateDeleteButtons();
 
     if (isNewRecipe) {
@@ -501,7 +505,7 @@ function setupIngredientFilter(container) {
   saveMenusToLocalStorage(listMenuList, recipes);
   saveRecipesToLocalStorage(recipes, listMenuList);
     
-    //document.getElementById('recipe-modal').style.display = 'none';
+    //closeRecipePage();
   }
   
   /*/////////////SUPPRIME UNE RECETTE/////////// */
@@ -516,7 +520,7 @@ function setupIngredientFilter(container) {
   refreshRecipeDisplay();
   saveMenusToLocalStorage(listMenuList, recipes);
   saveRecipesToLocalStorage(recipes, listMenuList);
-      document.getElementById('recipe-modal').style.display = 'none';
+      closeRecipePage();
     }
   }
 
@@ -552,7 +556,7 @@ function setupIngredientFilter(container) {
       const imageSrc = recipe.image || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
       const difficultyIcons = Array.from({ length: recipe.difficulty }).map(() => '<i class="fa-solid fa-utensils"></i>').join('');
 
-      if (sectionId === 'recipe-modal') {
+      if (sectionId === 'recipe-picker-page') {
           return `
               <div class="recipe-card ${recipe.favori ? 'favori' : ''}" onclick="addRecipeToMenu(${recipeIndex})">
                   <img src="${imageSrc}" class="recipe-image" alt="${recipe.name}">
@@ -594,6 +598,12 @@ function setupIngredientFilter(container) {
   }).join('');
   }
 
+
+function closeRecipePage() {
+  const detailsPage = document.getElementById('recipe-details-page');
+  if (detailsPage) detailsPage.classList.add('hidden');
+}
+
 export {
   updateRecipeList,
   toggleFavorite,
@@ -626,4 +636,5 @@ if (typeof window !== 'undefined') {
   window.deleteIngredientInputToEdit = deleteIngredientInputToEdit;
   window.deleteIngredient = deleteIngredient;
   window.setupIngredientFilter = setupIngredientFilter;
+  window.closeRecipePage = closeRecipePage;
 }

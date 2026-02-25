@@ -21,15 +21,6 @@ async function initialize() {
     });
   });
 
-  const modal = document.getElementById('recipe-modal');
-  const span = document.getElementsByClassName('close')[0];
-  span.onclick = () => { modal.style.display = 'none'; };
-  window.onclick = (event) => {
-    if (event.target == modal) {
-      modal.style.display = 'none';
-    }
-  };
-
   refreshRecipeDisplay();
   setupIngredientFilter(document.querySelector('#recipes .ingredient-filter'));
   updateListMenuList();

@@ -12,7 +12,7 @@ let menuListArray = [];
 let selectedDayIndex = null;
 let selectedSlotIndex = null;
 let editingMenuIndex = null; // index de la liste de menu en cours d'édition
-let currentMenuDetailIndex = null; // index de la liste de menu actuellement affichée dans le modal
+let currentMenuDetailIndex = null; // index de la liste de menu actuellement affichée dans la page de détails
 const SLOT_KEYS = ['midi', 'soir'];
 
 function getSlotKey(slotIndex) {
@@ -226,14 +226,15 @@ function openSlotModal(dayIndex, slotIndex) {
           <option value="2">2 étoiles et plus</option>
           <option value="1">1 étoile et plus</option>
         </select>
-        <button type="button" onclick="searchRecipes('recipe-modal')">Rechercher</button>
+        <button type="button" onclick="searchRecipes('recipe-picker-page')">Rechercher</button>
       </form>
       <div class="recipe-list"></div>
     `;
 
-  document.getElementById('recipe-modal-body').innerHTML = form;
-  document.getElementById('recipe-modal').style.display = 'block';
-  setupIngredientFilter(document.querySelector('#recipe-modal .ingredient-filter'));
+  const pickerPage = document.getElementById('recipe-picker-page');
+  document.getElementById('recipe-picker-body').innerHTML = form;
+  if (pickerPage) pickerPage.classList.remove('hidden');
+  setupIngredientFilter(document.querySelector('#recipe-picker-page .ingredient-filter'));
 }
 
 /*/////////////////CREER UN LISTE DE RECETTE RANDOM ET L'AJOUTE A LA LISTE DE MENU/////////// */
@@ -336,8 +337,8 @@ function randomMenuList() {
   updateCurrentShoppingList();
   refreshCurrentMenuDetails();
 
-  // Fermer le modal de recherche après le remplissage aléatoire
-  document.getElementById('recipe-modal').style.display = 'none';
+  // Fermer la page de recherche après le remplissage aléatoire
+  closeRecipePickerPage();
 }
 
 let chefCarouselIndices = [];
@@ -462,12 +463,7 @@ function addRecipeToMenu(recipeIndex) {
   updateMenuList();
   updateCurrentShoppingList();
   refreshCurrentMenuDetails();
-  const modal = document.getElementById('recipe-modal');
-  if (modal && modal.style.display === 'block') {
-    modal.style.display = 'none';
-  }
-  selectedDayIndex = null;
-  selectedSlotIndex = null;
+  closeRecipePickerPage();
 }
 
 /*////////////////METS A JOUR LA LISTE DE MENU EN COURS DE CREATION//////////////*/
@@ -611,8 +607,8 @@ function updateListMenuList (){
 function showMenuListDetails(index) {
   currentMenuDetailIndex = index;
   const menuListLocal = listMenuList[index];
-  const modal = document.getElementById('recipe-modal');
-  const modalBody = document.getElementById('recipe-modal-body');
+  const detailsPage = document.getElementById('menu-details-page');
+  const detailsBody = document.getElementById('menu-details-body');
   formattingShoppingList(index);
 
   const formatModalDate = (date) =>
@@ -648,7 +644,7 @@ function showMenuListDetails(index) {
     shoppingRows += `<tr>${cells.join('')}</tr>`;
   }
 
-  modalBody.innerHTML = `
+  detailsBody.innerHTML = `
     <h2>${menuListLocal.name}</h2>
     <p>Date de création: ${menuListLocal.date}</p>
     <p>Nombre de recettes: ${countMenuRecipes(menuListLocal.menu || [])}</p>
@@ -663,7 +659,7 @@ function showMenuListDetails(index) {
     <button onclick="editMenuList(${index})">Modifier</button>
     <button onclick="deleteMenuList(${index})">Supprimer</button>
   `;
-  modal.style.display = 'block';
+  if (detailsPage) detailsPage.classList.remove('hidden');
 }
 
 function formattingShoppingList(index){
@@ -715,8 +711,8 @@ function updateCurrentShoppingList(){
 
 // Met à jour le modal si une liste de menu y est actuellement affichée
 function refreshCurrentMenuDetails() {
-  const modal = document.getElementById('recipe-modal');
-  if (currentMenuDetailIndex !== null && modal.style.display === 'block') {
+  const detailsPage = document.getElementById('menu-details-page');
+  if (currentMenuDetailIndex !== null && detailsPage && !detailsPage.classList.contains('hidden')) {
     showMenuListDetails(currentMenuDetailIndex);
   }
 }
@@ -767,7 +763,7 @@ function editMenuList (index){
     menuContainer.classList.add('hidden');
   }
 
-  document.getElementById('recipe-modal').style.display = 'none';
+  closeMenuDetailsPage();
 }
 
 function deleteMenuList (index){
@@ -787,7 +783,7 @@ function deleteMenuList (index){
     saveMenusToLocalStorage(listMenuList, recipes);
     saveRecipesToLocalStorage(recipes, listMenuList);
     refreshRecipeDisplay();
-    document.getElementById('recipe-modal').style.display = 'none';
+    closeMenuDetailsPage();
   }
 
 }
@@ -880,6 +876,20 @@ function updateMenusWithRecipe(recipeId, exists) {
   }
 }
 
+
+function closeMenuDetailsPage() {
+  const detailsPage = document.getElementById('menu-details-page');
+  if (detailsPage) detailsPage.classList.add('hidden');
+  currentMenuDetailIndex = null;
+}
+
+function closeRecipePickerPage() {
+  const pickerPage = document.getElementById('recipe-picker-page');
+  if (pickerPage) pickerPage.classList.add('hidden');
+  selectedDayIndex = null;
+  selectedSlotIndex = null;
+}
+
 export {
   addMenuList,
   getTodayDate,
@@ -902,7 +912,9 @@ export {
   updateMenusWithRecipe,
   updateChefCarousel,
   dragFromCarousel,
-  clickCarouselRecipe
+  clickCarouselRecipe,
+  closeMenuDetailsPage,
+  closeRecipePickerPage
 };
 
 if (typeof window !== 'undefined') {
@@ -923,6 +935,8 @@ if (typeof window !== 'undefined') {
   window.updateChefCarousel = updateChefCarousel;
   window.dragFromCarousel = dragFromCarousel;
   window.clickCarouselRecipe = clickCarouselRecipe;
+  window.closeMenuDetailsPage = closeMenuDetailsPage;
+  window.closeRecipePickerPage = closeRecipePickerPage;
 }
 
 // Affiche les listes de menus enregistrées lors du chargement
