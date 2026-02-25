@@ -278,6 +278,12 @@ function setupIngredientFilter(container) {
 
     const imageSrc = recipe.image || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="%2397b8a4" offset="0"/><stop stop-color="%23546f5f" offset="1"/></linearGradient></defs><rect width="1200" height="800" fill="url(%23g)"/><circle cx="960" cy="180" r="210" fill="rgba(255,255,255,0.12)"/><circle cx="260" cy="620" r="190" fill="rgba(255,255,255,0.15)"/></svg>';
     const difficultyIcons = Array.from({ length: recipe.difficulty }).map(() => '<i class="fa-solid fa-utensils"></i>').join('');
+    const healthIconClassMap = {
+      healthy: 'fa-solid fa-seedling',
+      normal: 'fa-solid fa-utensils',
+      gras: 'fa-solid fa-burger'
+    };
+    const healthIconClass = healthIconClassMap[recipe.health] || 'fa-solid fa-utensils';
     const ingredientCount = recipe.ingredients.length;
     const createdOn = new Date(recipe.creationDate).toLocaleDateString();
     const ingredientItems = recipe.ingredients.map(ingredient => `
@@ -305,14 +311,14 @@ function setupIngredientFilter(container) {
             <div class="recipe-detail-meta-inline">
               <span><i class="fa-solid fa-star"></i> ${recipe.rating}/5</span>
               <span><i class="fa-regular fa-clock"></i> ${Math.max(recipe.difficulty * 15, 15)} min</span>
-              <span>${difficultyIcons} ${recipe.health}</span>
+              <span>${difficultyIcons}</span>
             </div>
           </div>
         </header>
 
         <div class="recipe-detail-chips">
           <span class="recipe-chip"><i class="fa-regular fa-calendar"></i> ${recipe.season}</span>
-          <span class="recipe-chip"><i class="fa-solid fa-utensils"></i> ${recipe.health}</span>
+          <span class="recipe-chip"><i class="${healthIconClass}"></i> ${recipe.health}</span>
           <span class="recipe-chip"><i class="fa-solid fa-rotate"></i> ${recipe.usageCount} fois</span>
         </div>
 
