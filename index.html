@@ -28,28 +28,26 @@
     <div id="recipes" class="tab-content active">
       <h1><i class="fa-solid fa-book-open"></i> Recettes</h1>
       <button onclick="editRecipe()"><i class="fa-solid fa-plus"></i> Ajouter une recette</button>
-      <form class="recipe-search-form">
-        <input type="text" class="recipe-name-search" placeholder="Nom de la recette">
-        <div class="ingredient-filter">
-          <div class="ingredient-tags" aria-live="polite"></div>
-          <input type="text" class="ingredient-filter-input" placeholder="Ingrédients (ex: tomate, patate)">
+      <div class="recipe-toolbar-row">
+        <form class="recipe-search-form recipe-search-form-simple" onsubmit="searchRecipes('recipes'); return false;">
+          <input type="text" class="recipe-name-search" placeholder="Rechercher">
+          <button type="button" onclick="searchRecipes('recipes')"><i class="fa-solid fa-magnifying-glass"></i> Rechercher</button>
+          <button type="button" class="advanced-search-button" onclick="openAdvancedRecipeSearch()"><i class="fa-solid fa-sliders"></i> Recherche avancée</button>
+        </form>
+        <div class="sort-menu" id="recipes-sort-menu">
+          <button type="button" class="sort-icon-button" onclick="toggleSortMenu(event)" aria-label="Trier les recettes">
+            <i class="fa-solid fa-arrow-down-wide-short"></i>
+          </button>
+          <div class="sort-menu-dropdown hidden" id="sort-menu-dropdown">
+            <button type="button" onclick="sortRecipes('alphabetical')">Ordre alphabétique</button>
+            <button type="button" onclick="sortRecipes('reverseAlphabetical')">Ordre alphabétique inverse</button>
+            <button type="button" onclick="sortRecipes('descendingUsage')">Les plus utilisées</button>
+            <button type="button" onclick="sortRecipes('ascendingUsage')">Les moins utilisées</button>
+            <button type="button" onclick="sortRecipes('bestRated')">Les mieux notées</button>
+            <button type="button" onclick="sortRecipes('favorites')">Favoris</button>
+          </div>
         </div>
-        <select class="recipe-season-search">
-          <option value="">Toutes les saisons</option>
-          <option value="été">Été</option>
-          <option value="hiver">Hiver</option>
-          <option value="toute l'année">Toute l'année</option>
-        </select>
-        <select class="recipe-rating-search">
-          <option value="">Toutes les notes</option>
-          <option value="5">5 étoiles</option>
-          <option value="4">4 étoiles et plus</option>
-          <option value="3">3 étoiles et plus</option>
-          <option value="2">2 étoiles et plus</option>
-          <option value="1">1 étoile et plus</option>
-        </select>
-        <button type="button" onclick="searchRecipes('recipes')"><i class="fa-solid fa-magnifying-glass"></i> Rechercher</button>
-      </form>
+      </div>
       <div class="recipe-list"></div>
     </div>
 
@@ -160,6 +158,13 @@
     <div class="page-view-content">
       <button type="button" class="page-back-button" onclick="closeRecipePickerPage()">← Retour</button>
       <div id="recipe-picker-body"></div>
+    </div>
+  </div>
+
+  <div id="advanced-recipe-search-page" class="page-view hidden">
+    <div class="page-view-content">
+      <button type="button" class="page-back-button" onclick="closeAdvancedRecipeSearch()">← Retour</button>
+      <div id="advanced-recipe-search-body"></div>
     </div>
   </div>
 
