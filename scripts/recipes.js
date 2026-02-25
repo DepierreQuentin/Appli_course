@@ -271,6 +271,13 @@ function setupIngredientFilter(container) {
       gras: 'fa-solid fa-burger'
     };
     const healthIconClass = healthIconClassMap[recipe.health] || 'fa-solid fa-utensils';
+    const creationDateLabel = recipe.creationDate
+      ? new Date(recipe.creationDate).toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      })
+      : 'Date inconnue';
     const ingredientCount = recipe.ingredients.length;
     const ingredientItems = recipe.ingredients.map(ingredient => `
       <li class="recipe-ingredient-item">
@@ -337,6 +344,10 @@ function setupIngredientFilter(container) {
           </ol>
         </section>
 
+        <footer class="recipe-detail-footer-meta">
+          Créée le ${creationDateLabel}
+        </footer>
+
       </article>
     `;
 
@@ -353,7 +364,10 @@ function setupIngredientFilter(container) {
     const form = `
       <form id="recipe-form">
         <div class="recipe-form-topbar">
-          <h2><i class="fa-solid fa-utensils"></i> ${isNewRecipe ? 'Ajouter une recette' : 'Modifier la recette'}</h2>
+          <h2>
+            <button type="button" class="page-back-button recipe-form-back-button" onclick="closeRecipePage()">← Retour</button>
+            <span><i class="fa-solid fa-utensils"></i> ${isNewRecipe ? 'Ajouter une recette' : 'Modifier la recette'}</span>
+          </h2>
           <button type="submit" class="recipe-form-save-button"><i class="fa-solid fa-floppy-disk"></i> Sauvegarder</button>
         </div>
         <div class="extra-fields">
@@ -361,11 +375,11 @@ function setupIngredientFilter(container) {
           <input id="recipe-image" type="text" placeholder="URL de l'image" value="${recipe.image || ''}">
         </div>
         <div class="extra-fields">
-          <label>Type de recette :</label>
+          <label class="recipe-inline-label">Type de recette :</label>
           <select id="recipe-health" required>
             ${healthTypes.map(type => `<option value="${type}" ${recipe.health === type ? 'selected' : ''}>${type}</option>`).join('')}
           </select>
-          <label>Difficulté :</label>
+          <label class="recipe-inline-label">Difficulté :</label>
           <select id="recipe-difficulty" required>
             ${difficulties.map(level => `<option value="${level}" ${level == recipe.difficulty ? 'selected' : ''}>${level} fourchette${level > 1 ? 's' : ''}</option>`).join('')}
           </select>
@@ -463,7 +477,13 @@ function setupIngredientFilter(container) {
         <button type="button" class="buttonDelete" onclick="deleteIngredientInputToEdit(this)"><i class="fa-solid fa-xmark"></i></button>
       </div>
     `;
-    container.insertAdjacentHTML('beforeend', ingredientInput);
+    const activeInput = document.activeElement;
+    const activeRow = activeInput ? activeInput.closest('.ingredient-input') : null;
+    if (activeRow && container.contains(activeRow)) {
+      activeRow.insertAdjacentHTML('afterend', ingredientInput);
+    } else {
+      container.insertAdjacentHTML('beforeend', ingredientInput);
+    }
     updateDeleteButtons();
   }
 
@@ -644,7 +664,9 @@ function setupIngredientFilter(container) {
       const difficultyIcons = Array.from({ length: recipe.difficulty }).map(() => '<i class="fa-solid fa-utensils"></i>').join('');
       const clickAction = sectionId === 'recipe-picker-page'
         ? `addRecipeToMenu(${recipeIndex})`
-        : `showRecipeDetails(${recipeIndex})`;
+        : sectionId === 'advanced-recipe-search-page'
+          ? `showRecipeDetailsFromAdvancedSearch(${recipeIndex})`
+          : `showRecipeDetails(${recipeIndex})`;
 
       return `
         <div class="recipe-card ${recipe.favori ? 'favori' : ''}" onclick="${clickAction}">
@@ -665,6 +687,11 @@ function setupIngredientFilter(container) {
         </div>
       `;
     }).join('');
+  }
+
+  function showRecipeDetailsFromAdvancedSearch(index) {
+    closeAdvancedRecipeSearch();
+    showRecipeDetails(index);
   }
   function buildAdvancedRecipeSearchForm(sectionId) {
     return `
@@ -768,6 +795,7 @@ if (typeof window !== 'undefined') {
   window.toggleFavoriteFromDetails = toggleFavoriteFromDetails;
   window.openAdvancedRecipeSearch = openAdvancedRecipeSearch;
   window.closeAdvancedRecipeSearch = closeAdvancedRecipeSearch;
+  window.showRecipeDetailsFromAdvancedSearch = showRecipeDetailsFromAdvancedSearch;
   window.toggleSortMenu = toggleSortMenu;
 
   document.addEventListener('click', event => {
