@@ -285,29 +285,33 @@ function setupIngredientFilter(container) {
     };
     const healthIconClass = healthIconClassMap[recipe.health] || 'fa-solid fa-utensils';
     const ingredientCount = recipe.ingredients.length;
-    const createdOn = new Date(recipe.creationDate).toLocaleDateString();
     const ingredientItems = recipe.ingredients.map(ingredient => `
       <li class="recipe-ingredient-item">
         <div class="recipe-ingredient-main">
           <span class="recipe-ingredient-quantity">${ingredient.quantity} ${ingredient.unit || ''} ${ingredient.name}</span>
           <span class="recipe-ingredient-category">${ingredient.category}</span>
         </div>
-        <span class="recipe-ingredient-check"><i class="fa-solid fa-check"></i></span>
       </li>
     `).join('');
 
     detailsBody.innerHTML = `
       <article class="recipe-detail-page">
-        <header class="recipe-detail-hero">
-          <img src="${imageSrc}" class="recipe-detail-hero-image" alt="${recipe.name}">
-          <div class="recipe-detail-hero-overlay"></div>
-          <div class="recipe-detail-hero-actions">
+        <div class="recipe-page-topbar">
+          <button type="button" class="page-back-button" onclick="closeRecipePage()">← Retour</button>
+          <div class="recipe-page-topbar-actions">
             <button type="button" class="recipe-circle-btn" onclick="editRecipe(${index})" aria-label="Modifier la recette">
               <i class="fa-solid fa-pen"></i>
             </button>
             <button type="button" class="recipe-circle-btn recipe-danger-btn" onclick="deleteRecipe(${index})" aria-label="Supprimer la recette">
               <i class="fa-solid fa-trash"></i>
             </button>
+          </div>
+        </div>
+
+        <header class="recipe-detail-hero">
+          <img src="${imageSrc}" class="recipe-detail-hero-image" alt="${recipe.name}">
+          <div class="recipe-detail-hero-overlay"></div>
+          <div class="recipe-detail-hero-actions">
             <button type="button" class="recipe-circle-btn ${recipe.favori ? 'is-favorite' : ''}" onclick="toggleFavoriteFromDetails(${index})" aria-label="Basculer en favori">
               <i class="fa-solid fa-heart"></i>
             </button>
@@ -346,7 +350,6 @@ function setupIngredientFilter(container) {
           </ol>
         </section>
 
-        <p class="recipe-detail-footer-meta">Créée le ${createdOn} / Nombre d'utilisations : ${recipe.usageCount}</p>
       </article>
     `;
 
@@ -362,7 +365,10 @@ function setupIngredientFilter(container) {
 
     const form = `
       <form id="recipe-form">
-        <h2><i class="fa-solid fa-utensils"></i> ${isNewRecipe ? 'Ajouter une recette' : 'Modifier la recette'}</h2>
+        <div class="recipe-form-topbar">
+          <h2><i class="fa-solid fa-utensils"></i> ${isNewRecipe ? 'Ajouter une recette' : 'Modifier la recette'}</h2>
+          <button type="submit" class="recipe-form-save-button"><i class="fa-solid fa-floppy-disk"></i> Sauvegarder</button>
+        </div>
         <div class="extra-fields">
           <input type="text" id="recipe-name" placeholder="Nom de la recette" value="${recipe.name}" required>
           <input id="recipe-image" type="text" placeholder="URL de l'image" value="${recipe.image || ''}">
@@ -377,10 +383,10 @@ function setupIngredientFilter(container) {
             ${difficulties.map(level => `<option value="${level}" ${level == recipe.difficulty ? 'selected' : ''}>${level} fourchette${level > 1 ? 's' : ''}</option>`).join('')}
           </select>
         </div>
+        <button type="button" class="add-ingredient-button" onclick="addIngredientInputToEdit()"><i class="fa-solid fa-plus"></i> Ajouter un ingrédient</button>
         <div id="ingredients-container">
           ${isNewRecipe ? '' : showIngredientsInEditRecipe(index)}
         </div>
-        <button type="button" onclick="addIngredientInputToEdit()"><i class="fa-solid fa-plus"></i> Ajouter un ingrédient</button>
         <div class="extra-fields">
           <select id="recipe-season" required>
             ${seasons.map(season => `
@@ -394,7 +400,6 @@ function setupIngredientFilter(container) {
           </select>
         </div>
         <textarea id="recipe-instructions" placeholder="Description">${recipe.instructions || ''}</textarea>
-        <button type="submit"><i class="fa-solid fa-floppy-disk"></i> Sauvegarder</button>
       </form>
     `;
 
