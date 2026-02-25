@@ -238,31 +238,108 @@ function setupIngredientFilter(container) {
   }
   
   /*////////////////AFFICHE LA PAGE DETAIL D'UNE RECETTE/////////////*/
+  function splitInstructions(instructions) {
+    if (!instructions) return [];
+    return instructions
+      .split(/\n+/)
+      .map(step => step.trim())
+      .filter(Boolean);
+  }
+
+  function buildInstructionItems(instructions) {
+    const steps = splitInstructions(instructions);
+    if (!steps.length) {
+      return '<li class="recipe-step"><span class="recipe-step-number">1</span><span class="recipe-step-text">Aucune instruction fournie.</span></li>';
+    }
+
+    return steps
+      .map((step, index) => `
+        <li class="recipe-step">
+          <span class="recipe-step-number">${index + 1}</span>
+          <span class="recipe-step-text">${step}</span>
+        </li>
+      `)
+      .join('');
+  }
+
+  function toggleFavoriteFromDetails(index) {
+    if (!recipes[index]) return;
+    recipes[index].favori = !recipes[index].favori;
+    saveRecipesToLocalStorage(recipes, listMenuList);
+    refreshRecipeDisplay();
+    showRecipeDetails(index);
+  }
+
   function showRecipeDetails(index) {
     const recipe = recipes[index];
     const detailsPage = document.getElementById('recipe-details-page');
     const detailsBody = document.getElementById('recipe-details-body');
     if (!recipe || !detailsPage || !detailsBody) return;
 
+    const imageSrc = recipe.image || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="%2397b8a4" offset="0"/><stop stop-color="%23546f5f" offset="1"/></linearGradient></defs><rect width="1200" height="800" fill="url(%23g)"/><circle cx="960" cy="180" r="210" fill="rgba(255,255,255,0.12)"/><circle cx="260" cy="620" r="190" fill="rgba(255,255,255,0.15)"/></svg>';
+    const difficultyIcons = Array.from({ length: recipe.difficulty }).map(() => '<i class="fa-solid fa-utensils"></i>').join('');
+    const ingredientCount = recipe.ingredients.length;
+    const createdOn = new Date(recipe.creationDate).toLocaleDateString();
+    const ingredientItems = recipe.ingredients.map(ingredient => `
+      <li class="recipe-ingredient-item">
+        <div class="recipe-ingredient-main">
+          <span class="recipe-ingredient-quantity">${ingredient.quantity} ${ingredient.unit || ''} ${ingredient.name}</span>
+          <span class="recipe-ingredient-category">${ingredient.category}</span>
+        </div>
+        <span class="recipe-ingredient-check"><i class="fa-solid fa-check"></i></span>
+      </li>
+    `).join('');
+
     detailsBody.innerHTML = `
-      <h2>${recipe.name}</h2>
-      ${recipe.image ? `<img src="${recipe.image}" class="recipe-image" alt="${recipe.name}">` : ''}
-      <p>Type: ${recipe.health}</p>
-      <p>Difficulté: ${'🍴'.repeat(recipe.difficulty)}</p>
-      <p>Saison: ${recipe.season}</p>
-      <p>Note: ${'★'.repeat(recipe.rating)}${'☆'.repeat(5 - recipe.rating)}</p>
-      <p>Date de création: ${new Date(recipe.creationDate).toLocaleDateString()}</p>
-      <p>Utilisations: ${recipe.usageCount}</p>
-      <h3>Ingrédients:</h3>
-      <ul>
-        ${recipe.ingredients.map(ingredient => `
-          <li>${ingredient.quantity} ${ingredient.unit} ${ingredient.name} (${ingredient.category})</li>
-        `).join('')}
-      </ul>
-      <h3>Instructions:</h3>
-      <p>${recipe.instructions || 'Aucune instruction fournie.'}</p>
-      <button onclick="editRecipe(${index})">Modifier</button>
-      <button onclick="deleteRecipe(${index})">Supprimer</button>
+      <article class="recipe-detail-page">
+        <header class="recipe-detail-hero">
+          <img src="${imageSrc}" class="recipe-detail-hero-image" alt="${recipe.name}">
+          <div class="recipe-detail-hero-overlay"></div>
+          <div class="recipe-detail-hero-actions">
+            <button type="button" class="recipe-circle-btn ${recipe.favori ? 'is-favorite' : ''}" onclick="toggleFavoriteFromDetails(${index})" aria-label="Basculer en favori">
+              <i class="fa-solid fa-heart"></i>
+            </button>
+          </div>
+          <div class="recipe-detail-hero-content">
+            <h2>${recipe.name}</h2>
+            <div class="recipe-detail-meta-inline">
+              <span><i class="fa-solid fa-star"></i> ${recipe.rating}/5</span>
+              <span><i class="fa-regular fa-clock"></i> ${Math.max(recipe.difficulty * 15, 15)} min</span>
+              <span>${difficultyIcons} ${recipe.health}</span>
+            </div>
+          </div>
+        </header>
+
+        <div class="recipe-detail-chips">
+          <span class="recipe-chip"><i class="fa-regular fa-calendar"></i> ${recipe.season}</span>
+          <span class="recipe-chip"><i class="fa-solid fa-utensils"></i> ${recipe.health}</span>
+          <span class="recipe-chip"><i class="fa-solid fa-rotate"></i> ${recipe.usageCount} fois</span>
+        </div>
+
+        <section class="recipe-detail-card">
+          <div class="recipe-card-heading">
+            <h3><i class="fa-solid fa-basket-shopping"></i> Ingrédients <span>(${ingredientCount})</span></h3>
+          </div>
+          <ul class="recipe-ingredients-list">
+            ${ingredientItems}
+          </ul>
+        </section>
+
+        <section class="recipe-detail-card">
+          <div class="recipe-card-heading">
+            <h3><i class="fa-regular fa-clipboard"></i> Instructions</h3>
+          </div>
+          <ol class="recipe-steps-list">
+            ${buildInstructionItems(recipe.instructions)}
+          </ol>
+        </section>
+
+        <p class="recipe-detail-footer-meta">Créée le ${createdOn} / Nombre d'utilisations : ${recipe.usageCount}</p>
+        <div class="recipe-detail-actions">
+          <button class="recipe-primary-action" onclick="editRecipe(${index})"><i class="fa-solid fa-pen"></i> Modifier</button>
+          <button class="recipe-danger-action" onclick="deleteRecipe(${index})"><i class="fa-solid fa-trash"></i> Supprimer</button>
+        </div>
+      </article>
     `;
 
     detailsPage.classList.remove('hidden');
@@ -637,4 +714,5 @@ if (typeof window !== 'undefined') {
   window.deleteIngredient = deleteIngredient;
   window.setupIngredientFilter = setupIngredientFilter;
   window.closeRecipePage = closeRecipePage;
+  window.toggleFavoriteFromDetails = toggleFavoriteFromDetails;
 }
