@@ -302,6 +302,12 @@ function setupIngredientFilter(container) {
           <img src="${imageSrc}" class="recipe-detail-hero-image" alt="${recipe.name}">
           <div class="recipe-detail-hero-overlay"></div>
           <div class="recipe-detail-hero-actions">
+            <button type="button" class="recipe-circle-btn" onclick="editRecipe(${index})" aria-label="Modifier la recette">
+              <i class="fa-solid fa-pen"></i>
+            </button>
+            <button type="button" class="recipe-circle-btn recipe-danger-btn" onclick="deleteRecipe(${index})" aria-label="Supprimer la recette">
+              <i class="fa-solid fa-trash"></i>
+            </button>
             <button type="button" class="recipe-circle-btn ${recipe.favori ? 'is-favorite' : ''}" onclick="toggleFavoriteFromDetails(${index})" aria-label="Basculer en favori">
               <i class="fa-solid fa-heart"></i>
             </button>
@@ -341,10 +347,6 @@ function setupIngredientFilter(container) {
         </section>
 
         <p class="recipe-detail-footer-meta">Créée le ${createdOn} / Nombre d'utilisations : ${recipe.usageCount}</p>
-        <div class="recipe-detail-actions">
-          <button class="recipe-primary-action" onclick="editRecipe(${index})"><i class="fa-solid fa-pen"></i> Modifier</button>
-          <button class="recipe-danger-action" onclick="deleteRecipe(${index})"><i class="fa-solid fa-trash"></i> Supprimer</button>
-        </div>
       </article>
     `;
 
