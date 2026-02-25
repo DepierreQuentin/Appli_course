@@ -135,10 +135,24 @@
 
   </div>
 
-  <div id="recipe-modal" class="recipe-modal">
-    <div class="recipe-modal-content">
-      <span class="close">&times;</span>
-      <div id="recipe-modal-body"></div>
+  <div id="recipe-details-page" class="page-view hidden">
+    <div class="page-view-content">
+      <button type="button" class="page-back-button" onclick="closeRecipePage()">← Retour</button>
+      <div id="recipe-details-body"></div>
+    </div>
+  </div>
+
+  <div id="menu-details-page" class="page-view hidden">
+    <div class="page-view-content">
+      <button type="button" class="page-back-button" onclick="closeMenuDetailsPage()">← Retour</button>
+      <div id="menu-details-body"></div>
+    </div>
+  </div>
+
+  <div id="recipe-picker-page" class="page-view hidden">
+    <div class="page-view-content">
+      <button type="button" class="page-back-button" onclick="closeRecipePickerPage()">← Retour</button>
+      <div id="recipe-picker-body"></div>
     </div>
   </div>
 
