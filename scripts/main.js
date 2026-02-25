@@ -10,16 +10,25 @@ async function initialize() {
   document.querySelectorAll('.tab-link').forEach(link => {
     link.addEventListener('click', (e) => {
       e.preventDefault();
-      const tabId = e.target.getAttribute('data-tab');
+      const tabId = e.currentTarget.getAttribute('data-tab');
       document.querySelectorAll('.tab-content').forEach(tab => {
         tab.classList.remove('active');
       });
+      document.querySelectorAll('.tab-link').forEach(tabLink => {
+        tabLink.classList.remove('active');
+      });
       document.getElementById(tabId).classList.add('active');
+      e.currentTarget.classList.add('active');
       if (tabId === 'recipes') {
         refreshRecipeDisplay();
       }
     });
   });
+
+  const firstTabLink = document.querySelector('.tab-link[data-tab="recipes"]');
+  if (firstTabLink) {
+    firstTabLink.classList.add('active');
+  }
 
   refreshRecipeDisplay();
   setupIngredientFilter(document.querySelector('#recipes .ingredient-filter'));

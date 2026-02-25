@@ -360,7 +360,7 @@ function setupIngredientFilter(container) {
 
     const form = `
       <form id="recipe-form">
-        <h2>${isNewRecipe ? 'Ajouter une recette' : 'Modifier la recette'}</h2>
+        <h2><i class="fa-solid fa-utensils"></i> ${isNewRecipe ? 'Ajouter une recette' : 'Modifier la recette'}</h2>
         <div class="extra-fields">
           <input type="text" id="recipe-name" placeholder="Nom de la recette" value="${recipe.name}" required>
           <input id="recipe-image" type="text" placeholder="URL de l'image" value="${recipe.image || ''}">
@@ -378,7 +378,7 @@ function setupIngredientFilter(container) {
         <div id="ingredients-container">
           ${isNewRecipe ? '' : showIngredientsInEditRecipe(index)}
         </div>
-        <button type="button" onclick="addIngredientInputToEdit()">Ajouter un ingrédient</button>
+        <button type="button" onclick="addIngredientInputToEdit()"><i class="fa-solid fa-plus"></i> Ajouter un ingrédient</button>
         <div class="extra-fields">
           <select id="recipe-season" required>
             ${seasons.map(season => `
@@ -392,7 +392,7 @@ function setupIngredientFilter(container) {
           </select>
         </div>
         <textarea id="recipe-instructions" placeholder="Description">${recipe.instructions || ''}</textarea>
-        <button type="submit">Sauvegarder</button>
+        <button type="submit"><i class="fa-solid fa-floppy-disk"></i> Sauvegarder</button>
       </form>
     `;
 
@@ -434,7 +434,7 @@ function setupIngredientFilter(container) {
                 <option value="${category}" ${category === ingredient.category ? 'selected' : ''}>${category}</option>
               `).join('')}
             </select>
-            <button type="button" class="buttonDelete" onclick="deleteIngredient(${index}, ${ingredientIndex})">X</button>
+            <button type="button" class="buttonDelete" onclick="deleteIngredient(${index}, ${ingredientIndex})"><i class="fa-solid fa-xmark"></i></button>
           </div>
         `).join('')}
       </div>`;
@@ -466,7 +466,7 @@ function setupIngredientFilter(container) {
         <select class="ingredient-category" required>
           ${categories.map(category => `<option value="${category}">${category}</option>`).join('')}
         </select>
-        <button type="button" class="buttonDelete" onclick="deleteIngredientInputToEdit(this)">X</button>
+        <button type="button" class="buttonDelete" onclick="deleteIngredientInputToEdit(this)"><i class="fa-solid fa-xmark"></i></button>
       </div>
     `;
     container.insertAdjacentHTML('beforeend', ingredientInput);

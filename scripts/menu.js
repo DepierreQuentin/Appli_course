@@ -564,10 +564,10 @@ function updateListMenuList (){
   menuList.innerHTML = listMenuList.map((menuList, index) => `
     <div class="menu-list-card" onclick="showMenuListDetails(${index})">
       <div class="menu-list-header">
-        <h3>${menuList.name}</h3>
+        <h3><i class="fa-solid fa-list-check"></i> ${menuList.name}</h3>
         <span class="menu-list-date">${menuList.date}</span>
       </div>
-      <div class="menu-list-recipes">${countMenuRecipes(menuList.menu || [])} recettes</div>
+      <div class="menu-list-recipes"><i class="fa-solid fa-utensils"></i> ${countMenuRecipes(menuList.menu || [])} recettes</div>
     </div>
   `).join('');
 
@@ -645,9 +645,9 @@ function showMenuListDetails(index) {
   }
 
   detailsBody.innerHTML = `
-    <h2>${menuListLocal.name}</h2>
-    <p>Date de création: ${menuListLocal.date}</p>
-    <p>Nombre de recettes: ${countMenuRecipes(menuListLocal.menu || [])}</p>
+    <h2><i class="fa-solid fa-calendar-week"></i> ${menuListLocal.name}</h2>
+    <p><i class="fa-regular fa-calendar"></i> Date de création: ${menuListLocal.date}</p>
+    <p><i class="fa-solid fa-bowl-food"></i> Nombre de recettes: ${countMenuRecipes(menuListLocal.menu || [])}</p>
     <table class="menu-plan-table">
       <thead><tr><th>Date</th><th>Midi</th><th>Soir</th></tr></thead>
       <tbody>${tableRows}</tbody>
@@ -655,9 +655,9 @@ function showMenuListDetails(index) {
     <table class="shopping-list-table">
       <tbody>${shoppingRows}</tbody>
     </table>
-    <button onclick="generatePDF(${index})">Télécharger la liste de courses</button>
-    <button onclick="editMenuList(${index})">Modifier</button>
-    <button onclick="deleteMenuList(${index})">Supprimer</button>
+    <button onclick="generatePDF(${index})"><i class="fa-solid fa-file-pdf"></i> Télécharger la liste de courses</button>
+    <button onclick="editMenuList(${index})"><i class="fa-solid fa-pen"></i> Modifier</button>
+    <button class="recipe-danger-action" onclick="deleteMenuList(${index})"><i class="fa-solid fa-trash"></i> Supprimer</button>
   `;
   if (detailsPage) detailsPage.classList.remove('hidden');
 }
