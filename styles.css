@@ -548,6 +548,8 @@ select:focus {
   position: absolute;
   top: 16px;
   right: 16px;
+  display: inline-flex;
+  gap: 8px;
   z-index: 2;
 }
 
@@ -567,6 +569,10 @@ select:focus {
 .recipe-circle-btn.is-favorite {
   background: #5aaa63;
   color: #fff;
+}
+
+.recipe-circle-btn.recipe-danger-btn {
+  color: #aa3b3b;
 }
 
 .recipe-detail-hero-content {
