@@ -123,22 +123,6 @@ function setupIngredientFilter(container) {
     }
   
 
-    if(!document.getElementById('sort-select')){
-
-      const sortButton = `<select id="sort-select" class="sort-select" onchange="sortRecipes(this.value)">
-    <option value="">Trier par</option>
-    <option value="alphabetical">Ordre alphabétique</option>
-    <option value="reverseAlphabetical">Ordre alphabétique inverse</option>
-    <option value="descendingUsage">Les plus utilisées</option>
-    <option value="ascendingUsage">Les moins utilisées</option>
-    <option value="bestRated">Les mieux notées</option>
-    <option value="favorites">Favoris</option>
-    </select>`;
-
-    recipeList.insertAdjacentHTML('beforebegin', sortButton);
-
-    }
-
     let recipesToDisplay;
   
     if (recipeArray) {
@@ -178,11 +162,11 @@ function setupIngredientFilter(container) {
     }).join('');
   }
 
+  let currentSortCriteria = '';
+
   function refreshRecipeDisplay() {
-    const sortSelect = document.getElementById('sort-select');
-    const criteria = sortSelect ? sortSelect.value : '';
-    if (criteria) {
-      sortRecipes(criteria);
+    if (currentSortCriteria) {
+      sortRecipes(currentSortCriteria);
       return;
     }
     updateRecipeList();
@@ -198,11 +182,12 @@ function setupIngredientFilter(container) {
   /*///////////////TRIER EN FONCTION DU CRITERE///////////////*/
 
   function sortRecipes(criteria) {
+    currentSortCriteria = criteria || '';
     // Copier le tableau filtré avant de le trier pour ne pas affecter le tableau `recipes` d'origine
     if (filteredRecipes.length === 0) {
       filteredRecipes = recipes.map((_, index) => index);
     }
-    
+
     let sortedRecipes = filteredRecipes.map(index => recipes[index]);
   
     switch (criteria) {
@@ -230,9 +215,11 @@ function setupIngredientFilter(container) {
       sortedRecipes.sort((a, b) => (b.favori - a.favori));
       break;
       default:
-        break;
+        updateRecipeList();
+        return;
     }
-  
+
+    closeSortMenu();
     // Appel avec la liste triée
     updateRecipeList(sortedRecipes);
   }
@@ -616,76 +603,123 @@ function setupIngredientFilter(container) {
 
   /*/////////////RECHERCHER UNE RECETTE/////////// */
   function searchRecipes(sectionId) {
-    syncIngredientInputToTags(sectionId);
-    //copie la valeur du nom/saison/note dans la recette recherché dans la var nameSearch,seasonSearch,ratingSearch
-    const nameSearch = document.querySelector(`#${sectionId} .recipe-name-search`).value.toLowerCase();
-    const seasonSearch = document.querySelector(`#${sectionId} .recipe-season-search`).value;
-    const ratingSearch = document.querySelector(`#${sectionId} .recipe-rating-search`).value;
-    const ingredientFilters = getIngredientFilters(sectionId);
-    
-    /***************copie les indices des valeur contenu dans le tableau recipe qui correspondent au noms et à la saison, 
-    et soit >= à la note dans un nouveau tableau filteredRecipes**************/
-    filteredRecipes = recipes.map((recipe, index) => 
-    recipe.name.toLowerCase().includes(nameSearch) &&
-    (seasonSearch === '' || recipe.season === seasonSearch) &&
-    (ratingSearch === '' || recipe.rating >= parseInt(ratingSearch)) &&
-    recipeMatchesIngredients(recipe, ingredientFilters)
-      ? index // Si la recette correspond aux critères, renvoyer son index
-      : -1   // Sinon, renvoyer -1
-   )
-   .filter(index => index !== -1); // Filtrer les indices valides (exclure -1)
+    const nameInput = document.querySelector(`#${sectionId} .recipe-name-search`);
+    const seasonInput = document.querySelector(`#${sectionId} .recipe-season-search`);
+    const ratingInput = document.querySelector(`#${sectionId} .recipe-rating-search`);
 
-    /**********copie la localisation de 'recipe-list' dans la var recipeList, puis insert à la suite de cette div le tableau filteredRecipes 
-    dans des cartes avec le nom, la saison, la note, le nb d'utilisation, quand la carte est cliqué cela appelle la 
-    fonction showRecipeDetaisl*************/
-    //const recipeList = document.getElementById('recipe-list');
+    const nameSearch = nameInput ? nameInput.value.toLowerCase() : '';
+    const seasonSearch = seasonInput ? seasonInput.value : '';
+    const ratingSearch = ratingInput ? ratingInput.value : '';
+
+    const ingredientFilters = document.querySelector(`#${sectionId} .ingredient-filter`)
+      ? (syncIngredientInputToTags(sectionId), getIngredientFilters(sectionId))
+      : [];
+
+    filteredRecipes = recipes.map((recipe, index) =>
+      recipe.name.toLowerCase().includes(nameSearch) &&
+      (seasonSearch === '' || recipe.season === seasonSearch) &&
+      (ratingSearch === '' || recipe.rating >= parseInt(ratingSearch, 10)) &&
+      recipeMatchesIngredients(recipe, ingredientFilters)
+        ? index
+        : -1
+    ).filter(index => index !== -1);
+
+    renderSearchResults(sectionId);
+  }
+
+
+  function renderSearchResults(sectionId) {
+    if (sectionId === 'recipes') {
+      closeSortMenu();
+      refreshRecipeDisplay();
+      return;
+    }
+
     const recipeList = document.querySelector(`#${sectionId} .recipe-list`);
-    
+    if (!recipeList) return;
+
     recipeList.innerHTML = filteredRecipes.map((recipeIndex) => {
       const recipe = recipes[recipeIndex];
       const imageSrc = recipe.image || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
       const difficultyIcons = Array.from({ length: recipe.difficulty }).map(() => '<i class="fa-solid fa-utensils"></i>').join('');
+      const clickAction = sectionId === 'recipe-picker-page'
+        ? `addRecipeToMenu(${recipeIndex})`
+        : `showRecipeDetails(${recipeIndex})`;
 
-      if (sectionId === 'recipe-picker-page') {
-          return `
-              <div class="recipe-card ${recipe.favori ? 'favori' : ''}" onclick="addRecipeToMenu(${recipeIndex})">
-                  <img src="${imageSrc}" class="recipe-image" alt="${recipe.name}">
-                  <span class="recipe-favori" onclick="toggleFavorite(${recipeIndex}, event)"><i class="fa-solid fa-heart"></i></span>
-                  <div class="recipe-info">
-                      <div class="recipe-details">
-                          <h3 class="recipe-name">${recipe.name}</h3>
-                          <div class="recipe-rating">${'★'.repeat(recipe.rating)}</div>
-                      </div>
-                      <div class="recipe-tags">
-                          <span class="tag">${recipe.season}</span>
-                          <span class="tag">${recipe.health}</span>
-                          <span class="tag">${recipe.usageCount}</span>
-                          <span class="tag recipe-difficulty">${difficultyIcons}</span>
-                      </div>
-                  </div>
-              </div>
-          `;
-      } else {
-          return `
-              <div class="recipe-card ${recipe.favori ? 'favori' : ''}" onclick="showRecipeDetails(${recipeIndex})">
-                  <img src="${imageSrc}" class="recipe-image" alt="${recipe.name}">
-                  <span class="recipe-favori" onclick="toggleFavorite(${recipeIndex}, event)"><i class="fa-solid fa-heart"></i></span>
-                  <div class="recipe-info">
-                      <div class="recipe-details">
-                          <h3 class="recipe-name">${recipe.name}</h3>
-                          <div class="recipe-rating">${'★'.repeat(recipe.rating)}</div>
-                      </div>
-                      <div class="recipe-tags">
-                          <span class="tag">${recipe.season}</span>
-                          <span class="tag">${recipe.health}</span>
-                          <span class="tag">${recipe.usageCount}</span>
-                          <span class="tag recipe-difficulty">${difficultyIcons}</span>
-                      </div>
-                  </div>
-              </div>
-          `;
-      }
-  }).join('');
+      return `
+        <div class="recipe-card ${recipe.favori ? 'favori' : ''}" onclick="${clickAction}">
+          <img src="${imageSrc}" class="recipe-image" alt="${recipe.name}">
+          <span class="recipe-favori" onclick="toggleFavorite(${recipeIndex}, event)"><i class="fa-solid fa-heart"></i></span>
+          <div class="recipe-info">
+            <div class="recipe-details">
+              <h3 class="recipe-name">${recipe.name}</h3>
+              <div class="recipe-rating">${'★'.repeat(recipe.rating)}</div>
+            </div>
+            <div class="recipe-tags">
+              <span class="tag">${recipe.season}</span>
+              <span class="tag">${recipe.health}</span>
+              <span class="tag">${recipe.usageCount}</span>
+              <span class="tag recipe-difficulty">${difficultyIcons}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+  function buildAdvancedRecipeSearchForm(sectionId) {
+    return `
+      <form class="recipe-search-form" onsubmit="searchRecipes('${sectionId}'); return false;">
+        <input type="text" class="recipe-name-search" placeholder="Nom de la recette">
+        <div class="ingredient-filter">
+          <div class="ingredient-tags" aria-live="polite"></div>
+          <input type="text" class="ingredient-filter-input" placeholder="Ingrédients (ex: tomate, patate)">
+        </div>
+        <select class="recipe-season-search">
+          <option value="">Toutes les saisons</option>
+          <option value="été">Été</option>
+          <option value="hiver">Hiver</option>
+          <option value="toute l'année">Toute l'année</option>
+        </select>
+        <select class="recipe-rating-search">
+          <option value="">Toutes les notes</option>
+          <option value="5">5 étoiles</option>
+          <option value="4">4 étoiles et plus</option>
+          <option value="3">3 étoiles et plus</option>
+          <option value="2">2 étoiles et plus</option>
+          <option value="1">1 étoile et plus</option>
+        </select>
+        <button type="button" onclick="searchRecipes('${sectionId}')"><i class="fa-solid fa-magnifying-glass"></i> Rechercher</button>
+      </form>
+      <div class="recipe-list"></div>
+    `;
+  }
+
+  function openAdvancedRecipeSearch() {
+    const page = document.getElementById('advanced-recipe-search-page');
+    const body = document.getElementById('advanced-recipe-search-body');
+    if (!page || !body) return;
+
+    body.innerHTML = buildAdvancedRecipeSearchForm('advanced-recipe-search-page');
+    page.classList.remove('hidden');
+    setupIngredientFilter(document.querySelector('#advanced-recipe-search-page .ingredient-filter'));
+    searchRecipes('advanced-recipe-search-page');
+  }
+
+  function closeAdvancedRecipeSearch() {
+    const page = document.getElementById('advanced-recipe-search-page');
+    if (page) page.classList.add('hidden');
+  }
+
+  function toggleSortMenu(event) {
+    event?.stopPropagation();
+    const dropdown = document.getElementById('sort-menu-dropdown');
+    if (!dropdown) return;
+    dropdown.classList.toggle('hidden');
+  }
+
+  function closeSortMenu() {
+    const dropdown = document.getElementById('sort-menu-dropdown');
+    if (dropdown) dropdown.classList.add('hidden');
   }
 
 
@@ -710,7 +744,11 @@ export {
   updateDeleteButtons,
   formatName,
   refreshRecipeDisplay,
-  setupIngredientFilter
+  setupIngredientFilter,
+  openAdvancedRecipeSearch,
+  closeAdvancedRecipeSearch,
+  toggleSortMenu,
+  closeSortMenu
 };
 
 
@@ -728,4 +766,13 @@ if (typeof window !== 'undefined') {
   window.setupIngredientFilter = setupIngredientFilter;
   window.closeRecipePage = closeRecipePage;
   window.toggleFavoriteFromDetails = toggleFavoriteFromDetails;
+  window.openAdvancedRecipeSearch = openAdvancedRecipeSearch;
+  window.closeAdvancedRecipeSearch = closeAdvancedRecipeSearch;
+  window.toggleSortMenu = toggleSortMenu;
+
+  document.addEventListener('click', event => {
+    const menu = document.getElementById('recipes-sort-menu');
+    if (!menu || menu.contains(event.target)) return;
+    closeSortMenu();
+  });
 }
