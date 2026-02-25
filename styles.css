@@ -260,6 +260,35 @@ select:focus {
   margin: 0;
 }
 
+.recipe-rating-field {
+  flex: 1;
+}
+
+.recipe-rating-selector {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  border: 1px solid var(--outline);
+  border-radius: 12px;
+  padding: 8px 10px;
+}
+
+.recipe-rating-star {
+  margin: 0;
+  min-height: 0;
+  background: transparent;
+  border: none;
+  color: #c5c8ce;
+  padding: 4px;
+  font-size: 1.15rem;
+}
+
+.recipe-rating-star.is-active,
+.recipe-rating-star:hover {
+  color: #f2c94c;
+}
+
 .add-ingredient-button {
   margin-bottom: 8px;
 }
@@ -857,6 +886,23 @@ select:focus {
   border-radius: 14px;
   min-height: 46px;
   font-weight: 600;
+}
+
+.menu-details-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.menu-details-topbar-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.menu-details-topbar-actions button {
+  margin: 0;
 }
 
 .menu-plan-table,

@@ -48,6 +48,48 @@ function addIngredientTagsFromValue(container, value) {
     .forEach(chunk => addIngredientTag(container, chunk));
 }
 
+function buildRecipeRatingSelector(selectedRating = 1) {
+  return `
+    <div class="recipe-rating-selector" role="radiogroup" aria-label="Note de la recette">
+      ${[1, 2, 3, 4, 5].map(rating => `
+        <button
+          type="button"
+          class="recipe-rating-star ${rating <= selectedRating ? 'is-active' : ''}"
+          data-rating="${rating}"
+          role="radio"
+          aria-checked="${rating === selectedRating ? 'true' : 'false'}"
+          aria-label="${rating} étoile${rating > 1 ? 's' : ''}"
+        >
+          <i class="fa-solid fa-star" aria-hidden="true"></i>
+        </button>
+      `).join('')}
+    </div>
+  `;
+}
+
+function bindRecipeRatingSelector() {
+  const ratingInput = document.getElementById('recipe-rating');
+  const selector = document.querySelector('.recipe-rating-selector');
+  if (!ratingInput || !selector) return;
+
+  const updateStars = (nextRating) => {
+    selector.querySelectorAll('.recipe-rating-star').forEach(button => {
+      const value = parseInt(button.dataset.rating, 10);
+      const isSelected = value <= nextRating;
+      button.classList.toggle('is-active', isSelected);
+      button.setAttribute('aria-checked', value === nextRating ? 'true' : 'false');
+    });
+  };
+
+  selector.addEventListener('click', event => {
+    const button = event.target.closest('.recipe-rating-star');
+    if (!button) return;
+    const nextRating = parseInt(button.dataset.rating, 10);
+    ratingInput.value = String(nextRating);
+    updateStars(nextRating);
+  });
+}
+
 function syncIngredientInputToTags(sectionId) {
   const input = document.querySelector(`#${sectionId} .ingredient-filter-input`);
   const tagsContainer = document.querySelector(`#${sectionId} .ingredient-tags`);
@@ -365,7 +407,7 @@ function setupIngredientFilter(container) {
       <form id="recipe-form">
         <div class="recipe-form-topbar">
           <h2>
-            <button type="button" class="page-back-button recipe-form-back-button" onclick="closeRecipePage()">← Retour</button>
+            <button type="button" class="page-back-button recipe-form-back-button" onclick="backFromRecipeEdit(${isNewRecipe ? 'null' : index})">← Retour</button>
             <span><i class="fa-solid fa-utensils"></i> ${isNewRecipe ? 'Ajouter une recette' : 'Modifier la recette'}</span>
           </h2>
           <button type="submit" class="recipe-form-save-button"><i class="fa-solid fa-floppy-disk"></i> Sauvegarder</button>
@@ -394,11 +436,10 @@ function setupIngredientFilter(container) {
               <option value="${season}" ${season === recipe.season ? 'selected' : ''}>${season}</option>
             `).join('')}
           </select>
-          <select id="recipe-rating" required>
-            ${[1, 2, 3, 4, 5].map(rating => `
-              <option value="${rating}" ${rating == recipe.rating ? 'selected' : ''}>${rating} étoile${rating > 1 ? 's' : ''}</option>
-            `).join('')}
-          </select>
+          <div class="recipe-rating-field">
+            <input type="hidden" id="recipe-rating" value="${recipe.rating}" required>
+            ${buildRecipeRatingSelector(recipe.rating)}
+          </div>
         </div>
         <textarea id="recipe-instructions" placeholder="Description">${recipe.instructions || ''}</textarea>
       </form>
@@ -408,6 +449,7 @@ function setupIngredientFilter(container) {
     document.getElementById('recipe-details-body').innerHTML = form;
     if (detailsPage) detailsPage.classList.remove('hidden');
     updateDeleteButtons();
+    bindRecipeRatingSelector();
 
     if (isNewRecipe) {
       addIngredientInputToEdit();  // Initialise un premier champ d'ingrédient pour une nouvelle recette
@@ -477,14 +519,18 @@ function setupIngredientFilter(container) {
         <button type="button" class="buttonDelete" onclick="deleteIngredientInputToEdit(this)"><i class="fa-solid fa-xmark"></i></button>
       </div>
     `;
-    const activeInput = document.activeElement;
-    const activeRow = activeInput ? activeInput.closest('.ingredient-input') : null;
-    if (activeRow && container.contains(activeRow)) {
-      activeRow.insertAdjacentHTML('afterend', ingredientInput);
-    } else {
-      container.insertAdjacentHTML('beforeend', ingredientInput);
-    }
+    container.insertAdjacentHTML('afterbegin', ingredientInput);
+    const firstNameInput = container.querySelector('.ingredient-input .ingredient-name');
+    firstNameInput?.focus();
     updateDeleteButtons();
+  }
+
+  function backFromRecipeEdit(index = null) {
+    if (index === null || Number.isNaN(index)) {
+      closeRecipePage();
+      return;
+    }
+    showRecipeDetails(index);
   }
 
   /*/////////////SUPPRIME UNE LIGNE INGREDIENT/////////// */
@@ -793,6 +839,7 @@ if (typeof window !== 'undefined') {
   window.setupIngredientFilter = setupIngredientFilter;
   window.closeRecipePage = closeRecipePage;
   window.toggleFavoriteFromDetails = toggleFavoriteFromDetails;
+  window.backFromRecipeEdit = backFromRecipeEdit;
   window.openAdvancedRecipeSearch = openAdvancedRecipeSearch;
   window.closeAdvancedRecipeSearch = closeAdvancedRecipeSearch;
   window.showRecipeDetailsFromAdvancedSearch = showRecipeDetailsFromAdvancedSearch;

@@ -645,19 +645,23 @@ function showMenuListDetails(index) {
   }
 
   detailsBody.innerHTML = `
-    <h2><i class="fa-solid fa-calendar-week"></i> ${menuListLocal.name}</h2>
-    <p><i class="fa-regular fa-calendar"></i> Date de création: ${menuListLocal.date}</p>
-    <p><i class="fa-solid fa-bowl-food"></i> Nombre de recettes: ${countMenuRecipes(menuListLocal.menu || [])}</p>
-    <table class="menu-plan-table">
-      <thead><tr><th>Date</th><th>Midi</th><th>Soir</th></tr></thead>
-      <tbody>${tableRows}</tbody>
-    </table>
-    <table class="shopping-list-table">
-      <tbody>${shoppingRows}</tbody>
-    </table>
-    <button onclick="generatePDF(${index})"><i class="fa-solid fa-file-pdf"></i> Télécharger la liste de courses</button>
-    <button onclick="editMenuList(${index})"><i class="fa-solid fa-pen"></i> Modifier</button>
-    <button class="recipe-danger-action" onclick="deleteMenuList(${index})"><i class="fa-solid fa-trash"></i> Supprimer</button>
+    <article class="menu-details-content">
+      <div class="menu-details-topbar-actions">
+        <button type="button" onclick="generatePDF(${index})"><i class="fa-solid fa-file-pdf"></i> Télécharger la liste de courses</button>
+        <button type="button" onclick="editMenuList(${index})"><i class="fa-solid fa-pen"></i> Modifier</button>
+        <button type="button" class="recipe-danger-action" onclick="deleteMenuList(${index})"><i class="fa-solid fa-trash"></i> Supprimer</button>
+      </div>
+      <h2><i class="fa-solid fa-calendar-week"></i> ${menuListLocal.name}</h2>
+      <p><i class="fa-regular fa-calendar"></i> Date de création: ${menuListLocal.date}</p>
+      <p><i class="fa-solid fa-bowl-food"></i> Nombre de recettes: ${countMenuRecipes(menuListLocal.menu || [])}</p>
+      <table class="menu-plan-table">
+        <thead><tr><th>Date</th><th>Midi</th><th>Soir</th></tr></thead>
+        <tbody>${tableRows}</tbody>
+      </table>
+      <table class="shopping-list-table">
+        <tbody>${shoppingRows}</tbody>
+      </table>
+    </article>
   `;
   if (detailsPage) detailsPage.classList.remove('hidden');
 }
