@@ -228,6 +228,21 @@ function openSlotModal(dayIndex, slotIndex) {
         </select>
         <button type="button" onclick="searchRecipes('recipe-picker-page')">Rechercher</button>
       </form>
+      <div class="recipe-results-toolbar">
+        <div class="sort-menu" id="recipe-picker-page-sort-menu">
+          <button type="button" class="sort-icon-button" onclick="toggleSortMenu(event, 'recipe-picker-page-sort-menu')" aria-label="Trier les recettes">
+            <i class="fa-solid fa-arrow-down-wide-short"></i>
+          </button>
+          <div class="sort-menu-dropdown hidden">
+            <button type="button" onclick="sortRecipes('alphabetical')">Ordre alphabétique</button>
+            <button type="button" onclick="sortRecipes('reverseAlphabetical')">Ordre alphabétique inverse</button>
+            <button type="button" onclick="sortRecipes('descendingUsage')">Les plus utilisées</button>
+            <button type="button" onclick="sortRecipes('ascendingUsage')">Les moins utilisées</button>
+            <button type="button" onclick="sortRecipes('bestRated')">Les mieux notées</button>
+            <button type="button" onclick="sortRecipes('favorites')">Favoris</button>
+          </div>
+        </div>
+      </div>
       <div class="recipe-list"></div>
     `;
 

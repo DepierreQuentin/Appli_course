@@ -298,6 +298,12 @@ select:focus {
   display: flex;
   gap: 10px;
   align-items: center;
+  margin-bottom: 10px;
+}
+
+.recipe-results-toolbar {
+  display: flex;
+  justify-content: flex-end;
   margin-bottom: 20px;
 }
 
@@ -636,6 +642,11 @@ select:focus {
   background: #fff;
   color: #3a3a3a;
   box-shadow: var(--shadow-s);
+}
+
+
+#advanced-recipe-search-page .page-view-content {
+  max-width: 1080px;
 }
 
 .page-view .recipe-image {
@@ -1119,6 +1130,10 @@ select:focus {
 
   .sort-menu {
     margin-left: 0;
+  }
+
+  .recipe-results-toolbar {
+    justify-content: flex-start;
   }
 }
 

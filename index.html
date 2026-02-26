@@ -34,8 +34,10 @@
           <button type="button" onclick="searchRecipes('recipes')"><i class="fa-solid fa-magnifying-glass"></i> Rechercher</button>
           <button type="button" class="advanced-search-button" onclick="openAdvancedRecipeSearch()"><i class="fa-solid fa-sliders"></i> Recherche avancée</button>
         </form>
+      </div>
+      <div class="recipe-results-toolbar">
         <div class="sort-menu" id="recipes-sort-menu">
-          <button type="button" class="sort-icon-button" onclick="toggleSortMenu(event)" aria-label="Trier les recettes">
+          <button type="button" class="sort-icon-button" onclick="toggleSortMenu(event, 'recipes-sort-menu')" aria-label="Trier les recettes">
             <i class="fa-solid fa-arrow-down-wide-short"></i>
           </button>
           <div class="sort-menu-dropdown hidden" id="sort-menu-dropdown">
