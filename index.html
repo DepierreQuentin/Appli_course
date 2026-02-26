@@ -61,8 +61,16 @@
         <button id="carousel-next" type="button">&#9654;</button>
       </div>
       <button id="creerListMenu" onclick="addMenuList()"><i class="fa-solid fa-plus"></i> Créer une liste de menu</button>
-      <button id="chef-menu-button" type="button" class="hidden" onclick="randomMenuList()"><i class="fa-solid fa-hat-chef"></i> Menu du chef</button>
-      <button id="clear-menu-recipes-button" type="button" class="hidden" onclick="clearMenuRecipes()"><i class="fa-solid fa-eraser"></i> Supprimer les recettes</button>
+      <button id="chef-menu-button" type="button" class="hidden" onclick="randomMenuList()"><i class="fa-solid fa-wand-magic-sparkles"></i> Menu du chef</button>
+      <div class="sort-menu hidden" id="menu-edit-actions-menu">
+        <button type="button" class="sort-icon-button" onclick="toggleMenuEditActions(event)" aria-label="Actions menu">
+          <i class="fa-solid fa-ellipsis-vertical"></i>
+        </button>
+        <div class="sort-menu-dropdown hidden">
+          <button type="button" onclick="clearMenuRecipes()"><i class="fa-solid fa-eraser"></i> Vider</button>
+          <button type="button" class="recipe-danger-action" onclick="deleteCurrentEditedMenu()"><i class="fa-solid fa-trash"></i> Supprimer</button>
+        </div>
+      </div>
       <button id="save-menu-list-button" type="button" class="hidden" onclick="saveMenuList()"><i class="fa-solid fa-floppy-disk"></i> Sauvegarder la liste de menu</button>
       <div id="menu-form-container" class="hidden"></div>
       <div id="menu-list-jours"></div>
