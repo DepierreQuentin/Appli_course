@@ -905,11 +905,20 @@ select:focus {
   gap: 10px;
 }
 
-.menu-details-topbar-actions {
+.menu-details-topbar {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   flex-wrap: wrap;
+}
+
+.menu-details-topbar-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
   gap: 8px;
+  margin-left: auto;
 }
 
 .menu-details-topbar-actions button {

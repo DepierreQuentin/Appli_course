@@ -676,15 +676,18 @@ function showMenuListDetails(index) {
 
   detailsBody.innerHTML = `
     <article class="menu-details-content">
-      <div class="menu-details-topbar-actions">
-        <button type="button" onclick="editMenuList(${index})"><i class="fa-solid fa-pen"></i> Modifier</button>
-        <div class="sort-menu menu-details-actions-menu" id="menu-details-actions-menu">
-          <button type="button" class="sort-icon-button" onclick="toggleMenuDetailsActions(event)" aria-label="Plus d'actions">
-            <i class="fa-solid fa-ellipsis-vertical"></i>
-          </button>
-          <div class="sort-menu-dropdown hidden">
-            <button type="button" onclick="generatePDF(${index})"><i class="fa-solid fa-file-pdf"></i> Télécharger la liste de courses</button>
-            <button type="button" class="recipe-danger-action" onclick="deleteMenuList(${index})"><i class="fa-solid fa-trash"></i> Supprimer</button>
+      <div class="menu-details-topbar">
+        <button type="button" class="page-back-button" onclick="closeMenuDetailsPage()">← Retour</button>
+        <div class="menu-details-topbar-actions">
+          <button type="button" onclick="editMenuList(${index})"><i class="fa-solid fa-pen"></i> Modifier</button>
+          <div class="sort-menu menu-details-actions-menu" id="menu-details-actions-menu">
+            <button type="button" class="sort-icon-button" onclick="toggleMenuDetailsActions(event)" aria-label="Plus d'actions">
+              <i class="fa-solid fa-ellipsis-vertical"></i>
+            </button>
+            <div class="sort-menu-dropdown hidden">
+              <button type="button" onclick="generatePDF(${index})"><i class="fa-solid fa-file-pdf"></i> Télécharger la liste de courses</button>
+              <button type="button" class="recipe-danger-action" onclick="deleteMenuList(${index})"><i class="fa-solid fa-trash"></i> Supprimer</button>
+            </div>
           </div>
         </div>
       </div>
