@@ -247,9 +247,24 @@ function openSlotModal(dayIndex, slotIndex) {
     `;
 
   const pickerPage = document.getElementById('recipe-picker-page');
-  document.getElementById('recipe-picker-body').innerHTML = form;
+  const pickerBody = document.getElementById('recipe-picker-body');
+  pickerBody.innerHTML = form;
   if (pickerPage) pickerPage.classList.remove('hidden');
+
   setupIngredientFilter(document.querySelector('#recipe-picker-page .ingredient-filter'));
+
+  const attachLiveSearch = (selector, eventName = 'input') => {
+    const element = pickerBody.querySelector(selector);
+    if (!element) return;
+    element.addEventListener(eventName, () => searchRecipes('recipe-picker-page'));
+  };
+
+  attachLiveSearch('.recipe-name-search');
+  attachLiveSearch('.recipe-season-search', 'change');
+  attachLiveSearch('.recipe-rating-search', 'change');
+  attachLiveSearch('.ingredient-filter-input');
+
+  searchRecipes('recipe-picker-page');
 }
 
 /*/////////////////CREER UN LISTE DE RECETTE RANDOM ET L'AJOUTE A LA LISTE DE MENU/////////// */
@@ -662,9 +677,16 @@ function showMenuListDetails(index) {
   detailsBody.innerHTML = `
     <article class="menu-details-content">
       <div class="menu-details-topbar-actions">
-        <button type="button" onclick="generatePDF(${index})"><i class="fa-solid fa-file-pdf"></i> Télécharger la liste de courses</button>
         <button type="button" onclick="editMenuList(${index})"><i class="fa-solid fa-pen"></i> Modifier</button>
-        <button type="button" class="recipe-danger-action" onclick="deleteMenuList(${index})"><i class="fa-solid fa-trash"></i> Supprimer</button>
+        <div class="sort-menu menu-details-actions-menu" id="menu-details-actions-menu">
+          <button type="button" class="sort-icon-button" onclick="toggleMenuDetailsActions(event)" aria-label="Plus d'actions">
+            <i class="fa-solid fa-ellipsis-vertical"></i>
+          </button>
+          <div class="sort-menu-dropdown hidden">
+            <button type="button" onclick="generatePDF(${index})"><i class="fa-solid fa-file-pdf"></i> Télécharger la liste de courses</button>
+            <button type="button" class="recipe-danger-action" onclick="deleteMenuList(${index})"><i class="fa-solid fa-trash"></i> Supprimer</button>
+          </div>
+        </div>
       </div>
       <h2><i class="fa-solid fa-calendar-week"></i> ${menuListLocal.name}</h2>
       <p><i class="fa-regular fa-calendar"></i> Date de création: ${menuListLocal.date}</p>
@@ -899,7 +921,23 @@ function updateMenusWithRecipe(recipeId, exists) {
 function closeMenuDetailsPage() {
   const detailsPage = document.getElementById('menu-details-page');
   if (detailsPage) detailsPage.classList.add('hidden');
+  closeMenuDetailsActions();
   currentMenuDetailIndex = null;
+}
+
+function toggleMenuDetailsActions(event) {
+  event?.stopPropagation();
+  const menu = document.getElementById('menu-details-actions-menu');
+  if (!menu) return;
+  const dropdown = menu.querySelector('.sort-menu-dropdown');
+  if (!dropdown) return;
+  dropdown.classList.toggle('hidden');
+}
+
+function closeMenuDetailsActions() {
+  const menu = document.getElementById('menu-details-actions-menu');
+  const dropdown = menu?.querySelector('.sort-menu-dropdown');
+  if (dropdown) dropdown.classList.add('hidden');
 }
 
 function closeRecipePickerPage() {
@@ -956,6 +994,11 @@ if (typeof window !== 'undefined') {
   window.clickCarouselRecipe = clickCarouselRecipe;
   window.closeMenuDetailsPage = closeMenuDetailsPage;
   window.closeRecipePickerPage = closeRecipePickerPage;
+  window.toggleMenuDetailsActions = toggleMenuDetailsActions;
+
+  document.addEventListener('click', () => {
+    closeMenuDetailsActions();
+  });
 }
 
 // Affiche les listes de menus enregistrées lors du chargement

@@ -916,6 +916,21 @@ select:focus {
   margin: 0;
 }
 
+
+.menu-details-actions-menu .sort-menu-dropdown {
+  min-width: 280px;
+}
+
+.menu-details-actions-menu .sort-menu-dropdown button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.menu-details-actions-menu .recipe-danger-action {
+  color: #c0392b;
+}
+
 .menu-plan-table,
 .shopping-list-table,
 .category-items {
