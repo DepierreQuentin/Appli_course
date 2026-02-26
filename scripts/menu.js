@@ -39,6 +39,13 @@ function getMenuEditionContainer() {
   return document.getElementById('menu-list-jours');
 }
 
+function getMenuEditActionsMenu() {
+  if (isEditingMenuFromDetails) {
+    return null;
+  }
+  return document.getElementById('menu-edit-actions-menu');
+}
+
 function getRecipeIdsFromMenu(menuArray) {
   const ids = [];
   menuArray.forEach(day => {
@@ -110,8 +117,10 @@ export const options = {
   }
 
   function handleDateChange() {
-    const startVal = document.getElementById('menu-start-date').value;
-    const endVal = document.getElementById('menu-end-date').value;
+    const startInput = document.getElementById('menu-start-date');
+    const endInput = document.getElementById('menu-end-date');
+    const startVal = startInput?.value;
+    const endVal = endInput?.value;
     if (!startVal || !endVal) return;
 
     const startDate = new Date(startVal);
@@ -122,8 +131,25 @@ export const options = {
       return;
     }
 
+    const previousStart = startDateGlobal ? new Date(startDateGlobal) : null;
+    const previousMenu = menuListArray.map(day => ({ ...day }));
+
     menuList.name = document.getElementById('menu-list-name').value;
     menuList.date = new Date().toLocaleDateString('fr-FR');
+
+    startDateGlobal = new Date(startDate);
+    menuListArray = Array.from({ length: numberOfDays }, (_, dayIndex) => {
+      const nextDay = { midi: null, soir: null };
+      if (!previousStart) return nextDay;
+      const mappedDate = new Date(startDate);
+      mappedDate.setDate(startDate.getDate() + dayIndex);
+      const previousIndex = Math.floor((mappedDate - previousStart) / (1000 * 60 * 60 * 24));
+      if (previousIndex >= 0 && previousIndex < previousMenu.length) {
+        return { ...previousMenu[previousIndex] };
+      }
+      return nextDay;
+    });
+
     createMenuList(true);
   }
 
@@ -145,12 +171,12 @@ function createMenuList(skipDuplicateCheck = false) {
   // Calculer le nombre de jours entre les deux dates
   const numberOfDays = calculateNumberOfDays(startDateInput, endDate);
 
+  if (!Array.isArray(menuListArray) || menuListArray.length !== numberOfDays) {
+    menuListArray = Array.from({ length: numberOfDays }, (_, index) => menuListArray[index] ? { ...menuListArray[index] } : { midi: null, soir: null });
+  }
+
   // Assigner la date de début à la variable globale
   startDateGlobal = new Date(startDateInput);
-  
-
-  // Initialiser chaque jour avec 2 emplacements de recettes vides (null)
-  menuListArray = Array.from({ length: numberOfDays }, () => ({ midi: null, soir: null }));
 
   const menuListDaysContainer = document.getElementById('menu-list-jours');
 
@@ -193,8 +219,9 @@ function createMenuList(skipDuplicateCheck = false) {
   if (document.getElementById('chef-menu-button').classList.contains("hidden")) {
     document.getElementById('chef-menu-button').classList.remove("hidden");
   }
-  if (document.getElementById('clear-menu-recipes-button').classList.contains("hidden")) {
-    document.getElementById('clear-menu-recipes-button').classList.remove("hidden");
+  const actionsMenu = getMenuEditActionsMenu();
+  if (actionsMenu && actionsMenu.classList.contains("hidden")) {
+    actionsMenu.classList.remove("hidden");
   }
 
   document.getElementById('menu-list-jours').classList.remove("hidden");//affiche la liste des menus en cours de création
@@ -634,8 +661,9 @@ function updateListMenuList (){
   if(!document.getElementById('chef-menu-button').classList.contains("hidden")){
     document.getElementById('chef-menu-button').classList.add("hidden");
   }
-  if(!document.getElementById('clear-menu-recipes-button').classList.contains("hidden")){
-    document.getElementById('clear-menu-recipes-button').classList.add("hidden");
+  const actionsMenu = getMenuEditActionsMenu();
+  if(actionsMenu && !actionsMenu.classList.contains("hidden")){
+    actionsMenu.classList.add("hidden");
   }
   const formContainer = document.getElementById('menu-form-container');
   if(formContainer && !formContainer.classList.contains('hidden')){
@@ -833,10 +861,31 @@ function editMenuList (index){
     return;
   }
 
+  const formContainer = document.getElementById('menu-form-container');
+  if (formContainer) {
+    const endDate = startDateGlobal && menuListArray.length
+      ? formatDate(new Date(new Date(startDateGlobal).setDate(new Date(startDateGlobal).getDate() + (menuListArray.length - 1))))
+      : '';
+    formContainer.innerHTML = `
+      <form id="menu-list-form">
+        <h2>Modifier la liste de menu</h2>
+        <input type="text" id="menu-list-name" placeholder="Nom de la liste" value="${menuToEdit.name}" required>
+        <label for="menu-start-date">Date de début :</label>
+        <input type="date" id="menu-start-date" value="${startDateGlobal ? formatDate(new Date(startDateGlobal)) : ''}">
+        <label for="menu-end-date">Date de fin :</label>
+        <input type="date" id="menu-end-date" value="${endDate}">
+      </form>
+    `;
+    formContainer.classList.remove('hidden');
+    document.getElementById('menu-start-date')?.addEventListener('change', handleDateChange);
+    document.getElementById('menu-end-date')?.addEventListener('change', handleDateChange);
+  }
+
   document.getElementById('menu-list-jours').classList.remove('hidden');
   document.getElementById('save-menu-list-button').classList.remove('hidden');
   document.getElementById('chef-menu-button').classList.remove('hidden');
-  document.getElementById('clear-menu-recipes-button').classList.remove('hidden');
+  const actionsMenu = getMenuEditActionsMenu();
+  if (actionsMenu) actionsMenu.classList.remove('hidden');
   if(!document.getElementById('creerListMenu').classList.contains('hidden')){
     document.getElementById('creerListMenu').classList.add('hidden');
   }
@@ -864,17 +913,24 @@ function renderMenuEditInDetails(index) {
       <div class="menu-details-topbar">
         <button type="button" class="page-back-button" onclick="backFromMenuEdit(${index})">← Retour</button>
         <div class="menu-details-topbar-actions">
-          <button type="button" onclick="randomMenuList()"><i class="fa-solid fa-hat-chef"></i> Menu du chef</button>
-          <button type="button" onclick="clearMenuRecipes()"><i class="fa-solid fa-eraser"></i> Vider</button>
+          <button type="button" onclick="randomMenuList()"><i class="fa-solid fa-wand-magic-sparkles"></i> Menu du chef</button>
           <button type="button" onclick="saveMenuList()"><i class="fa-solid fa-floppy-disk"></i> Sauvegarder</button>
-          <button type="button" class="recipe-danger-action" onclick="deleteMenuList(${index})"><i class="fa-solid fa-trash"></i> Supprimer</button>
+          <div class="sort-menu menu-details-actions-menu" id="menu-edit-details-actions-menu">
+            <button type="button" class="sort-icon-button" onclick="toggleMenuEditDetailsActions(event)" aria-label="Actions menu">
+              <i class="fa-solid fa-ellipsis-vertical"></i>
+            </button>
+            <div class="sort-menu-dropdown hidden">
+              <button type="button" onclick="clearMenuRecipes()"><i class="fa-solid fa-eraser"></i> Vider</button>
+              <button type="button" class="recipe-danger-action" onclick="deleteMenuList(${index})"><i class="fa-solid fa-trash"></i> Supprimer</button>
+            </div>
+          </div>
         </div>
       </div>
       <h2><i class="fa-solid fa-pen"></i> Modifier ${menuToEdit.name}</h2>
       <div class="extra-fields menu-edit-fields">
         <input type="text" id="menu-list-name" value="${menuToEdit.name}" required>
-        <input type="date" id="menu-start-date" value="${startDateValue}" disabled>
-        <input type="date" id="menu-end-date" value="${endDateValue}" disabled>
+        <input type="date" id="menu-start-date" value="${startDateValue}">
+        <input type="date" id="menu-end-date" value="${endDateValue}">
       </div>
       <div id="menu-edit-jours"></div>
       <table class="shopping-list-table">
@@ -884,6 +940,25 @@ function renderMenuEditInDetails(index) {
   `;
 
   updateMenuList();
+
+  const startDateInput = document.getElementById('menu-start-date');
+  const endDateInput = document.getElementById('menu-end-date');
+  startDateInput?.addEventListener('change', handleDateChange);
+  endDateInput?.addEventListener('change', handleDateChange);
+}
+
+function toggleMenuEditDetailsActions(event) {
+  event?.stopPropagation();
+  const menu = document.getElementById('menu-edit-details-actions-menu');
+  const dropdown = menu?.querySelector('.sort-menu-dropdown');
+  if (!dropdown) return;
+  dropdown.classList.toggle('hidden');
+}
+
+function closeMenuEditDetailsActions() {
+  const menu = document.getElementById('menu-edit-details-actions-menu');
+  const dropdown = menu?.querySelector('.sort-menu-dropdown');
+  if (dropdown) dropdown.classList.add('hidden');
 }
 
 function backFromMenuEdit(index) {
@@ -1007,6 +1082,8 @@ function closeMenuDetailsPage() {
   const detailsPage = document.getElementById('menu-details-page');
   if (detailsPage) detailsPage.classList.add('hidden');
   closeMenuDetailsActions();
+  closeMenuEditDetailsActions();
+  closeMenuEditActions();
   currentMenuDetailIndex = null;
   isEditingMenuFromDetails = false;
 }
@@ -1024,6 +1101,25 @@ function closeMenuDetailsActions() {
   const menu = document.getElementById('menu-details-actions-menu');
   const dropdown = menu?.querySelector('.sort-menu-dropdown');
   if (dropdown) dropdown.classList.add('hidden');
+}
+
+function toggleMenuEditActions(event) {
+  event?.stopPropagation();
+  const menu = getMenuEditActionsMenu();
+  const dropdown = menu?.querySelector('.sort-menu-dropdown');
+  if (!dropdown) return;
+  dropdown.classList.toggle('hidden');
+}
+
+function closeMenuEditActions() {
+  const menu = getMenuEditActionsMenu();
+  const dropdown = menu?.querySelector('.sort-menu-dropdown');
+  if (dropdown) dropdown.classList.add('hidden');
+}
+
+function deleteCurrentEditedMenu() {
+  if (editingMenuIndex === null) return;
+  deleteMenuList(editingMenuIndex);
 }
 
 function closeRecipePickerPage() {
@@ -1082,9 +1178,14 @@ if (typeof window !== 'undefined') {
   window.closeRecipePickerPage = closeRecipePickerPage;
   window.toggleMenuDetailsActions = toggleMenuDetailsActions;
   window.backFromMenuEdit = backFromMenuEdit;
+  window.toggleMenuEditActions = toggleMenuEditActions;
+  window.deleteCurrentEditedMenu = deleteCurrentEditedMenu;
+  window.toggleMenuEditDetailsActions = toggleMenuEditDetailsActions;
 
   document.addEventListener('click', () => {
     closeMenuDetailsActions();
+    closeMenuEditActions();
+    closeMenuEditDetailsActions();
   });
 }
 
