@@ -66,37 +66,74 @@ export const options = {
 
 /*////////////////AFFICHE UNE FENETRE CONTEXTUELLE POUR CREER UN LISTE DE MENUS/////////////*/
    function addMenuList() {
+    editingMenuIndex = null;
+    isEditingMenuFromDetails = true;
 
-    const form = `
-      <form id="menu-list-form">
-        <h2>Créer une liste de menu</h2>
-        <input type="text" id="menu-list-name" placeholder="Nom de la liste" required>
-        <label for="menu-start-date">Date de début :</label>
-        <input type="date" id="menu-start-date">
-        <label for="menu-end-date">Date de fin :</label>
-        <input type="date" id="menu-end-date">
-      </form>
-    `;
+    const today = getTodayDate();
+    menuList = {
+      name: 'Liste du ' + new Date().toLocaleDateString('fr-FR'),
+      date: new Date().toLocaleDateString('fr-FR'),
+      startDate: null,
+      menu: []
+    };
+    startDateGlobal = new Date(today);
+    menuListArray = [];
+    shoppingList = {};
 
-    const container = document.getElementById('menu-form-container');
-    container.innerHTML = form;
-    container.classList.remove('hidden');
+    renderMenuEditorInDetails({
+      title: 'Création liste de menus',
+      name: menuList.name,
+      startDate: today,
+      endDate: '',
+      allowDelete: false,
+      backAction: 'cancelMenuEditor()'
+    });
 
-    document.getElementById('menu-list-name').value =  'Liste du ' + new Date().toLocaleDateString('fr-FR');
-
-    // Pré-remplir la date de début avec la date du jour
-    document.getElementById('menu-start-date').value = getTodayDate();
-
-    document.getElementById('menu-start-date').addEventListener('change', handleDateChange);
-    document.getElementById('menu-end-date').addEventListener('change', handleDateChange);
-
-    document.getElementById('creerListMenu').classList.add("hidden");
-
-    const menuContainer = document.querySelector('.list-menu-lists');
-    if (menuContainer && !menuContainer.classList.contains('hidden')) {
-      menuContainer.classList.add('hidden');
-    }
+    const detailsPage = document.getElementById('menu-details-page');
+    if (detailsPage) detailsPage.classList.remove('hidden');
   }
+
+function renderMenuEditorInDetails({ title, name, startDate, endDate, allowDelete, backAction }) {
+  const detailsBody = document.getElementById('menu-details-body');
+  if (!detailsBody) return;
+
+  detailsBody.innerHTML = `
+    <article class="menu-details-content">
+      <div class="menu-details-topbar">
+        <button type="button" class="page-back-button" onclick="${backAction}">← Retour</button>
+        <div class="menu-details-topbar-actions">
+          <button type="button" onclick="randomMenuList()"><i class="fa-solid fa-wand-magic-sparkles"></i> Menu du chef</button>
+          <button type="button" onclick="saveMenuList()"><i class="fa-solid fa-floppy-disk"></i> Sauvegarder</button>
+          <div class="sort-menu menu-details-actions-menu" id="menu-edit-details-actions-menu">
+            <button type="button" class="sort-icon-button" onclick="toggleMenuEditDetailsActions(event)" aria-label="Actions menu">
+              <i class="fa-solid fa-ellipsis-vertical"></i>
+            </button>
+            <div class="sort-menu-dropdown hidden">
+              <button type="button" onclick="clearMenuRecipes()"><i class="fa-solid fa-eraser"></i> Vider</button>
+              ${allowDelete ? `<button type="button" class="recipe-danger-action" onclick="deleteMenuList(${editingMenuIndex})"><i class="fa-solid fa-trash"></i> Supprimer</button>` : ''}
+            </div>
+          </div>
+        </div>
+      </div>
+      <h2><i class="fa-solid fa-pen"></i> ${title}</h2>
+      <div class="extra-fields menu-edit-fields">
+        <input type="text" id="menu-list-name" value="${name}" required>
+        <input type="date" id="menu-start-date" value="${startDate}">
+        <input type="date" id="menu-end-date" value="${endDate}">
+      </div>
+      <div id="menu-edit-jours"></div>
+      <table class="shopping-list-table" id="menu-editor-shopping-table">
+        <tbody>${getShoppingRowsHtml()}</tbody>
+      </table>
+    </article>
+  `;
+
+  updateMenuList();
+  refreshMenuEditorShoppingList();
+
+  document.getElementById('menu-start-date')?.addEventListener('change', handleDateChange);
+  document.getElementById('menu-end-date')?.addEventListener('change', handleDateChange);
+}
   
   /*////////////////RETOURNE LA DATE DU JOUR OU SI ARGUMENT DATE DU JOUR + JOUR A AJOUTER ////////////////*/
   function getTodayDate(daysToAdd) {
@@ -178,7 +215,7 @@ function createMenuList(skipDuplicateCheck = false) {
   // Assigner la date de début à la variable globale
   startDateGlobal = new Date(startDateInput);
 
-  const menuListDaysContainer = document.getElementById('menu-list-jours');
+  const menuListDaysContainer = getMenuEditionContainer();
 
   // Générer le HTML des jours et emplacements avec les dates dans un tableau
   const tableRows = Array.from({ length: numberOfDays }, (_, i) => {
@@ -213,21 +250,23 @@ function createMenuList(skipDuplicateCheck = false) {
       <tbody>${tableRows}</tbody>
     </table>`;
 
-  if (document.getElementById('save-menu-list-button').classList.contains("hidden")) {
-    document.getElementById('save-menu-list-button').classList.remove("hidden");
-  }
-  if (document.getElementById('chef-menu-button').classList.contains("hidden")) {
-    document.getElementById('chef-menu-button').classList.remove("hidden");
-  }
-  const actionsMenu = getMenuEditActionsMenu();
-  if (actionsMenu && actionsMenu.classList.contains("hidden")) {
-    actionsMenu.classList.remove("hidden");
-  }
+  if (!isEditingMenuFromDetails) {
+    if (document.getElementById('save-menu-list-button').classList.contains("hidden")) {
+      document.getElementById('save-menu-list-button').classList.remove("hidden");
+    }
+    if (document.getElementById('chef-menu-button').classList.contains("hidden")) {
+      document.getElementById('chef-menu-button').classList.remove("hidden");
+    }
+    const actionsMenu = getMenuEditActionsMenu();
+    if (actionsMenu && actionsMenu.classList.contains("hidden")) {
+      actionsMenu.classList.remove("hidden");
+    }
 
-  document.getElementById('menu-list-jours').classList.remove("hidden");//affiche la liste des menus en cours de création
-  const menuContainer = document.querySelector('.list-menu-lists');
-  if (menuContainer && !menuContainer.classList.contains('hidden')) {
-    menuContainer.classList.add('hidden');
+    document.getElementById('menu-list-jours').classList.remove("hidden");//affiche la liste des menus en cours de création
+    const menuContainer = document.querySelector('.list-menu-lists');
+    if (menuContainer && !menuContainer.classList.contains('hidden')) {
+      menuContainer.classList.add('hidden');
+    }
   }
 
   updateCurrentShoppingList();
@@ -587,7 +626,7 @@ function updateMenuList() {
 
 
 function saveMenuList (){
-  const savedMenuIndex = editingMenuIndex;
+  let savedMenuIndex = editingMenuIndex;
   const nameInput = document.getElementById('menu-list-name');
   if (nameInput) {
     menuList.name = nameInput.value;
@@ -605,6 +644,7 @@ function saveMenuList (){
     listMenuList[editingMenuIndex] = menuList;
   } else {
     listMenuList.push(menuList);//insère un tableau la liste de menu dans listMenuList
+    savedMenuIndex = listMenuList.length - 1;
   }
 
   
@@ -757,6 +797,13 @@ function getShoppingRowsHtml() {
   return shoppingRows;
 }
 
+function refreshMenuEditorShoppingList() {
+  const shoppingBody = document.querySelector('#menu-editor-shopping-table tbody');
+  if (shoppingBody) {
+    shoppingBody.innerHTML = getShoppingRowsHtml();
+  }
+}
+
 function formattingShoppingList(index){
   shoppingList = {};
   const recipeIds = getRecipeIdsFromMenu(listMenuList[index].menu || []);
@@ -802,6 +849,7 @@ function updateCurrentShoppingList(){
       }
     });
   });
+  refreshMenuEditorShoppingList();
 }
 
 // Met à jour le modal si une liste de menu y est actuellement affichée
@@ -839,7 +887,7 @@ function generatePDF(index) {
 
 function editMenuList (index){
   editingMenuIndex = index;
-  isEditingMenuFromDetails = currentMenuDetailIndex === index;
+  isEditingMenuFromDetails = true;
   const menuToEdit = listMenuList[index];
 
   // Copie l'objet sélectionné dans la variable globale
@@ -849,102 +897,36 @@ function editMenuList (index){
 
   updateCurrentShoppingList();
 
-  if (isEditingMenuFromDetails) {
-    renderMenuEditInDetails(index);
-  } else {
-    updateMenuList();
-  }
+  renderMenuEditInDetails(index);
 
-  if (isEditingMenuFromDetails) {
-    const detailsPage = document.getElementById('menu-details-page');
-    if (detailsPage) detailsPage.classList.remove('hidden');
-    return;
-  }
-
-  const formContainer = document.getElementById('menu-form-container');
-  if (formContainer) {
-    const endDate = startDateGlobal && menuListArray.length
-      ? formatDate(new Date(new Date(startDateGlobal).setDate(new Date(startDateGlobal).getDate() + (menuListArray.length - 1))))
-      : '';
-    formContainer.innerHTML = `
-      <form id="menu-list-form">
-        <h2>Modifier la liste de menu</h2>
-        <input type="text" id="menu-list-name" placeholder="Nom de la liste" value="${menuToEdit.name}" required>
-        <label for="menu-start-date">Date de début :</label>
-        <input type="date" id="menu-start-date" value="${startDateGlobal ? formatDate(new Date(startDateGlobal)) : ''}">
-        <label for="menu-end-date">Date de fin :</label>
-        <input type="date" id="menu-end-date" value="${endDate}">
-      </form>
-    `;
-    formContainer.classList.remove('hidden');
-    document.getElementById('menu-start-date')?.addEventListener('change', handleDateChange);
-    document.getElementById('menu-end-date')?.addEventListener('change', handleDateChange);
-  }
-
-  document.getElementById('menu-list-jours').classList.remove('hidden');
-  document.getElementById('save-menu-list-button').classList.remove('hidden');
-  document.getElementById('chef-menu-button').classList.remove('hidden');
-  const actionsMenu = getMenuEditActionsMenu();
-  if (actionsMenu) actionsMenu.classList.remove('hidden');
-  if(!document.getElementById('creerListMenu').classList.contains('hidden')){
-    document.getElementById('creerListMenu').classList.add('hidden');
-  }
-  const menuContainer = document.querySelector('.list-menu-lists');
-  if (menuContainer && !menuContainer.classList.contains('hidden')) {
-    menuContainer.classList.add('hidden');
-  }
-
-  closeMenuDetailsPage();
+  const detailsPage = document.getElementById('menu-details-page');
+  if (detailsPage) detailsPage.classList.remove('hidden');
 }
 
 function renderMenuEditInDetails(index) {
-  const detailsBody = document.getElementById('menu-details-body');
-  if (!detailsBody) return;
-
   const menuToEdit = listMenuList[index];
   const startDateValue = menuToEdit.startDate ? formatDate(new Date(menuToEdit.startDate)) : '';
   const endDateValue = menuToEdit.startDate && menuToEdit.menu
     ? formatDate(new Date(new Date(menuToEdit.startDate).setDate(new Date(menuToEdit.startDate).getDate() + (menuToEdit.menu.length - 1))))
     : '';
-  const shoppingRows = getShoppingRowsHtml();
+  renderMenuEditorInDetails({
+    title: 'Modifier liste de menus',
+    name: menuToEdit.name,
+    startDate: startDateValue,
+    endDate: endDateValue,
+    allowDelete: true,
+    backAction: `backFromMenuEdit(${index})`
+  });
+}
 
-  detailsBody.innerHTML = `
-    <article class="menu-details-content">
-      <div class="menu-details-topbar">
-        <button type="button" class="page-back-button" onclick="backFromMenuEdit(${index})">← Retour</button>
-        <div class="menu-details-topbar-actions">
-          <button type="button" onclick="randomMenuList()"><i class="fa-solid fa-wand-magic-sparkles"></i> Menu du chef</button>
-          <button type="button" onclick="saveMenuList()"><i class="fa-solid fa-floppy-disk"></i> Sauvegarder</button>
-          <div class="sort-menu menu-details-actions-menu" id="menu-edit-details-actions-menu">
-            <button type="button" class="sort-icon-button" onclick="toggleMenuEditDetailsActions(event)" aria-label="Actions menu">
-              <i class="fa-solid fa-ellipsis-vertical"></i>
-            </button>
-            <div class="sort-menu-dropdown hidden">
-              <button type="button" onclick="clearMenuRecipes()"><i class="fa-solid fa-eraser"></i> Vider</button>
-              <button type="button" class="recipe-danger-action" onclick="deleteMenuList(${index})"><i class="fa-solid fa-trash"></i> Supprimer</button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <h2><i class="fa-solid fa-pen"></i> Modifier ${menuToEdit.name}</h2>
-      <div class="extra-fields menu-edit-fields">
-        <input type="text" id="menu-list-name" value="${menuToEdit.name}" required>
-        <input type="date" id="menu-start-date" value="${startDateValue}">
-        <input type="date" id="menu-end-date" value="${endDateValue}">
-      </div>
-      <div id="menu-edit-jours"></div>
-      <table class="shopping-list-table">
-        <tbody>${shoppingRows}</tbody>
-      </table>
-    </article>
-  `;
-
-  updateMenuList();
-
-  const startDateInput = document.getElementById('menu-start-date');
-  const endDateInput = document.getElementById('menu-end-date');
-  startDateInput?.addEventListener('change', handleDateChange);
-  endDateInput?.addEventListener('change', handleDateChange);
+function cancelMenuEditor() {
+  menuList = { name: '', date: '', startDate: null, menu: [] };
+  menuListArray = [];
+  startDateGlobal = null;
+  shoppingList = {};
+  isEditingMenuFromDetails = false;
+  editingMenuIndex = null;
+  closeMenuDetailsPage();
 }
 
 function toggleMenuEditDetailsActions(event) {
