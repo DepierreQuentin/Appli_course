@@ -13,6 +13,7 @@ let selectedDayIndex = null;
 let selectedSlotIndex = null;
 let editingMenuIndex = null; // index de la liste de menu en cours d'édition
 let currentMenuDetailIndex = null; // index de la liste de menu actuellement affichée dans la page de détails
+let isEditingMenuFromDetails = false;
 const SLOT_KEYS = ['midi', 'soir'];
 
 function getSlotKey(slotIndex) {
@@ -29,6 +30,13 @@ function countMenuRecipes(menuArray) {
       return slotCount + (day?.[slotKey] ? 1 : 0);
     }, 0);
   }, 0);
+}
+
+function getMenuEditionContainer() {
+  if (isEditingMenuFromDetails) {
+    return document.getElementById('menu-edit-jours');
+  }
+  return document.getElementById('menu-list-jours');
 }
 
 function getRecipeIdsFromMenu(menuArray) {
@@ -454,7 +462,7 @@ function dragFromCarousel(event, recipeIndex) {
 }
 
 function clickCarouselRecipe(recipeIndex) {
-  const container = document.getElementById('menu-list-jours');
+  const container = getMenuEditionContainer();
   if (!container || container.classList.contains('hidden')) return;
   addRecipeToMenu(recipeIndex);
 }
@@ -498,8 +506,12 @@ function addRecipeToMenu(recipeIndex) {
 
 /*////////////////METS A JOUR LA LISTE DE MENU EN COURS DE CREATION//////////////*/
 function updateMenuList() {
-  const menuListDaysContainer = document.getElementById('menu-list-jours');
+  const menuListDaysContainer = getMenuEditionContainer();
   const start = startDateGlobal;  // Utiliser la variable globale startDate
+
+  if (!menuListDaysContainer) {
+    return;
+  }
 
   // Vérifier que startDate est défini
   if (!start) {
@@ -548,6 +560,7 @@ function updateMenuList() {
 
 
 function saveMenuList (){
+  const savedMenuIndex = editingMenuIndex;
   const nameInput = document.getElementById('menu-list-name');
   if (nameInput) {
     menuList.name = nameInput.value;
@@ -581,6 +594,11 @@ function saveMenuList (){
 
   // fin de l'édition
   editingMenuIndex = null;
+
+  if (isEditingMenuFromDetails && savedMenuIndex !== null) {
+    isEditingMenuFromDetails = false;
+    showMenuListDetails(savedMenuIndex);
+  }
 
 
 }
@@ -755,6 +773,10 @@ function updateCurrentShoppingList(){
 
 // Met à jour le modal si une liste de menu y est actuellement affichée
 function refreshCurrentMenuDetails() {
+  if (isEditingMenuFromDetails && editingMenuIndex !== null) {
+    renderMenuEditInDetails(editingMenuIndex);
+    return;
+  }
   const detailsPage = document.getElementById('menu-details-page');
   if (currentMenuDetailIndex !== null && detailsPage && !detailsPage.classList.contains('hidden')) {
     showMenuListDetails(currentMenuDetailIndex);
@@ -784,6 +806,7 @@ function generatePDF(index) {
 
 function editMenuList (index){
   editingMenuIndex = index;
+  isEditingMenuFromDetails = currentMenuDetailIndex === index;
   const menuToEdit = listMenuList[index];
 
   // Copie l'objet sélectionné dans la variable globale
@@ -793,7 +816,17 @@ function editMenuList (index){
 
   updateCurrentShoppingList();
 
-  updateMenuList();
+  if (isEditingMenuFromDetails) {
+    renderMenuEditInDetails(index);
+  } else {
+    updateMenuList();
+  }
+
+  if (isEditingMenuFromDetails) {
+    const detailsPage = document.getElementById('menu-details-page');
+    if (detailsPage) detailsPage.classList.remove('hidden');
+    return;
+  }
 
   document.getElementById('menu-list-jours').classList.remove('hidden');
   document.getElementById('save-menu-list-button').classList.remove('hidden');
@@ -808,6 +841,45 @@ function editMenuList (index){
   }
 
   closeMenuDetailsPage();
+}
+
+function renderMenuEditInDetails(index) {
+  const detailsBody = document.getElementById('menu-details-body');
+  if (!detailsBody) return;
+
+  const menuToEdit = listMenuList[index];
+  const startDateValue = menuToEdit.startDate ? formatDate(new Date(menuToEdit.startDate)) : '';
+  const endDateValue = menuToEdit.startDate && menuToEdit.menu
+    ? formatDate(new Date(new Date(menuToEdit.startDate).setDate(new Date(menuToEdit.startDate).getDate() + (menuToEdit.menu.length - 1))))
+    : '';
+
+  detailsBody.innerHTML = `
+    <article class="menu-details-content">
+      <div class="menu-details-topbar">
+        <button type="button" class="page-back-button" onclick="backFromMenuEdit(${index})">← Retour</button>
+        <div class="menu-details-topbar-actions">
+          <button type="button" onclick="randomMenuList()"><i class="fa-solid fa-hat-chef"></i> Menu du chef</button>
+          <button type="button" onclick="clearMenuRecipes()"><i class="fa-solid fa-eraser"></i> Vider</button>
+          <button type="button" onclick="saveMenuList()"><i class="fa-solid fa-floppy-disk"></i> Sauvegarder</button>
+        </div>
+      </div>
+      <h2><i class="fa-solid fa-pen"></i> Modifier ${menuToEdit.name}</h2>
+      <div class="extra-fields menu-edit-fields">
+        <input type="text" id="menu-list-name" value="${menuToEdit.name}" required>
+        <input type="date" id="menu-start-date" value="${startDateValue}" disabled>
+        <input type="date" id="menu-end-date" value="${endDateValue}" disabled>
+      </div>
+      <div id="menu-edit-jours"></div>
+    </article>
+  `;
+
+  updateMenuList();
+}
+
+function backFromMenuEdit(index) {
+  isEditingMenuFromDetails = false;
+  editingMenuIndex = null;
+  showMenuListDetails(index);
 }
 
 function deleteMenuList (index){
@@ -926,6 +998,7 @@ function closeMenuDetailsPage() {
   if (detailsPage) detailsPage.classList.add('hidden');
   closeMenuDetailsActions();
   currentMenuDetailIndex = null;
+  isEditingMenuFromDetails = false;
 }
 
 function toggleMenuDetailsActions(event) {
@@ -998,6 +1071,7 @@ if (typeof window !== 'undefined') {
   window.closeMenuDetailsPage = closeMenuDetailsPage;
   window.closeRecipePickerPage = closeRecipePickerPage;
   window.toggleMenuDetailsActions = toggleMenuDetailsActions;
+  window.backFromMenuEdit = backFromMenuEdit;
 
   document.addEventListener('click', () => {
     closeMenuDetailsActions();
