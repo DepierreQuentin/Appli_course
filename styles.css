@@ -628,7 +628,7 @@ select:focus {
 }
 
 .page-view-content {
-  max-width: 560px;
+  max-width: 1080px;
   margin: 0 auto;
   background-color: #f5f8fd;
   border-radius: 28px;
