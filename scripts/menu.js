@@ -234,12 +234,12 @@ function openSlotModal(dayIndex, slotIndex) {
             <i class="fa-solid fa-arrow-down-wide-short"></i>
           </button>
           <div class="sort-menu-dropdown hidden">
-            <button type="button" onclick="sortRecipes('alphabetical')">Ordre alphabétique</button>
-            <button type="button" onclick="sortRecipes('reverseAlphabetical')">Ordre alphabétique inverse</button>
-            <button type="button" onclick="sortRecipes('descendingUsage')">Les plus utilisées</button>
-            <button type="button" onclick="sortRecipes('ascendingUsage')">Les moins utilisées</button>
-            <button type="button" onclick="sortRecipes('bestRated')">Les mieux notées</button>
-            <button type="button" onclick="sortRecipes('favorites')">Favoris</button>
+            <button type="button" onclick="sortRecipes('alphabetical', 'recipe-picker-page')">Ordre alphabétique</button>
+            <button type="button" onclick="sortRecipes('reverseAlphabetical', 'recipe-picker-page')">Ordre alphabétique inverse</button>
+            <button type="button" onclick="sortRecipes('descendingUsage', 'recipe-picker-page')">Les plus utilisées</button>
+            <button type="button" onclick="sortRecipes('ascendingUsage', 'recipe-picker-page')">Les moins utilisées</button>
+            <button type="button" onclick="sortRecipes('bestRated', 'recipe-picker-page')">Les mieux notées</button>
+            <button type="button" onclick="sortRecipes('favorites', 'recipe-picker-page')">Favoris</button>
           </div>
         </div>
       </div>

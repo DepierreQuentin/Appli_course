@@ -1129,11 +1129,11 @@ select:focus {
   }
 
   .sort-menu {
-    margin-left: 0;
+    margin-left: auto;
   }
 
   .recipe-results-toolbar {
-    justify-content: flex-start;
+    justify-content: flex-end;
   }
 }
 

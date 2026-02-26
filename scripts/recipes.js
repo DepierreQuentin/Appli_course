@@ -205,6 +205,7 @@ function setupIngredientFilter(container) {
   }
 
   let currentSortCriteria = '';
+  let currentSortSectionId = 'recipes';
 
   function refreshRecipeDisplay() {
     if (currentSortCriteria) {
@@ -223,7 +224,9 @@ function setupIngredientFilter(container) {
 
   /*///////////////TRIER EN FONCTION DU CRITERE///////////////*/
 
-  function sortRecipes(criteria) {
+  function sortRecipes(criteria, sectionId = currentSortSectionId) {
+    const targetSectionId = sectionId || 'recipes';
+    currentSortSectionId = targetSectionId;
     currentSortCriteria = criteria || '';
     // Copier le tableau filtré avant de le trier pour ne pas affecter le tableau `recipes` d'origine
     if (filteredRecipes.length === 0) {
@@ -257,13 +260,17 @@ function setupIngredientFilter(container) {
       sortedRecipes.sort((a, b) => (b.favori - a.favori));
       break;
       default:
-        updateRecipeList();
+        renderSearchResults(targetSectionId);
         return;
     }
 
     closeSortMenu();
-    // Appel avec la liste triée
-    updateRecipeList(sortedRecipes);
+    if (targetSectionId === 'recipes') {
+      updateRecipeList(sortedRecipes);
+      return;
+    }
+
+    renderSearchResults(targetSectionId, sortedRecipes);
   }
   
   /*////////////////AFFICHE LA PAGE DETAIL D'UNE RECETTE/////////////*/
@@ -669,6 +676,7 @@ function setupIngredientFilter(container) {
 
   /*/////////////RECHERCHER UNE RECETTE/////////// */
   function searchRecipes(sectionId) {
+    currentSortSectionId = sectionId;
     const nameInput = document.querySelector(`#${sectionId} .recipe-name-search`);
     const seasonInput = document.querySelector(`#${sectionId} .recipe-season-search`);
     const ratingInput = document.querySelector(`#${sectionId} .recipe-rating-search`);
@@ -694,17 +702,8 @@ function setupIngredientFilter(container) {
   }
 
 
-  function renderSearchResults(sectionId) {
-    if (sectionId === 'recipes') {
-      closeSortMenu();
-      refreshRecipeDisplay();
-      return;
-    }
-
-    const recipeList = document.querySelector(`#${sectionId} .recipe-list`);
-    if (!recipeList) return;
-
-    recipeList.innerHTML = filteredRecipes.map((recipeIndex) => {
+  function buildSearchResultCards(recipeIndexes, sectionId) {
+    return recipeIndexes.map((recipeIndex) => {
       const recipe = recipes[recipeIndex];
       const imageSrc = recipe.image || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
       const difficultyIcons = Array.from({ length: recipe.difficulty }).map(() => '<i class="fa-solid fa-utensils"></i>').join('');
@@ -733,6 +732,27 @@ function setupIngredientFilter(container) {
         </div>
       `;
     }).join('');
+  }
+
+  function renderSearchResults(sectionId, sortedRecipeList = null) {
+    if (sectionId === 'recipes') {
+      closeSortMenu();
+      if (sortedRecipeList) {
+        updateRecipeList(sortedRecipeList);
+      } else {
+        refreshRecipeDisplay();
+      }
+      return;
+    }
+
+    const recipeListContainer = document.querySelector(`#${sectionId} .recipe-list`);
+    if (!recipeListContainer) return;
+
+    const recipeIndexes = sortedRecipeList
+      ? sortedRecipeList.map(recipe => recipes.indexOf(recipe)).filter(index => index !== -1)
+      : filteredRecipes;
+
+    recipeListContainer.innerHTML = buildSearchResultCards(recipeIndexes, sectionId);
   }
 
   function showRecipeDetailsFromAdvancedSearch(index) {
@@ -770,12 +790,12 @@ function setupIngredientFilter(container) {
             <i class="fa-solid fa-arrow-down-wide-short"></i>
           </button>
           <div class="sort-menu-dropdown hidden">
-            <button type="button" onclick="sortRecipes('alphabetical')">Ordre alphabétique</button>
-            <button type="button" onclick="sortRecipes('reverseAlphabetical')">Ordre alphabétique inverse</button>
-            <button type="button" onclick="sortRecipes('descendingUsage')">Les plus utilisées</button>
-            <button type="button" onclick="sortRecipes('ascendingUsage')">Les moins utilisées</button>
-            <button type="button" onclick="sortRecipes('bestRated')">Les mieux notées</button>
-            <button type="button" onclick="sortRecipes('favorites')">Favoris</button>
+            <button type="button" onclick="sortRecipes('alphabetical', '${sectionId}')">Ordre alphabétique</button>
+            <button type="button" onclick="sortRecipes('reverseAlphabetical', '${sectionId}')">Ordre alphabétique inverse</button>
+            <button type="button" onclick="sortRecipes('descendingUsage', '${sectionId}')">Les plus utilisées</button>
+            <button type="button" onclick="sortRecipes('ascendingUsage', '${sectionId}')">Les moins utilisées</button>
+            <button type="button" onclick="sortRecipes('bestRated', '${sectionId}')">Les mieux notées</button>
+            <button type="button" onclick="sortRecipes('favorites', '${sectionId}')">Favoris</button>
           </div>
         </div>
       </div>
