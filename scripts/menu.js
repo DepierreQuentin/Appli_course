@@ -677,20 +677,7 @@ function showMenuListDetails(index) {
     }).join('');
   }
 
-  const shoppingCategories = Object.entries(shoppingList);
-  let shoppingRows = '';
-  for (let i = 0; i < shoppingCategories.length; i += 3) {
-    const cells = shoppingCategories.slice(i, i + 3).map(([category, items]) => {
-      const itemsHtml = Object.entries(items).map(([name, { quantity, unit }]) =>
-        `<tr><td class="quantity-cell">${quantity} ${unit}</td><td>${name}</td></tr>`
-      ).join('');
-      return `<td><div class="category-title">${category}</div><table class="category-items">${itemsHtml}</table></td>`;
-    });
-    while (cells.length < 3) {
-      cells.push('<td></td>');
-    }
-    shoppingRows += `<tr>${cells.join('')}</tr>`;
-  }
+  const shoppingRows = getShoppingRowsHtml();
 
   detailsBody.innerHTML = `
     <article class="menu-details-content">
@@ -722,6 +709,24 @@ function showMenuListDetails(index) {
     </article>
   `;
   if (detailsPage) detailsPage.classList.remove('hidden');
+}
+
+function getShoppingRowsHtml() {
+  const shoppingCategories = Object.entries(shoppingList);
+  let shoppingRows = '';
+  for (let i = 0; i < shoppingCategories.length; i += 3) {
+    const cells = shoppingCategories.slice(i, i + 3).map(([category, items]) => {
+      const itemsHtml = Object.entries(items).map(([name, { quantity, unit }]) =>
+        `<tr><td class="quantity-cell">${quantity} ${unit}</td><td>${name}</td></tr>`
+      ).join('');
+      return `<td><div class="category-title">${category}</div><table class="category-items">${itemsHtml}</table></td>`;
+    });
+    while (cells.length < 3) {
+      cells.push('<td></td>');
+    }
+    shoppingRows += `<tr>${cells.join('')}</tr>`;
+  }
+  return shoppingRows;
 }
 
 function formattingShoppingList(index){
@@ -852,6 +857,7 @@ function renderMenuEditInDetails(index) {
   const endDateValue = menuToEdit.startDate && menuToEdit.menu
     ? formatDate(new Date(new Date(menuToEdit.startDate).setDate(new Date(menuToEdit.startDate).getDate() + (menuToEdit.menu.length - 1))))
     : '';
+  const shoppingRows = getShoppingRowsHtml();
 
   detailsBody.innerHTML = `
     <article class="menu-details-content">
@@ -861,6 +867,7 @@ function renderMenuEditInDetails(index) {
           <button type="button" onclick="randomMenuList()"><i class="fa-solid fa-hat-chef"></i> Menu du chef</button>
           <button type="button" onclick="clearMenuRecipes()"><i class="fa-solid fa-eraser"></i> Vider</button>
           <button type="button" onclick="saveMenuList()"><i class="fa-solid fa-floppy-disk"></i> Sauvegarder</button>
+          <button type="button" class="recipe-danger-action" onclick="deleteMenuList(${index})"><i class="fa-solid fa-trash"></i> Supprimer</button>
         </div>
       </div>
       <h2><i class="fa-solid fa-pen"></i> Modifier ${menuToEdit.name}</h2>
@@ -870,6 +877,9 @@ function renderMenuEditInDetails(index) {
         <input type="date" id="menu-end-date" value="${endDateValue}" disabled>
       </div>
       <div id="menu-edit-jours"></div>
+      <table class="shopping-list-table">
+        <tbody>${shoppingRows}</tbody>
+      </table>
     </article>
   `;
 
