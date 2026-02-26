@@ -740,6 +740,7 @@ function setupIngredientFilter(container) {
     showRecipeDetails(index);
   }
   function buildAdvancedRecipeSearchForm(sectionId) {
+    const sortMenuId = `${sectionId}-sort-menu`;
     return `
       <form class="recipe-search-form" onsubmit="searchRecipes('${sectionId}'); return false;">
         <input type="text" class="recipe-name-search" placeholder="Nom de la recette">
@@ -763,6 +764,21 @@ function setupIngredientFilter(container) {
         </select>
         <button type="button" onclick="searchRecipes('${sectionId}')"><i class="fa-solid fa-magnifying-glass"></i> Rechercher</button>
       </form>
+      <div class="recipe-results-toolbar">
+        <div class="sort-menu" id="${sortMenuId}">
+          <button type="button" class="sort-icon-button" onclick="toggleSortMenu(event, '${sortMenuId}')" aria-label="Trier les recettes">
+            <i class="fa-solid fa-arrow-down-wide-short"></i>
+          </button>
+          <div class="sort-menu-dropdown hidden">
+            <button type="button" onclick="sortRecipes('alphabetical')">Ordre alphabétique</button>
+            <button type="button" onclick="sortRecipes('reverseAlphabetical')">Ordre alphabétique inverse</button>
+            <button type="button" onclick="sortRecipes('descendingUsage')">Les plus utilisées</button>
+            <button type="button" onclick="sortRecipes('ascendingUsage')">Les moins utilisées</button>
+            <button type="button" onclick="sortRecipes('bestRated')">Les mieux notées</button>
+            <button type="button" onclick="sortRecipes('favorites')">Favoris</button>
+          </div>
+        </div>
+      </div>
       <div class="recipe-list"></div>
     `;
   }
@@ -783,16 +799,24 @@ function setupIngredientFilter(container) {
     if (page) page.classList.add('hidden');
   }
 
-  function toggleSortMenu(event) {
+  function toggleSortMenu(event, menuId = 'recipes-sort-menu') {
     event?.stopPropagation();
-    const dropdown = document.getElementById('sort-menu-dropdown');
+    const menu = document.getElementById(menuId);
+    if (!menu) return;
+    const dropdown = menu.querySelector('.sort-menu-dropdown');
     if (!dropdown) return;
+
+    document.querySelectorAll('.sort-menu-dropdown').forEach(item => {
+      if (item !== dropdown) item.classList.add('hidden');
+    });
+
     dropdown.classList.toggle('hidden');
   }
 
   function closeSortMenu() {
-    const dropdown = document.getElementById('sort-menu-dropdown');
-    if (dropdown) dropdown.classList.add('hidden');
+    document.querySelectorAll('.sort-menu-dropdown').forEach(dropdown => {
+      dropdown.classList.add('hidden');
+    });
   }
 
 
@@ -846,8 +870,8 @@ if (typeof window !== 'undefined') {
   window.toggleSortMenu = toggleSortMenu;
 
   document.addEventListener('click', event => {
-    const menu = document.getElementById('recipes-sort-menu');
-    if (!menu || menu.contains(event.target)) return;
+    const clickedInSortMenu = event.target.closest('.sort-menu');
+    if (clickedInSortMenu) return;
     closeSortMenu();
   });
 }
